@@ -1,29 +1,34 @@
-var builder = WebApplication.CreateBuilder(args);
+using Neo4j.Driver;
 
+var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
 
-builder.Services.AddSingleton<Neo4jService>(provider =>
+builder.Services.AddSingleton<IDriver>(provider =>
 {
-    var configuration = provider.GetRequiredService<IConfiguration>();
-    var neo4jUri = configuration.GetConnectionString("Neo4jConnection");
-    var neo4jUser = configuration.GetConnectionString("Neo4jUser");
-    var neo4jPassword = configuration.GetConnectionString("Neo4jPassword");
-
-    return new Neo4jService(neo4jUri, neo4jUser, neo4jPassword);
+    return GraphDatabase.Driver(
+        new Uri("bolt://localhost:7687/RecommendationNetwork"),
+        AuthTokens.Basic("neo4j", "bartekfirlej1")
+    );
 });
 
 builder.Services.AddSwaggerGen();
 
-
 var app = builder.Build();
-
 
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseHttpsRedirection();
+app.UseStaticFiles();
+app.UseRouting();
+
+app.MapControllerRoute(
+    name: "default",
+    pattern: "{controller}/{action=Index}/{id?}");
 
 app.MapGet("/", () => "Hello World");
 
