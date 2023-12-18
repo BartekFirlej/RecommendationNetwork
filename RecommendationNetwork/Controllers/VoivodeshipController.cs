@@ -20,7 +20,7 @@ public class VoivodeshipController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetVoivodeship()
+    public async Task<IActionResult> GetVoivodeships()
     {
         var voivodeships = await _voivodeshipService.GetVoivodeships();
         return Ok(voivodeships);

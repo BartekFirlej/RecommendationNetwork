@@ -32,26 +32,25 @@ namespace RecommendationNetwork.Repositories
 
         public async Task<CustomerResponse> AddCustomer(CustomerRequest customerToAdd)
         {
+
             using (var session = _driver.AsyncSession())
             {
                 var addCustomerQuery = "CREATE (c:Customer {PESEL: $PESEL, Name: $Name, SecondName: $SecondName}) RETURN c";
-                var addCustomerToVoivodeshipQuery = "MATCH (c:Customer {PESEL: $PESEL}), (v:Voivodeship {Id: $VoivodeshipId}) MERGE (c)-[:LIVES_IN]->(v) RETURN c, v";
+                var addCustomerToVoivodeshipQuery = "MATCH (c:Customer {PESEL: $PESEL}), (v:Voivodeship {Id: $VoivodeshipId}) MERGE (c)-[:LIVES_IN]->(v)";
                 var parameters = customerToAdd;
 
-                var result = await session.WriteTransactionAsync(async transaction =>
+                var customerResult = await session.WriteTransactionAsync(async transaction =>
                 {
                     var queryResult = await transaction.RunAsync(addCustomerQuery, parameters);
-                    await transaction.RunAsync(addCustomerToVoivodeshipQuery, parameters);
                     return await queryResult.SingleAsync();
                 });
 
-                var customerNode = result["c"].As<INode>().Properties;
-                var customerResponse = new CustomerResponse
+                var voivodeshipResult = await session.WriteTransactionAsync(async transaction =>
                 {
-                    PESEL = customerNode["PESEL"].As<string>(),
-                    Name = customerNode["Name"].As<string>(),
-                    SecondName = customerNode["SecondName"].As<string>()
-                };
+                    return await transaction.RunAsync(addCustomerToVoivodeshipQuery, parameters);
+                });
+
+                var customerResponse = MapToCustomerResponse(customerResult);
                 return customerResponse;
             }
         }

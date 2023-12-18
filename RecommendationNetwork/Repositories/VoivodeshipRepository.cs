@@ -1,5 +1,6 @@
 ﻿using Neo4j.Driver;
 using RecommendationNetwork.DTOs;
+using RecommendationNetwork.Models;
 
 namespace RecommendationNetwork.Repositories
 {
