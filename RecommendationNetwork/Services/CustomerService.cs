@@ -7,6 +7,7 @@ namespace RecommendationNetwork.Services
     {
         public Task<CustomerResponse> AddCustomer(CustomerRequest customerToAdd);
         public Task<List<CustomerResponse>> GetCustomers();
+        public Task<CustomerResponse> GetCustomer(string pesel);
     }
     public class CustomerService : ICustomerService
     {
@@ -24,6 +25,11 @@ namespace RecommendationNetwork.Services
         public async Task<List<CustomerResponse>> GetCustomers()
         {
             return await _customerRepository.GetCustomers();
+        }
+
+        public async Task<CustomerResponse> GetCustomer(string pesel)
+        {
+            return await _customerRepository.GetCustomer(pesel);
         }
     }
 }

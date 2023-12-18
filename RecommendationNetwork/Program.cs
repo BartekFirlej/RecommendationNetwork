@@ -15,7 +15,9 @@ builder.Services.AddSingleton<IDriver>(provider =>
 });
 
 builder.Services.AddScoped<ICustomerService, CustomerService>();
+builder.Services.AddScoped<IVoivodeshipService, VoivodeshipService>();
 builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
+builder.Services.AddScoped<IVoivodeshipRepository, VoivodeshipRepository>();
 
 builder.Services.AddSwaggerGen();
 

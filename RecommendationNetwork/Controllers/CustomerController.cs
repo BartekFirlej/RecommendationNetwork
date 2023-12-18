@@ -26,4 +26,11 @@ public class CustomerController : ControllerBase
         var customerNodes = await _customerService.GetCustomers();
         return Ok(customerNodes);
     }
+
+    [HttpGet("{pesel}")]
+    public async Task<IActionResult> GetCustomer(string pesel)
+    {
+        var customer = await _customerService.GetCustomer(pesel);
+        return Ok(customer);
+    }
 }
