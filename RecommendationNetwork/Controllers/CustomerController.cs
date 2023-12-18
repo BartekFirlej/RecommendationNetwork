@@ -27,10 +27,10 @@ public class CustomerController : ControllerBase
         return Ok(customerNodes);
     }
 
-    [HttpGet("{pesel}")]
-    public async Task<IActionResult> GetCustomer(string pesel)
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetCustomer(int id)
     {
-        var customer = await _customerService.GetCustomer(pesel);
+        var customer = await _customerService.GetCustomer(id);
         return Ok(customer);
     }
 }

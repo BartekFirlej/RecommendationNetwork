@@ -7,7 +7,7 @@ namespace RecommendationNetwork.Repositories
     {
         public Task<CustomerResponse> AddCustomer(CustomerRequest customerToAdd);
         public Task<List<CustomerResponse>> GetCustomers();
-        public Task<CustomerResponse> GetCustomer(string pesel);
+        public Task<CustomerResponse> GetCustomer(int id);
     }
     public class CustomerRepository : ICustomerRepository
     {
@@ -22,7 +22,7 @@ namespace RecommendationNetwork.Repositories
 
             var customerResponse = new CustomerResponse
             {
-                PESEL = properties["PESEL"].As<string>(),
+                Id = properties["Id"].As<int>(),
                 Name = properties["Name"].As<string>(),
                 SecondName = properties["SecondName"].As<string>()
             };
@@ -32,11 +32,10 @@ namespace RecommendationNetwork.Repositories
 
         public async Task<CustomerResponse> AddCustomer(CustomerRequest customerToAdd)
         {
-
             using (var session = _driver.AsyncSession())
             {
-                var addCustomerQuery = "CREATE (c:Customer {PESEL: $PESEL, Name: $Name, SecondName: $SecondName}) RETURN c";
-                var addCustomerToVoivodeshipQuery = "MATCH (c:Customer {PESEL: $PESEL}), (v:Voivodeship {Id: $VoivodeshipId}) MERGE (c)-[:LIVES_IN]->(v)";
+                var addCustomerQuery = "CREATE (c:Customer {Id: $Id, Name: $Name, SecondName: $SecondName}) RETURN c";
+                var addCustomerToVoivodeshipQuery = "MATCH (c:Customer {Id: $Id}), (v:Voivodeship {Id: $VoivodeshipId}) MERGE (c)-[:LIVES_IN]->(v)";
                 var parameters = customerToAdd;
 
                 var customerResult = await session.WriteTransactionAsync(async transaction =>
@@ -72,14 +71,14 @@ namespace RecommendationNetwork.Repositories
             }
         }
 
-        public async Task<CustomerResponse> GetCustomer(string pesel)
+        public async Task<CustomerResponse> GetCustomer(int id)
         {
             using (var session = _driver.AsyncSession())
             {
-                var retrieveNodesCypher = "MATCH (c:Customer) WHERE c.PESEL=$pesel RETURN c";
+                var retrieveNodesCypher = "MATCH (c:Customer) WHERE c.Id=$id RETURN c";
                 var result = await session.ReadTransactionAsync(async transaction =>
                 {
-                    var queryResult = await transaction.RunAsync(retrieveNodesCypher, new { pesel });
+                    var queryResult = await transaction.RunAsync(retrieveNodesCypher, new { id });
                     return await queryResult.SingleAsync();
                 });
 
