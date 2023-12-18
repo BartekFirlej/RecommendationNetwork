@@ -34,12 +34,12 @@ namespace RecommendationNetwork.Repositories
         {
             using (var session = _driver.AsyncSession())
             {
-                var addVoivodeshipQuery = "CREATE (pt:ProductType {Id: $Id, Name: $Name}) RETURN pt";
+                var addProductTypeQuery = "CREATE (pt:ProductType {Id: $Id, Name: $Name}) RETURN pt";
                 var parameters = productTypeToAdd;
 
                 var result = await session.WriteTransactionAsync(async transaction =>
                 {
-                    var queryResult = await transaction.RunAsync(addVoivodeshipQuery, parameters);
+                    var queryResult = await transaction.RunAsync(addProductTypeQuery, parameters);
                     return await queryResult.SingleAsync();
                 });
 
@@ -53,10 +53,10 @@ namespace RecommendationNetwork.Repositories
         {
             using (var session = _driver.AsyncSession())
             {
-                var retrieveNodesCypher = "MATCH (pt:ProductType) WHERE pt.Id=$id RETURN pt";
+                var retrieveProductType = "MATCH (pt:ProductType) WHERE pt.Id=$id RETURN pt";
                 var result = await session.ReadTransactionAsync(async transaction =>
                 {
-                    var queryResult = await transaction.RunAsync(retrieveNodesCypher, new { id });
+                    var queryResult = await transaction.RunAsync(retrieveProductType, new { id });
                     return await queryResult.SingleAsync();
                 });
 
@@ -70,16 +70,16 @@ namespace RecommendationNetwork.Repositories
         {
             using (var session = _driver.AsyncSession())
             {
-                var retrieveNodesCypher = "MATCH (pt:ProductType) RETURN pt";
+                var retrieveProductTypes = "MATCH (pt:ProductType) RETURN pt";
                 var result = await session.ReadTransactionAsync(async transaction =>
                 {
-                    var queryResult = await transaction.RunAsync(retrieveNodesCypher);
+                    var queryResult = await transaction.RunAsync(retrieveProductTypes);
                     return await queryResult.ToListAsync();
                 });
 
-                var voivodeshipResponse = result.Select(record => MapToProductTypeResponse(record)).ToList();
+                var productTypesResponse = result.Select(record => MapToProductTypeResponse(record)).ToList();
 
-                return voivodeshipResponse;
+                return productTypesResponse;
             }
         }
     }

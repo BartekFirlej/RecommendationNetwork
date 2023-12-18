@@ -14,12 +14,14 @@ builder.Services.AddSingleton<IDriver>(provider =>
     );
 });
 
-builder.Services.AddScoped<ICustomerService, CustomerService>();
-builder.Services.AddScoped<IVoivodeshipService, VoivodeshipService>();
-builder.Services.AddScoped<IProductTypeService, ProductTypeService>();
-builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
-builder.Services.AddScoped<IVoivodeshipRepository, VoivodeshipRepository>();
-builder.Services.AddScoped<IProductTypeRepository, ProductTypeRepository>();
+builder.Services.AddSingleton<ICustomerService, CustomerService>();
+builder.Services.AddSingleton<IVoivodeshipService, VoivodeshipService>();
+builder.Services.AddSingleton<IProductTypeService, ProductTypeService>();
+builder.Services.AddSingleton<IProductService, ProductService>();
+builder.Services.AddSingleton<ICustomerRepository, CustomerRepository>();
+builder.Services.AddSingleton<IVoivodeshipRepository, VoivodeshipRepository>();
+builder.Services.AddSingleton<IProductTypeRepository, ProductTypeRepository>();
+builder.Services.AddSingleton<IProductRepository, ProductRepository>();
 
 builder.Services.AddSwaggerGen();
 
