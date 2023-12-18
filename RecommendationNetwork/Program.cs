@@ -1,4 +1,6 @@
 using Neo4j.Driver;
+using RecommendationNetwork.Repositories;
+using RecommendationNetwork.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,6 +13,9 @@ builder.Services.AddSingleton<IDriver>(provider =>
         AuthTokens.Basic("neo4j", "bartekfirlej1")
     );
 });
+
+builder.Services.AddScoped<ICustomerService, CustomerService>();
+builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
 
 builder.Services.AddSwaggerGen();
 
