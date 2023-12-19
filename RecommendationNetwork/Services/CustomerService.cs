@@ -21,7 +21,7 @@ namespace RecommendationNetwork.Services
 
         public async Task<CustomerResponse> AddCustomer(CustomerRequest customerToAdd)
         {
-            var voivodeship = await _voivodeshipService.GetVoivodeship(customerToAdd.VoivodeshipId);
+            await _voivodeshipService.GetVoivodeship(customerToAdd.VoivodeshipId);
             return await _customerRepository.AddCustomer(customerToAdd);
         }
 

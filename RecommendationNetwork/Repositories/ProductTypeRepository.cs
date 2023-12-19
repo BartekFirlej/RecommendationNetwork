@@ -1,5 +1,6 @@
 ﻿using Neo4j.Driver;
 using RecommendationNetwork.DTOs;
+using RecommendationNetwork.Exceptions;
 
 namespace RecommendationNetwork.Repositories
 {
@@ -56,8 +57,15 @@ namespace RecommendationNetwork.Repositories
                 var retrieveProductType = "MATCH (pt:ProductType) WHERE pt.Id=$id RETURN pt";
                 var result = await session.ReadTransactionAsync(async transaction =>
                 {
-                    var queryResult = await transaction.RunAsync(retrieveProductType, new { id });
-                    return await queryResult.SingleAsync();
+                    try
+                    {
+                        var queryResult = await transaction.RunAsync(retrieveProductType, new { id });
+                        return await queryResult.SingleAsync();
+                    }
+                    catch
+                    {
+                        throw new NotFoundProductTypeException(id);
+                    }
                 });
 
                 var productTypeResponse = MapToProductTypeResponse(result);
@@ -73,8 +81,15 @@ namespace RecommendationNetwork.Repositories
                 var retrieveProductTypes = "MATCH (pt:ProductType) RETURN pt";
                 var result = await session.ReadTransactionAsync(async transaction =>
                 {
-                    var queryResult = await transaction.RunAsync(retrieveProductTypes);
-                    return await queryResult.ToListAsync();
+                    try
+                    {
+                        var queryResult = await transaction.RunAsync(retrieveProductTypes);
+                        return await queryResult.ToListAsync();
+                    }
+                    catch
+                    {
+                        throw new NotFoundProductTypeException();
+                    }
                 });
 
                 var productTypesResponse = result.Select(record => MapToProductTypeResponse(record)).ToList();

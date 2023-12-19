@@ -1,6 +1,6 @@
 ﻿using Neo4j.Driver;
 using RecommendationNetwork.DTOs;
-using RecommendationNetwork.Models;
+using RecommendationNetwork.Exceptions;
 
 namespace RecommendationNetwork.Repositories
 {
@@ -56,8 +56,15 @@ namespace RecommendationNetwork.Repositories
                 var retrieveNodesCypher = "MATCH (v:Voivodeship) RETURN v";
                 var result = await session.ReadTransactionAsync(async transaction =>
                 {
-                    var queryResult = await transaction.RunAsync(retrieveNodesCypher);
-                    return await queryResult.ToListAsync();
+                    try
+                    {
+                        var queryResult = await transaction.RunAsync(retrieveNodesCypher);
+                        return await queryResult.ToListAsync();
+                    }
+                    catch
+                    {
+                        throw new NotFoundVoivodeshipException();
+                    }
                 });
 
                 var voivodeshipResponse = result.Select(record => MapToVoivodeshipResponse(record)).ToList();
@@ -73,8 +80,15 @@ namespace RecommendationNetwork.Repositories
                 var retrieveNodesCypher = "MATCH (v:Voivodeship) WHERE v.Id=$id RETURN v";
                 var result = await session.ReadTransactionAsync(async transaction =>
                 {
-                    var queryResult = await transaction.RunAsync(retrieveNodesCypher, new { id });
-                    return await queryResult.SingleAsync();
+                    try
+                    {
+                        var queryResult = await transaction.RunAsync(retrieveNodesCypher, new { id });
+                        return await queryResult.SingleAsync();
+                    }
+                    catch
+                    {
+                        throw new NotFoundVoivodeshipException(id);
+                    }
                 });
 
                 var voivodeshipResponse = MapToVoivodeshipResponse(result);

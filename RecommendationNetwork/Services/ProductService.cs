@@ -12,13 +12,16 @@ namespace RecommendationNetwork.Services
     public class ProductService : IProductService
     {
         private readonly IProductRepository _productRepository;
-        public ProductService(IProductRepository productRepository)
+        private readonly IProductTypeService _productTypeService;
+        public ProductService(IProductRepository productRepository, IProductTypeService productTypeService)
         {
             _productRepository = productRepository;
+            _productTypeService = productTypeService;
         }
 
         public async Task<ProductResponse> AddProduct(ProductRequest productToAdd)
         {
+            await _productTypeService.GetProductType(productToAdd.ProductTypeId);
             return await _productRepository.AddProduct(productToAdd);
         }
 

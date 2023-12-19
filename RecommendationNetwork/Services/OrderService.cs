@@ -1,5 +1,6 @@
 ﻿using RecommendationNetwork.DTOs;
 using RecommendationNetwork.Repositories;
+using RecommendationNetwork.Exceptions;
 
 namespace RecommendationNetwork.Services
 {
@@ -12,13 +13,30 @@ namespace RecommendationNetwork.Services
     public class OrderService : IOrderService
     {
         private readonly IOrderRepository _orderRepository;
-        public OrderService(IOrderRepository orderRepository)
+        private readonly ICustomerService _customerService;
+        private readonly IProductService _productService;
+        public OrderService(IOrderRepository orderRepository, ICustomerService customerService, IProductService productService)
         {
             _orderRepository = orderRepository;
+            _customerService = customerService;
+            _productService = productService;
         }
 
         public async Task<OrderResponse> AddOrder(OrderRequest orderToAdd)
         {
+            await _customerService.GetCustomer(orderToAdd.CustomerId);
+            if(orderToAdd.RecommenderId!=null)
+            {
+                await _customerService.GetCustomer((int)orderToAdd.RecommenderId);
+            }
+            foreach(var product in orderToAdd.OrderDetails)
+            {
+                await _productService.GetProduct(product.Id);
+                if(product.Quantity <= 0)
+                {
+                    throw new QuantityMustBeGreaterThanZeroException(product.Id);
+                }
+            }
             return await _orderRepository.AddOrder(orderToAdd);
         }
 

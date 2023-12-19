@@ -1,5 +1,6 @@
 ﻿using Neo4j.Driver;
 using RecommendationNetwork.DTOs;
+using RecommendationNetwork.Exceptions;
 
 namespace RecommendationNetwork.Repositories
 {
@@ -61,8 +62,15 @@ namespace RecommendationNetwork.Repositories
                 var retrieveNodesCypher = "MATCH (c:Customer) RETURN c";
                 var result = await session.ReadTransactionAsync(async transaction =>
                 {
-                    var queryResult = await transaction.RunAsync(retrieveNodesCypher);
-                    return await queryResult.ToListAsync();
+                    try
+                    {
+                        var queryResult = await transaction.RunAsync(retrieveNodesCypher);
+                        return await queryResult.ToListAsync();
+                    }
+                    catch
+                    {
+                        throw new NotFoundCustomerException();
+                    }
                 });
 
                 var customerResponses = result.Select(record => MapToCustomerResponse(record)).ToList();
@@ -78,8 +86,15 @@ namespace RecommendationNetwork.Repositories
                 var retrieveNodesCypher = "MATCH (c:Customer) WHERE c.Id=$id RETURN c";
                 var result = await session.ReadTransactionAsync(async transaction =>
                 {
-                    var queryResult = await transaction.RunAsync(retrieveNodesCypher, new { id });
-                    return await queryResult.SingleAsync();
+                    try
+                    {
+                        var queryResult = await transaction.RunAsync(retrieveNodesCypher, new { id });
+                        return await queryResult.SingleAsync();
+                    }
+                    catch
+                    {
+                        throw new NotFoundCustomerException(id);
+                    }
                 });
 
                 var customerResponses = MapToCustomerResponse(result);
