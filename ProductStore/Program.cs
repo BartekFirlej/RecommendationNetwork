@@ -9,20 +9,22 @@ builder.Services.AddDbContext<StoreDbContext>();
 
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddSingleton<ICustomerRepository, CustomerRepository>();
-builder.Services.AddSingleton<IProductRepository, ProductRepository>();
-builder.Services.AddSingleton<IProductTypeRepository, ProductTypeRepository>();
-builder.Services.AddSingleton<IPurchaseDetailRepository, PurchaseDetailRepository>();
-builder.Services.AddSingleton<IPurchaseProposalRepository, PurchaseProposalRepository>();
-builder.Services.AddSingleton<IPurchaseRepository, PurchaseRepository>();
-builder.Services.AddSingleton<IVoivodeshipRepository, VoivodeshipRepository>();
-builder.Services.AddSingleton<ICustomerService, CustomerService>();
-builder.Services.AddSingleton<IProductService, ProductService>();
-builder.Services.AddSingleton<IProductTypeService, ProductTypeService>();
-builder.Services.AddSingleton<IPurchaseDetailService, PurchaseDetailService>();
-builder.Services.AddSingleton<IPurchaseProposalService, PurchaseProposalService>();
-builder.Services.AddSingleton<IPurchaseService, PurchaseService>();
-builder.Services.AddSingleton<IVoivodeshipService, VoivodeshipService>();
+builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
+builder.Services.AddScoped<IProductRepository, ProductRepository>();
+builder.Services.AddScoped<IProductTypeRepository, ProductTypeRepository>();
+builder.Services.AddScoped<IPurchaseDetailRepository, PurchaseDetailRepository>();
+builder.Services.AddScoped<IPurchaseProposalRepository, PurchaseProposalRepository>();
+builder.Services.AddScoped<IPurchaseRepository, PurchaseRepository>();
+builder.Services.AddScoped<IVoivodeshipRepository, VoivodeshipRepository>();
+builder.Services.AddScoped<ICustomerService, CustomerService>();
+builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<IProductTypeService, ProductTypeService>();
+builder.Services.AddScoped<IPurchaseDetailService, PurchaseDetailService>();
+builder.Services.AddScoped<IPurchaseProposalService, PurchaseProposalService>();
+builder.Services.AddScoped<IPurchaseService, PurchaseService>();
+builder.Services.AddScoped<IVoivodeshipService, VoivodeshipService>();
+
+builder.Services.AddAutoMapper(typeof(StoreMapper));
 
 var app = builder.Build();
 
