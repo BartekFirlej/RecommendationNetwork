@@ -5,13 +5,13 @@ namespace ProductStore.Models;
 
 public partial class Product
 {
-    public int Id { get; set; }
+    public int Id { get; set; } // robi baza za nas nie chce wysylac, chce wyswietlac
 
-    public string ProductName { get; set; } = null!;
+    public string ProductName { get; set; } = null!; // chce wysylac chce wyswietal
 
-    public float Price { get; set; }
+    public float Price { get; set; }// chce wysylac chce wyswietal
 
-    public int ProductTypeId { get; set; }
+    public int ProductTypeId { get; set; } // chce wysylac chce wyswietal
 
     public virtual ProductType ProductType { get; set; } = null!;
 

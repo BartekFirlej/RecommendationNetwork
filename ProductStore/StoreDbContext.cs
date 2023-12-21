@@ -37,7 +37,6 @@ public partial class StoreDbContext : DbContext
 
             entity.ToTable("Customer");
 
-            entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.Country)
                 .HasMaxLength(20)
                 .IsUnicode(false);
@@ -70,7 +69,6 @@ public partial class StoreDbContext : DbContext
 
             entity.ToTable("Product");
 
-            entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.ProductName)
                 .HasMaxLength(30)
                 .IsUnicode(false);
@@ -88,7 +86,6 @@ public partial class StoreDbContext : DbContext
 
             entity.ToTable("ProductType");
 
-            entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.Name)
                 .HasMaxLength(30)
                 .IsUnicode(false);
@@ -100,7 +97,6 @@ public partial class StoreDbContext : DbContext
 
             entity.ToTable("Purchase");
 
-            entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.CustomerId).HasColumnName("Customer_Id");
             entity.Property(e => e.RecommenderId).HasColumnName("Recommender_Id");
 
@@ -120,7 +116,6 @@ public partial class StoreDbContext : DbContext
 
             entity.ToTable("PurchaseDetail");
 
-            entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.Number).HasColumnType("numeric(18, 0)");
             entity.Property(e => e.ProductId).HasColumnName("Product_Id");
             entity.Property(e => e.PurchaseId).HasColumnName("Purchase_Id");
@@ -142,7 +137,6 @@ public partial class StoreDbContext : DbContext
 
             entity.ToTable("Purchase_Proposal");
 
-            entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.CustomerId).HasColumnName("Customer_Id");
             entity.Property(e => e.ProductId).HasColumnName("Product_Id");
 
@@ -163,7 +157,6 @@ public partial class StoreDbContext : DbContext
 
             entity.ToTable("Voivodeship");
 
-            entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.Name)
                 .HasMaxLength(40)
                 .IsUnicode(false);
