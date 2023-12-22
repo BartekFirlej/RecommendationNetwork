@@ -49,7 +49,7 @@ namespace ProductStore.Services
 
         public async Task<CustomerResponse> PostCustomer(CustomerRequest customerToAdd)
         {
-            var addedCustomer = await _customerRepository.AddCustomer(customerToAdd);
+            var addedCustomer = await _customerRepository.PostCustomer(customerToAdd);
             return _mapper.Map<CustomerResponse>(addedCustomer);
         }
 

@@ -10,7 +10,7 @@ namespace ProductStore.Repositories
         public Task<CustomerResponse> GetCustomerResponse(int id);
         public Task<Customer> GetCustomer(int id);
         public Task<Customer> DeleteCustomer(Customer customerToDelete);
-        public Task<Customer> AddCustomer(CustomerRequest customerToAdd);
+        public Task<Customer> PostCustomer(CustomerRequest customerToAdd);
     }
     public class CustomerRepository : ICustomerRepository
     {
@@ -61,7 +61,7 @@ namespace ProductStore.Repositories
                 .FirstOrDefaultAsync(c => c.Id == id);
         }
 
-        public async Task<Customer> AddCustomer(CustomerRequest customerToAdd)
+        public async Task<Customer> PostCustomer(CustomerRequest customerToAdd)
         {
             var customer = new Customer
             {
