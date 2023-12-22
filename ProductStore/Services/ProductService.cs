@@ -1,4 +1,5 @@
-﻿using ProductStore.DTOs;
+﻿using AutoMapper;
+using ProductStore.DTOs;
 using ProductStore.Models;
 using ProductStore.Repositories;
 
@@ -10,17 +11,19 @@ namespace ProductStore.Services
         public Task<ProductResponse> GetProductResponse(int id);
         public Task<Product> GetProduct(int id);
         public Task<Product> DeleteProduct(int id);
-        public Task<Product> PostProduct(ProductRequest productToAdd);
+        public Task<ProductPostResponse> PostProduct(ProductRequest productToAdd);
     }
     public class ProductService : IProductService
     {
         private readonly IProductRepository _productRepository;
         private readonly IProductTypeService _productTypeService;
+        private readonly IMapper _mapper;
 
-        public ProductService(IProductRepository productRepository, IProductTypeService productTypeService)
+        public ProductService(IProductRepository productRepository, IProductTypeService productTypeService, IMapper mapper)
         {
             _productRepository = productRepository;
             _productTypeService = productTypeService;
+            _mapper = mapper;
         }
 
         public async Task<ICollection<ProductResponse>> GetProducts()
@@ -54,11 +57,11 @@ namespace ProductStore.Services
             return deletedProduct;
         }
 
-        public async Task<Product> PostProduct(ProductRequest productToAdd)
+        public async Task<ProductPostResponse> PostProduct(ProductRequest productToAdd)
         {
             await _productTypeService.GetProductType(productToAdd.ProductTypeId);
             var addedProduct = await _productRepository.PostProduct(productToAdd);
-            return addedProduct;
+            return _mapper.Map<ProductPostResponse>(addedProduct);
         }
     }
 }

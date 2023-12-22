@@ -33,17 +33,22 @@ namespace ProductStore.Repositories
 
         public async Task<ProductTypeResponse> GetProductTypeResponse(int id)
         {
-            var productType = await _dbContext.ProductTypes.Select(p => new ProductTypeResponse
-            {
-                Id = p.Id,
-                Name = p.Name
-            }).Where(p => p.Id == id).FirstOrDefaultAsync();
+            var productType = await _dbContext.ProductTypes
+                .Select(p => new ProductTypeResponse
+                {
+                    Id = p.Id,
+                    Name = p.Name
+                })
+                .Where(p => p.Id == id)
+                .FirstOrDefaultAsync();
             return productType;
         }
 
         public async Task<ProductType> GetProductType(int id)
         {
-            var productType = await _dbContext.ProductTypes.Where(p => p.Id == id).FirstOrDefaultAsync();
+            var productType = await _dbContext.ProductTypes
+                                .Where(p => p.Id == id)
+                                .FirstOrDefaultAsync();
             return productType;
         }
 

@@ -1,4 +1,5 @@
-﻿using ProductStore.DTOs;
+﻿using AutoMapper;
+using ProductStore.DTOs;
 using ProductStore.Models;
 using ProductStore.Repositories;
 
@@ -9,15 +10,17 @@ namespace ProductStore.Services
         public Task<ProductTypeResponse> GetProductTypeResponse(int id);
         public Task<ProductType> GetProductType(int id);
         public Task<ProductType> DeleteProductType(int id);
-        public Task<ProductType> PostProductType(ProductTypeRequest productTypeToAdd);
+        public Task<ProductTypeResponse> PostProductType(ProductTypeRequest productTypeToAdd);
     }
     public class ProductTypeService : IProductTypeService
     {
         private readonly IProductTypeRepository _productTypeRepository;
+        private readonly IMapper _mapper;
 
-        public ProductTypeService(IProductTypeRepository productTypeRepository)
+        public ProductTypeService(IProductTypeRepository productTypeRepository, IMapper mapper)
         {
             _productTypeRepository = productTypeRepository;
+            _mapper = mapper;
         }
 
         public async Task<ICollection<ProductTypeResponse>> GetProductTypes()
@@ -51,12 +54,12 @@ namespace ProductStore.Services
             return deletedProductType;
         }
 
-        public async Task<ProductType> PostProductType(ProductTypeRequest productTypeToAdd)
+        public async Task<ProductTypeResponse> PostProductType(ProductTypeRequest productTypeToAdd)
         {
             if (char.IsLower(productTypeToAdd.Name[0]))
                 throw new Exception("Napisales z malej litery.");
             var addedProductType = await _productTypeRepository.PostProductType(productTypeToAdd);
-            return addedProductType;
+            return _mapper.Map<ProductTypeResponse>(addedProductType);
         }
 
         
