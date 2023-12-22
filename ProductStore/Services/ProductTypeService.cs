@@ -9,7 +9,7 @@ namespace ProductStore.Services
         public Task<ICollection<ProductTypeResponse>> GetProductTypes();
         public Task<ProductTypeResponse> GetProductTypeResponse(int id);
         public Task<ProductType> GetProductType(int id);
-        public Task<ProductType> DeleteProductType(int id);
+        public Task<ProductTypeResponse> DeleteProductType(int id);
         public Task<ProductTypeResponse> PostProductType(ProductTypeRequest productTypeToAdd);
     }
     public class ProductTypeService : IProductTypeService
@@ -47,11 +47,11 @@ namespace ProductStore.Services
             return productType;
         }
 
-        public async Task<ProductType> DeleteProductType(int id)
+        public async Task<ProductTypeResponse> DeleteProductType(int id)
         {
             var productType = await GetProductType(id);
             var deletedProductType = await _productTypeRepository.DeleteProductType(productType);
-            return deletedProductType;
+            return _mapper.Map<ProductTypeResponse>(deletedProductType);
         }
 
         public async Task<ProductTypeResponse> PostProductType(ProductTypeRequest productTypeToAdd)

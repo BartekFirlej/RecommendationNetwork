@@ -10,7 +10,7 @@ namespace ProductStore.Services
         public Task<ICollection<ProductResponse>> GetProducts();
         public Task<ProductResponse> GetProductResponse(int id);
         public Task<Product> GetProduct(int id);
-        public Task<Product> DeleteProduct(int id);
+        public Task<ProductPostResponse> DeleteProduct(int id);
         public Task<ProductPostResponse> PostProduct(ProductRequest productToAdd);
     }
     public class ProductService : IProductService
@@ -50,11 +50,11 @@ namespace ProductStore.Services
             return product;
         }
 
-        public async Task<Product> DeleteProduct(int id)
+        public async Task<ProductPostResponse> DeleteProduct(int id)
         {
             var productToDelete = await GetProduct(id);
             var deletedProduct = await _productRepository.DeleteProduct(productToDelete);
-            return deletedProduct;
+            return _mapper.Map<ProductPostResponse>(deletedProduct);
         }
 
         public async Task<ProductPostResponse> PostProduct(ProductRequest productToAdd)

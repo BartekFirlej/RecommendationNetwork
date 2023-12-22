@@ -34,7 +34,7 @@ namespace ProductStore.Controllers
             CustomerResponse customer;
             try
             {
-                customer = await _customerService.GetCustomer(id);
+                customer = await _customerService.GetCustomerResponse(id);
             }
             catch (Exception ex)
             {
@@ -49,7 +49,22 @@ namespace ProductStore.Controllers
             CustomerResponse customer;
             try
             {
-                customer = await _customerService.AddCustomer(customerToAdd);
+                customer = await _customerService.PostCustomer(customerToAdd);
+            }
+            catch (Exception ex)
+            {
+                return NotFound(ex.Message);
+            }
+            return Ok(customer);
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteCustomer(int id)
+        {
+            CustomerResponse customer;
+            try
+            {
+                customer = await _customerService.DeleteCustomer(id);
             }
             catch (Exception ex)
             {

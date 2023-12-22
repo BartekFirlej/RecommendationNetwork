@@ -11,6 +11,7 @@ public class StoreMapper : Profile
         CreateMap<ProductType, ProductTypeResponse>();
         CreateMap<Product, ProductResponse>();
         CreateMap<Product, ProductPostResponse>();
+        CreateMap<Voivodeship,  VoivodeshipResponse>();
     }
 
 }

@@ -7,7 +7,9 @@ namespace ProductStore.Repositories
     public interface ICustomerRepository
     {
         public Task<ICollection<CustomerResponse>> GetCustomers();
-        public Task<CustomerResponse> GetCustomer(int id);
+        public Task<CustomerResponse> GetCustomerResponse(int id);
+        public Task<Customer> GetCustomer(int id);
+        public Task<Customer> DeleteCustomer(Customer customerToDelete);
         public Task<Customer> AddCustomer(CustomerRequest customerToAdd);
     }
     public class CustomerRepository : ICustomerRepository
@@ -35,7 +37,7 @@ namespace ProductStore.Repositories
                 .ToListAsync();
         }
 
-        public async Task<CustomerResponse> GetCustomer(int id)
+        public async Task<CustomerResponse> GetCustomerResponse(int id)
         {
             return await _dbContext.Customers
                 .Select(c => new CustomerResponse
@@ -49,6 +51,13 @@ namespace ProductStore.Repositories
                     Town = c.Town,
                     VoivodeshipId = c.VoivodeshipId
                 })
+                .Where(c => c.Id == id)
+                .FirstOrDefaultAsync();
+        }
+
+        public async Task<Customer> GetCustomer(int id)
+        {
+            return await _dbContext.Customers
                 .FirstOrDefaultAsync(c => c.Id == id);
         }
 
@@ -67,6 +76,13 @@ namespace ProductStore.Repositories
             await _dbContext.Customers.AddAsync(customer);
             await _dbContext.SaveChangesAsync();
             return customer;
+        }
+
+        public async Task<Customer> DeleteCustomer(Customer customerToDelete)
+        {
+            _dbContext.Customers.Remove(customerToDelete);
+            await _dbContext.SaveChangesAsync();
+            return customerToDelete;
         }
     }
 }
