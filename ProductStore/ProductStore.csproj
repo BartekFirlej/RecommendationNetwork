@@ -4,6 +4,8 @@
 		<TargetFramework>net6.0</TargetFramework>
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
+		<UserSecretsId>2e268048-1759-44ca-95cf-03ebfb75ec47</UserSecretsId>
+		<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
 	</PropertyGroup>
 	
 	<ItemGroup>
@@ -16,6 +18,7 @@
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
+		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.19.4" />
 		<PackageReference Include="Swashbuckle.AspNetCore.Swagger" Version="6.5.0" />
 		<PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="6.5.0" />
 		<PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="6.5.0" />
