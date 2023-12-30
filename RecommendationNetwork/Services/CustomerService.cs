@@ -13,10 +13,22 @@ namespace RecommendationNetwork.Services
     {
         private readonly ICustomerRepository _customerRepository;
         private readonly IVoivodeshipService _voivodeshipService;
-        public CustomerService(ICustomerRepository customerRepository, IVoivodeshipService voivodeshipService)
+        private readonly RabbitMqConsumer _rabbitMqConsumer;
+        public CustomerService(ICustomerRepository customerRepository, IVoivodeshipService voivodeshipService, RabbitMqConsumer rabbitMqConsumer)
         {
             _customerRepository = customerRepository;
             _voivodeshipService = voivodeshipService;
+            _rabbitMqConsumer = rabbitMqConsumer ?? throw new ArgumentNullException(nameof(rabbitMqConsumer));
+
+            Console.WriteLine("ZASUBOWAŁEM");
+            _rabbitMqConsumer.CustomerAdded += OnCustomerAdded;
+            _rabbitMqConsumer.StartConsuming("customerQueue");
+        }
+
+        private async void OnCustomerAdded(object sender, CustomerRequest customerToAdd)
+        {
+            Console.WriteLine("CONSUMING MESSAGE");
+            var createdNode = await AddCustomer(customerToAdd);
         }
 
         public async Task<CustomerResponse> AddCustomer(CustomerRequest customerToAdd)

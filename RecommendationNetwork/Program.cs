@@ -1,6 +1,9 @@
+using Microsoft.AspNetCore.Connections;
 using Neo4j.Driver;
 using RecommendationNetwork.Repositories;
 using RecommendationNetwork.Services;
+using RabbitMQ.Client;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,7 +16,6 @@ builder.Services.AddSingleton<IDriver>(provider =>
         AuthTokens.Basic("neo4j", "bartekfirlej1")
     );
 });
-
 builder.Services.AddSingleton<ICustomerService, CustomerService>();
 builder.Services.AddSingleton<IVoivodeshipService, VoivodeshipService>();
 builder.Services.AddSingleton<IProductTypeService, ProductTypeService>();
@@ -27,7 +29,27 @@ builder.Services.AddSingleton<IOrderRepository, OrderRepository>();
 
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddSingleton<IConnection>(provider =>
+{
+    var configuration = provider.GetRequiredService<IConfiguration>();
+
+    var factory = new ConnectionFactory
+    {
+        HostName = "rabbitmq-container",
+        Port = 5672,
+        UserName = "admin",
+        Password = "ADMIN"
+    };
+
+    return factory.CreateConnection();
+});
+
+builder.Services.AddSingleton<RabbitMqConsumer>();
+
 var app = builder.Build();
+
+//app.Services.GetService<RabbitMqConsumer>().StartConsuming("customerQueue");
+//app.Services.GetService<RabbitMqConsumer>().CustomerAdded += app.Services.GetService<CustomerController>().OnCustomerAdded;
 
 if (app.Environment.IsDevelopment())
 {

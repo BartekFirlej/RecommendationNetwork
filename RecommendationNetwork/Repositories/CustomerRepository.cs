@@ -25,7 +25,7 @@ namespace RecommendationNetwork.Repositories
             {
                 Id = properties["Id"].As<int>(),
                 Name = properties["Name"].As<string>(),
-                SecondName = properties["SecondName"].As<string>()
+                LastName = properties["LastName"].As<string>()
             };
 
             return customerResponse;
@@ -35,7 +35,7 @@ namespace RecommendationNetwork.Repositories
         {
             using (var session = _driver.AsyncSession())
             {
-                var addCustomerQuery = "CREATE (c:Customer {Id: $Id, Name: $Name, SecondName: $SecondName}) RETURN c";
+                var addCustomerQuery = "CREATE (c:Customer {Id: $Id, Name: $Name, LastName: $LastName}) RETURN c";
                 var addCustomerToVoivodeshipQuery = "MATCH (c:Customer {Id: $Id}), (v:Voivodeship {Id: $VoivodeshipId}) MERGE (c)-[:LIVES_IN]->(v)";
                 var parameters = customerToAdd;
 
