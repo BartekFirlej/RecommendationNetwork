@@ -13,14 +13,14 @@ namespace RecommendationNetwork.Services
     {
         private readonly ICustomerRepository _customerRepository;
         private readonly IVoivodeshipService _voivodeshipService;
-        private readonly RabbitMqCustomerConsumer _rabbitMqConsumer;
-        public CustomerService(ICustomerRepository customerRepository, IVoivodeshipService voivodeshipService, RabbitMqCustomerConsumer rabbitMqConsumer)
+        private readonly RabbitMqConsumer _rabbitMqConsumer;
+        public CustomerService(ICustomerRepository customerRepository, IVoivodeshipService voivodeshipService, RabbitMqConsumer rabbitMqConsumer)
         {
             _customerRepository = customerRepository;
             _voivodeshipService = voivodeshipService;
             _rabbitMqConsumer = rabbitMqConsumer ?? throw new ArgumentNullException(nameof(rabbitMqConsumer));
 
-            Console.WriteLine("ZASUBOWAŁEM CUSTOMER");
+            Console.WriteLine("ZASUBOWAŁEM");
             _rabbitMqConsumer.CustomerAdded += OnCustomerAdded;
             _rabbitMqConsumer.StartConsuming("customerQueue");
         }

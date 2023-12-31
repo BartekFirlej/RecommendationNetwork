@@ -9,10 +9,6 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
 
-
-builder.Services.AddSingleton<RabbitMqCustomerConsumer>();
-builder.Services.AddSingleton<RabbitMqVoivodeshipConsumer>();
-
 builder.Services.AddSingleton<IDriver>(provider =>
 {
     return GraphDatabase.Driver(
@@ -48,11 +44,11 @@ builder.Services.AddSingleton<IConnection>(provider =>
     return factory.CreateConnection();
 });
 
+builder.Services.AddSingleton<RabbitMqConsumer>();
 
 var app = builder.Build();
 
-//app.Services.GetService<RabbitMqCustomerConsumer>().StartConsuming("customerQueue");
-//app.Services.GetService<RabbitMqVoivodeshipConsumer>().StartConsuming("voivodeshipQueue");
+//app.Services.GetService<RabbitMqConsumer>().StartConsuming("customerQueue");
 //app.Services.GetService<RabbitMqConsumer>().CustomerAdded += app.Services.GetService<CustomerController>().OnCustomerAdded;
 
 if (app.Environment.IsDevelopment())
