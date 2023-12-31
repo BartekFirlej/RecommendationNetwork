@@ -16,11 +16,13 @@ namespace ProductStore.Services
     public class CustomerService : ICustomerService
     {
         private readonly ICustomerRepository _customerRepository;
+        private readonly RabbitMqPublisher _rabbitMqPublisher;
         private readonly IMapper _mapper;
-        public CustomerService(ICustomerRepository customerRepository, IMapper mapper)
+        public CustomerService(ICustomerRepository customerRepository, IMapper mapper, RabbitMqPublisher rabbitMqPublisher)
         {
             _customerRepository = customerRepository;
             _mapper = mapper;
+            _rabbitMqPublisher = rabbitMqPublisher;
         }
 
         public async Task<ICollection<CustomerResponse>> GetCustomers()
@@ -50,7 +52,9 @@ namespace ProductStore.Services
         public async Task<CustomerResponse> PostCustomer(CustomerRequest customerToAdd)
         {
             var addedCustomer = await _customerRepository.PostCustomer(customerToAdd);
-            return _mapper.Map<CustomerResponse>(addedCustomer);
+            var addedCustomerResponse = _mapper.Map<CustomerResponse>(addedCustomer);
+            _rabbitMqPublisher.PublishMessage(addedCustomerResponse, "customerQueue");
+            return addedCustomerResponse;
         }
 
         public async Task<CustomerResponse> DeleteCustomer(int id)

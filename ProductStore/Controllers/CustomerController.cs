@@ -10,11 +10,9 @@ namespace ProductStore.Controllers
     public class CustomerController : ControllerBase
     {
         private readonly ICustomerService _customerService;
-        private readonly RabbitMqPublisher _rabbitMqPublisher;
-        public CustomerController(ICustomerService customerService, RabbitMqPublisher rabbitMqPublisher)
+        public CustomerController(ICustomerService customerService)
         {
             _customerService = customerService;
-            _rabbitMqPublisher = rabbitMqPublisher;
         }
 
         [HttpGet]
@@ -53,7 +51,6 @@ namespace ProductStore.Controllers
             try
             {
                 customer = await _customerService.PostCustomer(customerToAdd);
-                _rabbitMqPublisher.PublishMessage(customer, "customerQueue");
             }
             catch (Exception ex)
             {

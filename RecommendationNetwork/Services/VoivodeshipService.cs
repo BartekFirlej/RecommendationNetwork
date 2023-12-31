@@ -12,9 +12,22 @@ namespace RecommendationNetwork.Services
     public class VoivodeshipService : IVoivodeshipService
     {
         private readonly IVoivodeshipRepository _voivodeshipRepository;
-        public VoivodeshipService(IVoivodeshipRepository voivodeshipRepository)
+        private readonly RabbitMqVoivodeshipConsumer _rabbitMqConsumer;
+        public VoivodeshipService(IVoivodeshipRepository voivodeshipRepository, RabbitMqVoivodeshipConsumer rabbitMqConsumer)
         {
             _voivodeshipRepository = voivodeshipRepository;
+            _rabbitMqConsumer = rabbitMqConsumer;
+
+
+            Console.WriteLine("ZASUBOWAŁEM VOIVODESHIP");
+            _rabbitMqConsumer.VoivodeshipAdded += OnVoivodeshipAdded;
+            _rabbitMqConsumer.StartConsuming("voivodeshipQueue");
+        }
+
+        private async void OnVoivodeshipAdded(object sender, VoivodeshipRequest voivodeshipToAdd)
+        {
+            Console.WriteLine("CONSUMING MESSAGE VOIVODESHIP");
+            var createdNode = await AddVoivodeship(voivodeshipToAdd);
         }
 
         public async Task<VoivodeshipResponse> AddVoivodeship(VoivodeshipRequest voivodeshipToAdd)

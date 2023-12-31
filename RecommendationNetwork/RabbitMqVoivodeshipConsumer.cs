@@ -5,13 +5,13 @@ using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using RecommendationNetwork.DTOs;
 
-public class RabbitMqConsumer
+public class RabbitMqVoivodeshipConsumer
 {
     private readonly IConnection _rabbitMQConnection;
 
-    public event EventHandler<CustomerRequest> CustomerAdded;
+    public event EventHandler<VoivodeshipRequest> VoivodeshipAdded;
 
-    public RabbitMqConsumer(IConnection rabbitMqConnection)
+    public RabbitMqVoivodeshipConsumer(IConnection rabbitMqConnection)
     {
         _rabbitMQConnection = rabbitMqConnection;
 
@@ -34,18 +34,20 @@ public class RabbitMqConsumer
             {
                 channel.QueueDeclare(queue: queueName, durable: true, exclusive: false, autoDelete: false, arguments: null);
 
+
                 var consumer = new EventingBasicConsumer(channel);
                 consumer.Received += (sender, args) =>
                 {
+                    Console.WriteLine($"Received message from queue: {queueName}");
                     // Process the received message
                     var body = args.Body.ToArray();
                     var message = Encoding.UTF8.GetString(body);
 
                     // Deserialize the message to the appropriate type
-                    var customerRequest = JsonConvert.DeserializeObject<CustomerRequest>(message);
+                    var voivodeshipRequest = JsonConvert.DeserializeObject<VoivodeshipRequest>(message);
 
                     // Raise the event to notify subscribers (controllers)
-                    CustomerAdded?.Invoke(this, customerRequest);
+                    VoivodeshipAdded?.Invoke(this, voivodeshipRequest);
 
                     // Acknowledge the message to RabbitMQ
                     channel.BasicAck(args.DeliveryTag, multiple: false);
@@ -65,7 +67,7 @@ public class RabbitMqConsumer
         }
     }
 
-    public bool HasSubscriber(EventHandler<CustomerRequest> eventHandler)
+    public bool HasSubscriber(EventHandler<VoivodeshipRequest> eventHandler)
     {
         if (eventHandler == null)
             return false;
