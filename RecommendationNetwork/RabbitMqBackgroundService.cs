@@ -5,47 +5,80 @@ public class RabbitMqBackgroundService : BackgroundService
 {
     private readonly RabbitMqConsumer _rabbitMqConsumer;
     private readonly ICustomerService _customerService;
+    private readonly IVoivodeshipService _voivodeshipService;
+    private readonly IProductService _productService;
+    private readonly IProductTypeService _productTypeService;
 
-    public RabbitMqBackgroundService(RabbitMqConsumer rabbitMqConsumer, ICustomerService customerService)
+    public RabbitMqBackgroundService(RabbitMqConsumer rabbitMqConsumer,
+                                     ICustomerService customerService,
+                                     IVoivodeshipService voivodeshipService, 
+                                     IProductService productService,
+                                     IProductTypeService productTypeService)
     {
         _rabbitMqConsumer = rabbitMqConsumer;
-        _customerService = customerService;  
+        _customerService = customerService;
+        _voivodeshipService = voivodeshipService;
+        _productService = productService;
+        _productTypeService = productTypeService;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         stoppingToken.ThrowIfCancellationRequested();
 
-        _rabbitMqConsumer.CustomerAdded += OnCustomerAdded;
+        _rabbitMqConsumer.MessageReceived += OnMessageReceived;
 
-        // Start the consumer in a separate thread to avoid blocking the main thread
-        await Task.Run(() => _rabbitMqConsumer.StartConsuming("customerQueue"), stoppingToken);
-        Console.WriteLine("START LISTENING");
+        await Task.Run(() => _rabbitMqConsumer.StartConsuming<CustomerRequest>("customerQueue"), stoppingToken);
+        await Task.Run(() => _rabbitMqConsumer.StartConsuming<VoivodeshipRequest>("voivodeshipQueue"), stoppingToken);
+        await Task.Run(() => _rabbitMqConsumer.StartConsuming<ProductRequest>("productQueue"), stoppingToken);
+        await Task.Run(() => _rabbitMqConsumer.StartConsuming<ProductTypeRequest>("productTypeQueue"), stoppingToken);
+
+        Console.WriteLine("Started listening on customer, voivodeship product and product type queues");
     }
 
-    private async void OnCustomerAdded(object sender, CustomerRequest customerToAdd)
+    private async void OnMessageReceived(object sender, RabbitMqConsumer.GenericEventArgs e)
     {
-        // Handle the message
-        // Asynchronously process the received customer request
         try
         {
-            Console.WriteLine("CONSUMING");
-            var response = await _customerService.AddCustomer(customerToAdd);
-            // Handle the response, e.g., logging or further processing
+            if (e.Message is CustomerRequest customerRequest)
+            {
+                Console.WriteLine("Consuming CustomerRequest");
+                var response = await _customerService.AddCustomer(customerRequest);
+                // Handle CustomerRequest response
+            }
+            else if (e.Message is VoivodeshipRequest voivodeshipRequest)
+            {
+                var response = await _voivodeshipService.AddVoivodeship(voivodeshipRequest);
+                Console.WriteLine("Consuming VoivodeshipRequest");
+                // Handle VoivodeshipRequest
+                // e.g., _voivodeshipService.SomeMethod(voivodeshipRequest);
+            }
+            else if (e.Message is ProductRequest productRequest)
+            {
+                var response = await _productService.AddProduct(productRequest);
+                Console.WriteLine("Consuming ProductRequest");
+                // Handle VoivodeshipRequest
+                // e.g., _voivodeshipService.SomeMethod(voivodeshipRequest);
+            }
+            else if (e.Message is ProductTypeRequest productTypeRequest)
+            {
+                var response = await _productTypeService.AddProductType(productTypeRequest);
+                Console.WriteLine("Consuming ProductTypeRequest");
+                // Handle VoivodeshipRequest
+                // e.g., _voivodeshipService.SomeMethod(voivodeshipRequest);
+            }
         }
         catch (Exception ex)
         {
-            // Handle any exceptions that occur during processing
-            // Log the exception, send a notification, etc.
+            Console.WriteLine($"Error processing message: {ex.Message}");
+            // Handle exceptions
         }
     }
 
     public override async Task StopAsync(CancellationToken stoppingToken)
     {
-        // Perform cleanup, if necessary
-        // E.g., unsubscribe from the event
-        _rabbitMqConsumer.CustomerAdded -= OnCustomerAdded;
-
+        _rabbitMqConsumer.MessageReceived -= OnMessageReceived;
         await base.StopAsync(stoppingToken);
     }
 }
+

@@ -2,7 +2,7 @@
 {
     public class ProductRequest
     {
-        public string ProductName { get; set; }
+        public string Name { get; set; }
 
         public float Price { get; set; }
 

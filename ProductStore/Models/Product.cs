@@ -7,7 +7,7 @@ public partial class Product
 {
     public int Id { get; set; } // robi baza za nas nie chce wysylac, chce wyswietlac
 
-    public string ProductName { get; set; } = null!; // chce wysylac chce wyswietal
+    public string Name { get; set; } = null!; // chce wysylac chce wyswietal
 
     public float Price { get; set; }// chce wysylac chce wyswietal
 

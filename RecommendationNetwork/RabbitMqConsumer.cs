@@ -10,7 +10,8 @@ public class RabbitMqConsumer
     private readonly IConnection _rabbitMQConnection;
     private IModel _channel;
 
-    public event EventHandler<CustomerRequest> CustomerAdded;
+    // Generic event handler for any type of message
+    public event EventHandler<GenericEventArgs> MessageReceived;
 
     public RabbitMqConsumer(IConnection rabbitMqConnection)
     {
@@ -31,7 +32,7 @@ public class RabbitMqConsumer
         }
     }
 
-    public void StartConsuming(string queueName)
+    public void StartConsuming<T>(string queueName) where T : class
     {
         if (_channel == null)
         {
@@ -50,14 +51,13 @@ public class RabbitMqConsumer
                 {
                     var body = args.Body.ToArray();
                     var message = Encoding.UTF8.GetString(body);
-                    var customerRequest = JsonConvert.DeserializeObject<CustomerRequest>(message);
-                    CustomerAdded?.Invoke(this, customerRequest);
+                    var deserializedMessage = JsonConvert.DeserializeObject<T>(message);
+                    MessageReceived?.Invoke(this, new GenericEventArgs { Message = deserializedMessage });
                     _channel.BasicAck(args.DeliveryTag, multiple: false);
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine($"Error processing message: {ex.Message}");
-                    // Optionally, handle the failure (e.g., logging, retrying, etc.)
                 }
             };
 
@@ -76,12 +76,10 @@ public class RabbitMqConsumer
         _channel?.Dispose();
     }
 
-    public bool HasSubscriber(EventHandler<CustomerRequest> eventHandler)
+    // Generic event args class
+    public class GenericEventArgs : EventArgs
     {
-        if (eventHandler == null)
-            return false;
-
-        var subscribers = eventHandler.GetInvocationList();
-        return subscribers.Length > 0;
+        public object Message { get; set; }
     }
 }
+

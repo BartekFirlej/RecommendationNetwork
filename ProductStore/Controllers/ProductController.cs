@@ -9,9 +9,11 @@ namespace ProductStore.Controllers
     public class ProductController : ControllerBase
     {
         private readonly IProductService _productService;
-        public ProductController(IProductService productService)
+        private readonly RabbitMqPublisher _rabbitMqPublisher;
+        public ProductController(IProductService productService, RabbitMqPublisher rabbitMqPublisher)
         {
             _productService = productService;
+            _rabbitMqPublisher = rabbitMqPublisher;
         }
 
         [HttpGet]
@@ -48,6 +50,7 @@ namespace ProductStore.Controllers
             try
             {
                 var addedProduct = await _productService.PostProduct(productToAdd);
+                _rabbitMqPublisher.PublishMessage(addedProduct, "productQueue");
                 return CreatedAtAction(nameof(PostProduct), addedProduct);
             }
             catch (Exception e)
