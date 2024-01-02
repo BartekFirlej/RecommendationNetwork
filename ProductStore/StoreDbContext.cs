@@ -27,7 +27,7 @@ public partial class StoreDbContext : DbContext
     public virtual DbSet<Voivodeship> Voivodeships { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        => optionsBuilder.UseSqlServer("Server=store_sql,1433;Database=Store;User=sa;Password=zaq1@WSX;Encrypt=True;TrustServerCertificate=True;");
+        => optionsBuilder.UseSqlServer("Server=127.0.0.1,1433;Database=Store;User=sa;Password=zaq1@WSX;Encrypt=True;TrustServerCertificate=True;");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

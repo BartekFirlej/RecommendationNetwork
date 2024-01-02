@@ -15,7 +15,8 @@ namespace ProductStore.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetCustomers() {
+        public async Task<IActionResult> GetCustomers()
+        {
             ICollection<CustomerResponse> customers;
             try
             {

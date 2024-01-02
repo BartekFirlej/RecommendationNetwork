@@ -11,6 +11,7 @@ namespace ProductStore.Repositories
         public Task<Purchase> GetPurchase(int id);
         public Task<Purchase> DeletePurchase(Purchase purchaseToDelete);
         public Task<Purchase> PostPurchase(PurchaseRequest purchaseToAdd);
+        public Task<PurchaseWithDetailsResponse> GetPurchaseWithDetails(int id);
     }
     public class PurchaseRepository : IPurchaseRepository
     {
@@ -71,6 +72,26 @@ namespace ProductStore.Repositories
             _dbContext.Purchases.Remove(purchaseToDelete);
             await _dbContext.SaveChangesAsync();
             return purchaseToDelete;
+        }
+
+        public Task<PurchaseWithDetailsResponse> GetPurchaseWithDetails(int id)
+        {
+            return _dbContext.Purchases.Include(p => p.PurchaseDetails)
+                .Where(p => p.Id == id)
+                .Select(p => new PurchaseWithDetailsResponse
+                {
+                    Id = p.Id,
+                    CustomerId = p.CustomerId,
+                    RecommenderId = p.RecommenderId,
+                    PurchaseDate = p.PurchaseDate,
+                    Products = p.PurchaseDetails.Select(t => new PurchaseDetailResponse
+                    {
+                        Id = t.Id,
+                        PriceForOnePiece = t.PriceForOnePiece,
+                        ProductId = t.ProductId,
+                        Quantity = t.Number
+                    }).ToList()
+                }).FirstOrDefaultAsync();
         }
     }
 }

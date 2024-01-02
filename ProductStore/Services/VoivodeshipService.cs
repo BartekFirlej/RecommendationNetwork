@@ -16,9 +16,10 @@ namespace ProductStore.Services
     {
         private readonly IVoivodeshipRepository _voivodeshipRepository;
         private readonly IMapper _mapper;
-        public VoivodeshipService(IVoivodeshipRepository voivodeshipRepository)
+        public VoivodeshipService(IVoivodeshipRepository voivodeshipRepository, IMapper mapper)
         {
             _voivodeshipRepository = voivodeshipRepository;
+            _mapper = mapper;
         }
 
         public async Task<ICollection<VoivodeshipResponse>> GetVoivodeships()
