@@ -4,15 +4,17 @@ FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS base
 WORKDIR /app
 
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
+ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["ProductStore/ProductStore.csproj", "ProductStore/"]
-RUN dotnet restore "ProductStore/ProductStore.csproj"
+RUN dotnet restore "./ProductStore/./ProductStore.csproj"
 COPY . .
 WORKDIR "/src/ProductStore"
-RUN dotnet build "ProductStore.csproj" -c Release -o /app/build
+RUN dotnet build "./ProductStore.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 FROM build AS publish
-RUN dotnet publish "ProductStore.csproj" -c Release -o /app/publish /p:UseAppHost=false
+ARG BUILD_CONFIGURATION=Release
+RUN dotnet publish "./ProductStore.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
 WORKDIR /app

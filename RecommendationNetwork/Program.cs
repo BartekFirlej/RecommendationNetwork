@@ -16,18 +16,6 @@ builder.Services.AddSingleton<IDriver>(provider =>
         AuthTokens.Basic("neo4j", "bartekfirlej1")
     );
 });
-builder.Services.AddSingleton<ICustomerService, CustomerService>();
-builder.Services.AddSingleton<IVoivodeshipService, VoivodeshipService>();
-builder.Services.AddSingleton<IProductTypeService, ProductTypeService>();
-builder.Services.AddSingleton<IProductService, ProductService>();
-builder.Services.AddSingleton<IOrderService, OrderService>();
-builder.Services.AddSingleton<ICustomerRepository, CustomerRepository>();
-builder.Services.AddSingleton<IVoivodeshipRepository, VoivodeshipRepository>();
-builder.Services.AddSingleton<IProductTypeRepository, ProductTypeRepository>();
-builder.Services.AddSingleton<IProductRepository, ProductRepository>();
-builder.Services.AddSingleton<IOrderRepository, OrderRepository>();
-
-builder.Services.AddSwaggerGen();
 
 builder.Services.AddSingleton<IConnection>(provider =>
 {
@@ -44,12 +32,25 @@ builder.Services.AddSingleton<IConnection>(provider =>
     return factory.CreateConnection();
 });
 
+builder.Services.AddSingleton<ICustomerService, CustomerService>();
+builder.Services.AddSingleton<IVoivodeshipService, VoivodeshipService>();
+builder.Services.AddSingleton<IProductTypeService, ProductTypeService>();
+builder.Services.AddSingleton<IProductService, ProductService>();
+builder.Services.AddSingleton<IOrderService, OrderService>();
+builder.Services.AddSingleton<ICustomerRepository, CustomerRepository>();
+builder.Services.AddSingleton<IVoivodeshipRepository, VoivodeshipRepository>();
+builder.Services.AddSingleton<IProductTypeRepository, ProductTypeRepository>();
+builder.Services.AddSingleton<IProductRepository, ProductRepository>();
+builder.Services.AddSingleton<IOrderRepository, OrderRepository>();
+
+builder.Services.AddSwaggerGen();
+
 builder.Services.AddSingleton<RabbitMqConsumer>();
 
-var app = builder.Build();
+builder.Services.AddHostedService<RabbitMqBackgroundService>();
 
-//app.Services.GetService<RabbitMqConsumer>().StartConsuming("customerQueue");
-//app.Services.GetService<RabbitMqConsumer>().CustomerAdded += app.Services.GetService<CustomerController>().OnCustomerAdded;
+
+var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
 {
