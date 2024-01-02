@@ -6,7 +6,7 @@ namespace RecommendationNetwork.Repositories
 {
     public interface IOrderRepository
     {
-        public Task<OrderResponse> AddOrder(OrderRequest orderToAdd);
+        public Task<OrderResponse> AddOrderWithDetails(OrderRequest orderToAdd);
         public Task<List<OrderResponse>> GetOrders();
         public Task<OrderResponse> GetOrder(int id);
     }
@@ -31,7 +31,7 @@ namespace RecommendationNetwork.Repositories
             return orderResponse;
         }
 
-        public async Task<OrderResponse> AddOrder(OrderRequest orderToAdd)
+        public async Task<OrderResponse> AddOrderWithDetails(OrderRequest orderToAdd)
         {
             using (var session = _driver.AsyncSession())
             {

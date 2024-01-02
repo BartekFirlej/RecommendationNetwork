@@ -61,7 +61,5 @@ namespace ProductStore.Services
             var addedProductType = await _productTypeRepository.PostProductType(productTypeToAdd);
             return _mapper.Map<ProductTypeResponse>(addedProductType);
         }
-
-        
     }
 }

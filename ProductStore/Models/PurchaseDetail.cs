@@ -7,7 +7,7 @@ public partial class PurchaseDetail
 {
     public int Id { get; set; }
 
-    public decimal Number { get; set; }
+    public float Number { get; set; }
 
     public float PriceForOnePiece { get; set; }
 

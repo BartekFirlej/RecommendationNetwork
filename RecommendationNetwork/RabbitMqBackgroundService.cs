@@ -42,36 +42,60 @@ public class RabbitMqBackgroundService : BackgroundService
         {
             if (e.Message is CustomerRequest customerRequest)
             {
-                Console.WriteLine("Consuming CustomerRequest");
-                var response = await _customerService.AddCustomer(customerRequest);
-                // Handle CustomerRequest response
+                try
+                {
+                    Console.WriteLine("Consuming CustomerRequest");
+                    await _customerService.AddCustomer(customerRequest);
+                }
+                catch
+                {
+                    Console.WriteLine("Consuming CustomerRequest again");
+                    await _customerService.AddCustomer(customerRequest);
+                }
             }
             else if (e.Message is VoivodeshipRequest voivodeshipRequest)
             {
-                var response = await _voivodeshipService.AddVoivodeship(voivodeshipRequest);
-                Console.WriteLine("Consuming VoivodeshipRequest");
-                // Handle VoivodeshipRequest
-                // e.g., _voivodeshipService.SomeMethod(voivodeshipRequest);
+                try
+                {
+                    Console.WriteLine("Consuming VoivodeshipRequest");
+                    await _voivodeshipService.AddVoivodeship(voivodeshipRequest);
+                }
+                catch
+                {
+                    Console.WriteLine("Consuming VoivodeshipRequest again");
+                    await _voivodeshipService.AddVoivodeship(voivodeshipRequest);
+                }
             }
             else if (e.Message is ProductRequest productRequest)
             {
-                var response = await _productService.AddProduct(productRequest);
-                Console.WriteLine("Consuming ProductRequest");
-                // Handle VoivodeshipRequest
-                // e.g., _voivodeshipService.SomeMethod(voivodeshipRequest);
+                try
+                {
+                    Console.WriteLine("Consuming ProductRequest");
+                    await _productService.AddProduct(productRequest);
+                }
+                catch
+                {
+                    Console.WriteLine("Consuming ProductRequest again");
+                    await _productService.AddProduct(productRequest);
+                }
             }
             else if (e.Message is ProductTypeRequest productTypeRequest)
             {
-                var response = await _productTypeService.AddProductType(productTypeRequest);
-                Console.WriteLine("Consuming ProductTypeRequest");
-                // Handle VoivodeshipRequest
-                // e.g., _voivodeshipService.SomeMethod(voivodeshipRequest);
+                try
+                {
+                    Console.WriteLine("Consuming ProductTypeRequest");
+                    await _productTypeService.AddProductType(productTypeRequest);
+                }
+                catch
+                {
+                    Console.WriteLine("Consuming ProductTypeRequest again");
+                    await _productTypeService.AddProductType(productTypeRequest);
+                }
             }
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Error processing message: {ex.Message}");
-            // Handle exceptions
         }
     }
 
