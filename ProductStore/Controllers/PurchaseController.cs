@@ -9,11 +9,9 @@ namespace ProductStore.Controllers
     public class PurchaseController : ControllerBase
     {
         private readonly IPurchaseService _purchaseService;
-        private readonly IPurchaseDetailService _purchaseDetailService;
-        public PurchaseController(IPurchaseService purchaseService, IPurchaseDetailService purchaseDetailService)
+        public PurchaseController(IPurchaseService purchaseService)
         {
             _purchaseService = purchaseService;
-            _purchaseDetailService = purchaseDetailService;
         }
 
         [HttpGet]
@@ -65,34 +63,6 @@ namespace ProductStore.Controllers
             {
                 var addedPurchase = await _purchaseService.PostPurchaseWithDetails(purchaseToAdd);
                 return CreatedAtAction(nameof(PostPurchaseWithDetails), addedPurchase);
-            }
-            catch (Exception e)
-            {
-                return NotFound(e.Message);
-            }
-        }
-
-        [HttpPost("detail")]
-        public async Task<IActionResult> PostPurchaseDetail(PurchaseIdDetailRequest purchaseToAdd)
-        {
-            try
-            {
-                var addedPurchase = await _purchaseDetailService.AddPurchaseDetail(purchaseToAdd);
-                return CreatedAtAction(nameof(PostPurchase), addedPurchase);
-            }
-            catch (Exception e)
-            {
-                return NotFound(e.Message);
-            }
-        }
-
-        [HttpPost("{id}/detail")]
-        public async Task<IActionResult> PostPurchaseDetail(PurchaseDetailRequest purchaseToAdd, int id)
-        {
-            try
-            {
-                var addedPurchase = await _purchaseDetailService.AddPurchaseDetail(purchaseToAdd, id);
-                return CreatedAtAction(nameof(PostPurchase), addedPurchase);
             }
             catch (Exception e)
             {

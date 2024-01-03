@@ -22,14 +22,25 @@ namespace ProductStoreTests.Controllers
         [TestMethod]
         public async Task GetProducts_ReturnsOkWithProducts()
         {
-            var mockProducts = new List<ProductResponse>();
+            var mockProducts = new List<ProductResponse>
+            {
+                new ProductResponse { Id = 1, ProductName = "Product 1", Price = 100.00f, ProductTypeId = 1, ProductTypeName = "Electronics" },
+                new ProductResponse { Id = 2, ProductName = "Product 2", Price = 50.00f, ProductTypeId = 2, ProductTypeName = "Books" }
+            };
             _mockProductService.Setup(service => service.GetProducts()).ReturnsAsync(mockProducts);
 
             var result = await _controller.GetProducts();
 
             var okResult = result as OkObjectResult;
             Assert.IsNotNull(okResult);
-            Assert.AreEqual(mockProducts, okResult.Value);
+            var returnedProducts = okResult.Value as List<ProductResponse>;
+            Assert.AreEqual(mockProducts.Count, returnedProducts.Count);
+            Assert.AreEqual("Product 1", returnedProducts[0].ProductName);
+            Assert.AreEqual(100.00f, returnedProducts[0].Price);
+            Assert.AreEqual("Electronics", returnedProducts[0].ProductTypeName);
+            Assert.AreEqual("Product 2", returnedProducts[1].ProductName);
+            Assert.AreEqual(50.00f, returnedProducts[1].Price);
+            Assert.AreEqual("Books", returnedProducts[1].ProductTypeName);
         }
 
         [TestMethod]
@@ -43,17 +54,20 @@ namespace ProductStoreTests.Controllers
         }
 
         [TestMethod]
-        public async Task GetProduct_ReturnsOkWithProduct_WhenProductExists()
+        public async Task GetProduct_ReturnsOkWithProduct()
         {
-            int productId = 1;
-            var mockProduct = new ProductResponse();
-            _mockProductService.Setup(service => service.GetProductResponse(productId)).ReturnsAsync(mockProduct);
+            int id = 1;
+            var mockProduct = new ProductResponse { Id = id, ProductName = "Product 1", Price = 100.00f, ProductTypeId = 1, ProductTypeName = "Electronics" };
+            _mockProductService.Setup(service => service.GetProductResponse(id)).ReturnsAsync(mockProduct);
 
-            var result = await _controller.GetProduct(productId);
+            var result = await _controller.GetProduct(id);
 
             var okResult = result as OkObjectResult;
             Assert.IsNotNull(okResult);
-            Assert.AreEqual(mockProduct, okResult.Value);
+            var returnedProduct = okResult.Value as ProductResponse;
+            Assert.AreEqual(id, returnedProduct.Id);
+            Assert.AreEqual("Product 1", returnedProduct.ProductName);
+            Assert.AreEqual(100.00f, returnedProduct.Price);
         }
 
         [TestMethod]
@@ -68,23 +82,26 @@ namespace ProductStoreTests.Controllers
         }
 
         [TestMethod]
-        public async Task PostProduct_ReturnsCreatedAtActionWithProduct_WhenProductIsCreated()
+        public async Task PostProduct_ReturnsCreatedAtActionWithProduct()
         {
-            var productToAdd = new ProductRequest(); 
-            var addedProduct = new ProductPostResponse(); 
+            var productToAdd = new ProductRequest { ProductName = "New Product", Price = 200.00f, ProductTypeId = 3 };
+            var addedProduct = new ProductPostResponse { Id = 3, ProductName = "New Product", Price = 200.00f, ProductTypeId = 3};
             _mockProductService.Setup(service => service.PostProduct(productToAdd)).ReturnsAsync(addedProduct);
 
             var result = await _controller.PostProduct(productToAdd);
 
-            var createdAtActionResult = result as CreatedAtActionResult;
-            Assert.IsNotNull(createdAtActionResult);
-            Assert.AreEqual(addedProduct, createdAtActionResult.Value);
+            var createdAtResult = result as CreatedAtActionResult;
+            Assert.IsNotNull(createdAtResult);
+            var returnedProduct = createdAtResult.Value as ProductPostResponse;
+            Assert.AreEqual(3, returnedProduct.Id);
+            Assert.AreEqual("New Product", returnedProduct.ProductName);
+            Assert.AreEqual(200.00f, returnedProduct.Price);
         }
 
         [TestMethod]
         public async Task PostProduct_ReturnsNotFound_WhenProductCreationFails()
         {
-            var productToAdd = new ProductRequest(); // Populate with test data
+            var productToAdd = new ProductRequest(); 
             _mockProductService.Setup(service => service.PostProduct(productToAdd)).ThrowsAsync(new Exception());
 
             var result = await _controller.PostProduct(productToAdd);
@@ -93,17 +110,20 @@ namespace ProductStoreTests.Controllers
         }
 
         [TestMethod]
-        public async Task DeleteProduct_ReturnsOkWithProduct_WhenProductIsDeleted()
+        public async Task DeleteProduct_ReturnsOkWithProduct()
         {
-            int productId = 1;
-            var deletedProduct = new ProductPostResponse(); // Populate with test data
-            _mockProductService.Setup(service => service.DeleteProduct(productId)).ReturnsAsync(deletedProduct);
+            int id = 1;
+            var deletedProduct = new ProductPostResponse { Id = id, ProductName = "Deleted Product", Price = 150.00f, ProductTypeId = 1 };
+            _mockProductService.Setup(service => service.DeleteProduct(id)).ReturnsAsync(deletedProduct);
 
-            var result = await _controller.DeleteProduct(productId);
+            var result = await _controller.DeleteProduct(id);
 
             var okResult = result as OkObjectResult;
             Assert.IsNotNull(okResult);
-            Assert.AreEqual(deletedProduct, okResult.Value);
+            var returnedProduct = okResult.Value as ProductPostResponse;
+            Assert.AreEqual(id, returnedProduct.Id);
+            Assert.AreEqual("Deleted Product", returnedProduct.ProductName);
+            Assert.AreEqual(150.00f, returnedProduct.Price);
         }
 
         [TestMethod]
@@ -116,7 +136,5 @@ namespace ProductStoreTests.Controllers
 
             Assert.IsInstanceOfType(result, typeof(NotFoundObjectResult));
         }
-
     }
-
 }
