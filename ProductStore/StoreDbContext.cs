@@ -27,7 +27,12 @@ public partial class StoreDbContext : DbContext
     public virtual DbSet<Voivodeship> Voivodeships { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        => optionsBuilder.UseSqlServer("Server=127.0.0.1,1433;Database=Store;User=sa;Password=zaq1@WSX;Encrypt=True;TrustServerCertificate=True;");
+    {
+        if (!optionsBuilder.IsConfigured)
+        {
+            optionsBuilder.UseSqlServer("Server=127.0.0.1,1433;Database=Store;User=sa;Password=zaq1@WSX;Encrypt=True;TrustServerCertificate=True;");
+        }
+    }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -53,6 +58,7 @@ public partial class StoreDbContext : DbContext
                 .HasMaxLength(20)
                 .IsUnicode(false);
             entity.Property(e => e.VoivodeshipId).HasColumnName("Voivodeship_Id");
+            entity.Property(e => e.RecommenderId).HasColumnName("RecommenderId");
             entity.Property(e => e.ZipCode)
                 .HasMaxLength(6)
                 .IsUnicode(false);
@@ -61,6 +67,12 @@ public partial class StoreDbContext : DbContext
                 .HasForeignKey(d => d.VoivodeshipId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("Customer_Voivodeship_FK");
+
+            entity.HasOne(d => d.Recommender)
+                .WithMany(p => p.RecommendedCustomers)
+                .HasForeignKey(d => d.RecommenderId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("Customer_Recommender_FK");
         });
 
         modelBuilder.Entity<Product>(entity =>

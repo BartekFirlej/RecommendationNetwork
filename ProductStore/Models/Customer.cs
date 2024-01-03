@@ -21,11 +21,17 @@ public partial class Customer
 
     public int VoivodeshipId { get; set; }
 
+    public int? RecommenderId {  get; set; }
+
     public virtual ICollection<Purchase> PurchaseCustomers { get; set; } = new List<Purchase>();
 
     public virtual ICollection<PurchaseProposal> PurchaseProposals { get; set; } = new List<PurchaseProposal>();
 
-    public virtual ICollection<Purchase> PurchaseRecommenders { get; set; } = new List<Purchase>();
+    public virtual ICollection<Purchase> PurchaseRecommenders { get; set; } = new List<Purchase>(); 
+    
+    public virtual ICollection<Customer> RecommendedCustomers { get; set; }
 
     public virtual Voivodeship Voivodeship { get; set; } = null!;
+
+    public virtual Customer Recommender {  get; set; } = null!;
 }

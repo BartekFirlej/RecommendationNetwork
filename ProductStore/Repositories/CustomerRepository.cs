@@ -32,7 +32,8 @@ namespace ProductStore.Repositories
                     ZipCode = c.ZipCode,
                     Street = c.Street,
                     Town = c.Town,
-                    VoivodeshipId = c.VoivodeshipId
+                    VoivodeshipId = c.VoivodeshipId,
+                    RecommenderId = c.RecommenderId
                 })
                 .ToListAsync();
         }
@@ -49,7 +50,8 @@ namespace ProductStore.Repositories
                     ZipCode = c.ZipCode,
                     Street = c.Street,
                     Town = c.Town,
-                    VoivodeshipId = c.VoivodeshipId
+                    VoivodeshipId = c.VoivodeshipId,
+                    RecommenderId = c.RecommenderId
                 })
                 .Where(c => c.Id == id)
                 .FirstOrDefaultAsync();
@@ -71,7 +73,8 @@ namespace ProductStore.Repositories
                 ZipCode = customerToAdd.ZipCode,
                 Street = customerToAdd.Street,
                 Town = customerToAdd.Town,
-                VoivodeshipId = customerToAdd.VoivodeshipId
+                VoivodeshipId = customerToAdd.VoivodeshipId,
+                RecommenderId = customerToAdd.RecommenderId
             };
             await _dbContext.Customers.AddAsync(customer);
             await _dbContext.SaveChangesAsync();

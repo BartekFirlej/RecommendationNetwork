@@ -3,11 +3,6 @@ using Moq;
 using ProductStore.Controllers;
 using ProductStore.DTOs;
 using ProductStore.Services;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ProductStoreTests.Controllers
 {
