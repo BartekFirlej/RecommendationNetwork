@@ -16,6 +16,10 @@ namespace ProductStore.Repositories
     public class PurchaseProposalRepository : IPurchaseProposalRepository
     {
         private readonly StoreDbContext _dbContext;
+        public PurchaseProposalRepository(StoreDbContext dbContext)
+        {
+            _dbContext = dbContext;
+        }
 
         public async Task<ICollection<PurchaseProposalResponse>> GetPurchaseProposals()
         {
