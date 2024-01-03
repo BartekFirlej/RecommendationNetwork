@@ -12,6 +12,7 @@ namespace ProductStore.Repositories
         public Task<Purchase> DeletePurchase(Purchase purchaseToDelete);
         public Task<Purchase> PostPurchase(PurchaseRequest purchaseToAdd);
         public Task<PurchaseWithDetailsResponse> GetPurchaseWithDetails(int id);
+        public Task<ICollection<PurchaseWithDetailsResponse>> GetPurchasesWithDetails();
     }
     public class PurchaseRepository : IPurchaseRepository
     {
@@ -92,6 +93,26 @@ namespace ProductStore.Repositories
                         Quantity = t.Number
                     }).ToList()
                 }).FirstOrDefaultAsync();
+        }
+
+        public async Task<ICollection<PurchaseWithDetailsResponse>> GetPurchasesWithDetails()
+        {
+            return await _dbContext.Purchases.Include(p => p.PurchaseDetails)
+               .Select(p => new PurchaseWithDetailsResponse
+               {
+                   Id = p.Id,
+                   CustomerId = p.CustomerId,
+                   RecommenderId = p.RecommenderId,
+                   PurchaseDate = p.PurchaseDate,
+                   Products = p.PurchaseDetails.Select(t => new PurchaseDetailResponse
+                   {
+                       Id = t.Id,
+                       PriceForOnePiece = t.PriceForOnePiece,
+                       ProductId = t.ProductId,
+                       Quantity = t.Number
+                   }).ToList()
+               })
+               .ToListAsync();
         }
     }
 }

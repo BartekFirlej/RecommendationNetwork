@@ -59,6 +59,10 @@ namespace ProductStore.Services
 
         public async Task<PurchaseDetailResponse> AddPurchaseDetail(PurchaseIdDetailRequest purchaseDetail)
         {
+            if (purchaseDetail.Quantity <= 0)
+                throw new Exception(String.Format("Wrong quantity of product with id {0}.", purchaseDetail.ProductId));
+            if (purchaseDetail.PriceForOnePiece <= 0)
+                throw new Exception(String.Format("Wrong price of product with id {0}.", purchaseDetail.ProductId));
             await _productService.GetProduct(purchaseDetail.ProductId);
             var addedDetail = await _purchaseDetailRepository.AddPurchaseDetail(purchaseDetail);
             return _mapper.Map<PurchaseDetailResponse>(addedDetail);

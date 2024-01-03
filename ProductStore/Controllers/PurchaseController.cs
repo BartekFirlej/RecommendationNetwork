@@ -28,12 +28,40 @@ namespace ProductStore.Controllers
             }
         }
 
+        [HttpGet("details")]
+        public async Task<IActionResult> GetPurchasesWithDetails()
+        {
+            try
+            {
+                var purchases = await _purchaseService.GetPurchasesWithDetails();
+                return Ok(purchases);
+            }
+            catch (Exception e)
+            {
+                return NotFound(e.Message);
+            }
+        }
+
         [HttpGet("{id}")]
         public async Task<IActionResult> GetPurchase(int id)
         {
             try
             {
                 var purchase = await _purchaseService.GetPurchaseResponse(id);
+                return Ok(purchase);
+            }
+            catch (Exception e)
+            {
+                return NotFound(e.Message);
+            }
+        }
+
+        [HttpGet("details/{id}")]
+        public async Task<IActionResult> GetPurchaseWithDetails(int id)
+        {
+            try
+            {
+                var purchase = await _purchaseService.GetPurchaseWithDetails(id);
                 return Ok(purchase);
             }
             catch (Exception e)

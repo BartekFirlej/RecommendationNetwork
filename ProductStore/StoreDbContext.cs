@@ -58,7 +58,7 @@ public partial class StoreDbContext : DbContext
                 .HasMaxLength(20)
                 .IsUnicode(false);
             entity.Property(e => e.VoivodeshipId).HasColumnName("Voivodeship_Id");
-            entity.Property(e => e.RecommenderId).HasColumnName("RecommenderId");
+            entity.Property(e => e.RecommenderId).HasColumnName("RecommenderId").IsRequired(false); 
             entity.Property(e => e.ZipCode)
                 .HasMaxLength(6)
                 .IsUnicode(false);

@@ -1,8 +1,8 @@
-﻿using ProductStore.Controllers;
-using ProductStore.Services;
+﻿using Microsoft.AspNetCore.Mvc;
 using Moq;
-using Microsoft.AspNetCore.Mvc;
+using ProductStore.Controllers;
 using ProductStore.DTOs;
+using ProductStore.Services;
 
 namespace ProductStoreTests.Controllers
 {
@@ -13,7 +13,7 @@ namespace ProductStoreTests.Controllers
         private CustomerController _controller;
 
         [TestInitialize]
-        public void TestInitialize()
+        public void SetUp()
         {
             _mockCustomerService = new Mock<ICustomerService>();
             _controller = new CustomerController(_mockCustomerService.Object);
@@ -22,19 +22,24 @@ namespace ProductStoreTests.Controllers
         [TestMethod]
         public async Task GetCustomers_ReturnsOkWithCustomers()
         {
-            var mockCustomers = new List<CustomerResponse>();
-            _mockCustomerService.Setup(s => s.GetCustomers()).ReturnsAsync(mockCustomers);
+            var mockCustomers = new List<CustomerResponse>
+    {
+        new CustomerResponse { Id = 1, Name = "John", LastName = "Doe", Town = "Springfield" },
+        new CustomerResponse { Id = 2, Name = "Jane", LastName = "Doe", Town = "Shelbyville" }
+    };
+            _mockCustomerService.Setup(service => service.GetCustomers()).ReturnsAsync(mockCustomers);
 
             var result = await _controller.GetCustomers();
 
             var okResult = result as OkObjectResult;
             Assert.IsNotNull(okResult);
+            Assert.AreEqual(mockCustomers, okResult.Value);
         }
 
         [TestMethod]
-        public async Task GetCustomers_ReturnsNotFound_WhenCustomersNotFound()
+        public async Task GetCustomers_ReturnsNotFound_WhenExceptionThrown()
         {
-            _mockCustomerService.Setup(s => s.GetCustomers()).Throws(new Exception());
+            _mockCustomerService.Setup(service => service.GetCustomers()).ThrowsAsync(new Exception("Error"));
 
             var result = await _controller.GetCustomers();
 
@@ -42,13 +47,13 @@ namespace ProductStoreTests.Controllers
         }
 
         [TestMethod]
-        public async Task GetCustomer_ReturnsOkWithCustomer_WhenCustomerExists()
+        public async Task GetCustomer_ReturnsOkWithCustomer()
         {
-            int customerId = 1;
-            var mockCustomer = new CustomerResponse();
-            _mockCustomerService.Setup(s => s.GetCustomerResponse(customerId)).ReturnsAsync(mockCustomer);
+            int id = 1;
+            var mockCustomer = new CustomerResponse { Id = id, Name = "John", LastName = "Doe", Town = "Springfield" };
+            _mockCustomerService.Setup(service => service.GetCustomerResponse(id)).ReturnsAsync(mockCustomer);
 
-            var result = await _controller.GetCustomer(customerId);
+            var result = await _controller.GetCustomer(id);
 
             var okResult = result as OkObjectResult;
             Assert.IsNotNull(okResult);
@@ -56,22 +61,22 @@ namespace ProductStoreTests.Controllers
         }
 
         [TestMethod]
-        public async Task GetCustomer_ReturnsNotFound_WhenCustomerDoesNotExist()
+        public async Task GetCustomer_ReturnsNotFound_WhenExceptionThrown()
         {
-            int customerId = 1;
-            _mockCustomerService.Setup(s => s.GetCustomerResponse(customerId)).Throws(new Exception());
+            int id = 1;
+            _mockCustomerService.Setup(service => service.GetCustomerResponse(id)).ThrowsAsync(new Exception("Error"));
 
-            var result = await _controller.GetCustomer(customerId);
+            var result = await _controller.GetCustomer(id);
 
             Assert.IsInstanceOfType(result, typeof(NotFoundObjectResult));
         }
 
         [TestMethod]
-        public async Task PostCustomer_ReturnsOkWithCustomer_WhenCustomerIsCreated()
+        public async Task PostCustomer_ReturnsOkWithCustomer()
         {
-            var customerToAdd = new CustomerRequest();
-            var addedCustomer = new CustomerResponse(); 
-            _mockCustomerService.Setup(s => s.PostCustomer(customerToAdd)).ReturnsAsync(addedCustomer);
+            var customerToAdd = new CustomerRequest { Name = "John", LastName = "Doe", Town = "Springfield" };
+            var addedCustomer = new CustomerResponse { Id = 3, Name = "John", LastName = "Doe", Town = "Springfield" };
+            _mockCustomerService.Setup(service => service.PostCustomer(customerToAdd)).ReturnsAsync(addedCustomer);
 
             var result = await _controller.PostCustomer(customerToAdd);
 
@@ -81,10 +86,10 @@ namespace ProductStoreTests.Controllers
         }
 
         [TestMethod]
-        public async Task PostCustomer_ReturnsNotFound_WhenCustomerCreationFails()
+        public async Task PostCustomer_ReturnsNotFound_WhenExceptionThrown()
         {
-            var customerToAdd = new CustomerRequest();
-            _mockCustomerService.Setup(s => s.PostCustomer(customerToAdd)).Throws(new Exception());
+            var customerToAdd = new CustomerRequest { Name = "John", LastName = "Doe", Town = "Springfield" };
+            _mockCustomerService.Setup(service => service.PostCustomer(customerToAdd)).ThrowsAsync(new Exception("Error"));
 
             var result = await _controller.PostCustomer(customerToAdd);
 
@@ -92,29 +97,28 @@ namespace ProductStoreTests.Controllers
         }
 
         [TestMethod]
-        public async Task DeleteCustomer_ReturnsOkWithCustomer_WhenCustomerIsDeleted()
+        public async Task DeleteCustomer_ReturnsOkWithCustomer()
         {
-            int customerId = 1;
-            var mockCustomer = new CustomerResponse();
-            _mockCustomerService.Setup(s => s.DeleteCustomer(customerId)).ReturnsAsync(mockCustomer);
+            int id = 1;
+            var deletedCustomer = new CustomerResponse { Id = id, Name = "John", LastName = "Doe", Town = "Springfield" };
+            _mockCustomerService.Setup(service => service.DeleteCustomer(id)).ReturnsAsync(deletedCustomer);
 
-            var result = await _controller.DeleteCustomer(customerId);
+            var result = await _controller.DeleteCustomer(id);
 
             var okResult = result as OkObjectResult;
             Assert.IsNotNull(okResult);
-            Assert.AreEqual(mockCustomer, okResult.Value);
+            Assert.AreEqual(deletedCustomer, okResult.Value);
         }
 
         [TestMethod]
-        public async Task DeleteCustomer_ReturnsNotFound_WhenCustomerDoesNotExist()
+        public async Task DeleteCustomer_ReturnsNotFound_WhenExceptionThrown()
         {
-            int customerId = 1;
-            _mockCustomerService.Setup(s => s.DeleteCustomer(customerId)).Throws(new Exception());
+            int id = 1;
+            _mockCustomerService.Setup(service => service.DeleteCustomer(id)).ThrowsAsync(new Exception("Error"));
 
-            var result = await _controller.DeleteCustomer(customerId);
+            var result = await _controller.DeleteCustomer(id);
 
             Assert.IsInstanceOfType(result, typeof(NotFoundObjectResult));
         }
-
     }
 }
