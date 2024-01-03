@@ -1,6 +1,6 @@
-﻿using ProductStore.DTOs;
+﻿using Microsoft.EntityFrameworkCore;
+using ProductStore.DTOs;
 using ProductStore.Models;
-
 
 namespace ProductStore.Repositories
 {
@@ -10,36 +10,64 @@ namespace ProductStore.Repositories
         public Task<PurchaseProposal> GetPurchaseProposal(int id);
         public Task<PurchaseProposalResponse> GetPurchaseProposalResponse(int id);
         public Task<PurchaseProposal> PostPurchaseProposal(PurchaseProposalRequest purchaseProposalToAdd);
-        public Task<PurchaseProposal> DeletePurchaseProposal(int id);
+        public Task<PurchaseProposal> DeletePurchaseProposal(PurchaseProposal purchaseProposalToDelete);
 
     }
     public class PurchaseProposalRepository : IPurchaseProposalRepository
     {
         private readonly StoreDbContext _dbContext;
 
-        public Task<ICollection<PurchaseProposalResponse>> GetPurchaseProposals()
+        public async Task<ICollection<PurchaseProposalResponse>> GetPurchaseProposals()
         {
-            throw new NotImplementedException();
+            return await _dbContext.PurchaseProposals
+                .Select(p => new PurchaseProposalResponse
+                {
+                    Id = p.Id,
+                    Date = p.Date,
+                    CustomerId = p.CustomerId,
+                    ProductId = p.ProductId
+                }).ToListAsync();
         }
 
-        public Task<PurchaseProposal> GetPurchaseProposal(int id)
+        public async Task<PurchaseProposal> GetPurchaseProposal(int id)
         {
-            throw new NotImplementedException();
+            return await _dbContext.PurchaseProposals
+                .Where(p => p.Id == id)
+                .FirstOrDefaultAsync();
         }
 
-        public Task<PurchaseProposalResponse> GetPurchaseProposalResponse(int id)
+        public async Task<PurchaseProposalResponse> GetPurchaseProposalResponse(int id)
         {
-            throw new NotImplementedException();
+            return await _dbContext.PurchaseProposals
+                .Select(p => new PurchaseProposalResponse
+                {
+                    Id = p.Id,
+                    Date = p.Date,
+                    CustomerId = p.CustomerId,
+                    ProductId = p.ProductId
+                })
+                .Where(p => p.Id == id)
+                .FirstOrDefaultAsync();
         }
 
-        public Task<PurchaseProposal> PostPurchaseProposal(PurchaseProposalRequest purchaseProposalToAdd)
+        public async Task<PurchaseProposal> PostPurchaseProposal(PurchaseProposalRequest purchaseProposalToAdd)
         {
-            throw new NotImplementedException();
+            var newPurchaseProposal = new PurchaseProposal
+            {
+                CustomerId = purchaseProposalToAdd.CustomerId,
+                ProductId = purchaseProposalToAdd.ProductId,
+                Date = purchaseProposalToAdd.Date
+            };
+            await _dbContext.PurchaseProposals.AddAsync(newPurchaseProposal);
+            await _dbContext.SaveChangesAsync();
+            return newPurchaseProposal;
         }
 
-        public Task<PurchaseProposal> DeletePurchaseProposal(int id)
+        public async Task<PurchaseProposal> DeletePurchaseProposal(PurchaseProposal purchaseProposalToDelete)
         {
-            throw new NotImplementedException();
+            _dbContext.Remove(purchaseProposalToDelete);
+            await _dbContext.SaveChangesAsync();
+            return purchaseProposalToDelete;
         }
     }
 }
