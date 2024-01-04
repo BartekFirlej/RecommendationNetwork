@@ -73,12 +73,8 @@ namespace ProductStore.Services
 
         public async Task<PurchaseResponse> DeletePurchase(int id)
         {
-            var purchaseWithDetailsToDelete = await GetPurchaseWithDetails(id);
-            foreach(var detail in purchaseWithDetailsToDelete.Products)
-            {
-                await _purchaseDetailService.DeletePurchaseDetail(detail.Id);
-            }
-            var purchaseToDelete = _mapper.Map<Purchase>(purchaseWithDetailsToDelete);
+            var purchaseToDelete = await GetPurchase(id);
+            await _purchaseDetailService.DeletePurchaseDetails(id);
             await _purchaseRepository.DeletePurchase(purchaseToDelete);
             return _mapper.Map<PurchaseResponse>(purchaseToDelete);
         }
@@ -112,7 +108,5 @@ namespace ProductStore.Services
             }
             return await GetPurchaseWithDetails(addedPurchase.Id);
         }
-
-        
     }
 }

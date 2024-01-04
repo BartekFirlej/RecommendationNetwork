@@ -10,9 +10,11 @@ namespace ProductStore.Services
         public Task<PurchaseDetailResponse> AddPurchaseDetail(PurchaseDetailRequest purchaseDetail, int orderId);
         public Task<PurchaseDetailResponse> AddPurchaseDetail(PurchaseIdDetailRequest purchaseDetail);
         public Task<ICollection<PurchaseDetailResponse>> GetPurchaseDetails();
+        public Task<ICollection<PurchaseDetail>> GetPurchaseDetails(int orderId);
         public Task<PurchaseDetailResponse> GetPurchaseDetailResponse(int id);
         public Task<PurchaseDetail> GetPurchaseDetail(int id);
         public Task<PurchaseDetailResponse> DeletePurchaseDetail(int id);
+        public Task<ICollection<PurchaseDetailResponse>> DeletePurchaseDetails(int orderId);
     } 
     public class PurchaseDetailService : IPurchaseDetailService
     {
@@ -73,6 +75,18 @@ namespace ProductStore.Services
             var purchaseDetailToDelete = await GetPurchaseDetail(id);
             var deletedPurchaseDetail = await _purchaseDetailRepository.DeletePurchaseDetail(purchaseDetailToDelete);
             return _mapper.Map<PurchaseDetailResponse>(deletedPurchaseDetail);
+        }
+
+        public async Task<ICollection<PurchaseDetail>> GetPurchaseDetails(int orderId)
+        {
+            return await _purchaseDetailRepository.GetPurchaseDetails(orderId);
+        }
+
+        public async Task<ICollection<PurchaseDetailResponse>> DeletePurchaseDetails(int orderId)
+        {
+            var purchaseDetailToDelete = await GetPurchaseDetails(orderId);
+            var deletedPurchaseDetail = await _purchaseDetailRepository.DeletePurchaseDetail(purchaseDetailToDelete);
+            return _mapper.Map<List<PurchaseDetailResponse>>(deletedPurchaseDetail);
         }
     }
 }

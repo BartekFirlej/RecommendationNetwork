@@ -59,6 +59,8 @@ namespace ProductStore.Services
 
         public async Task<ProductPostResponse> PostProduct(ProductRequest productToAdd)
         {
+            if (productToAdd.Price <= 0)
+                throw new Exception("Price must be greater than 0.");
             await _productTypeService.GetProductType(productToAdd.ProductTypeId);
             var addedProduct = await _productRepository.PostProduct(productToAdd);
             return _mapper.Map<ProductPostResponse>(addedProduct);

@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Identity.Client;
 using ProductStore.DTOs;
 using ProductStore.Models;
 
@@ -7,11 +8,13 @@ namespace ProductStore.Repositories
     public interface IPurchaseDetailRepository
     {
         public Task<ICollection<PurchaseDetailResponse>> GetPurchaseDetails();
+        public Task<ICollection<PurchaseDetail>> GetPurchaseDetails(int orderId);
         public Task<PurchaseDetailResponse> GetPurchaseDetailResponse(int id);
         public Task<PurchaseDetail> GetPurchaseDetail(int id);
         public Task<PurchaseDetail> AddPurchaseDetail(PurchaseDetailRequest purchasDetail, int orderId);
         public Task<PurchaseDetail> AddPurchaseDetail(PurchaseIdDetailRequest purchaseDetails);
         public Task<PurchaseDetail> DeletePurchaseDetail(PurchaseDetail purchaseDetailToDelete);
+        public Task<ICollection<PurchaseDetail>> DeletePurchaseDetail(ICollection<PurchaseDetail> purchaseDetailToDelete);
     }
     public class PurchaseDetailRepository : IPurchaseDetailRepository
     {
@@ -28,6 +31,7 @@ namespace ProductStore.Repositories
                 .Select(p => new PurchaseDetailResponse
                 {
                     Id = p.Id,
+                    PurchaseId = p.PurchaseId,
                     PriceForOnePiece = p.PriceForOnePiece,
                     Quantity = p.Number,
                     ProductId = p.ProductId
@@ -47,6 +51,7 @@ namespace ProductStore.Repositories
                 .Select(p => new PurchaseDetailResponse
                 {
                     Id = p.Id,
+                    PurchaseId = p.PurchaseId,
                     PriceForOnePiece = p.PriceForOnePiece,
                     Quantity = p.Number,
                     ProductId = p.ProductId
@@ -76,7 +81,7 @@ namespace ProductStore.Repositories
                 Number = purchaseDetail.Quantity,
                 PriceForOnePiece = purchaseDetail.PriceForOnePiece,
                 ProductId = purchaseDetail.ProductId,
-                PurchaseId = purchaseDetail.OrderId
+                PurchaseId = purchaseDetail.PurchaseId
             };
             await _dbContext.PurchaseDetails.AddAsync(detail);
             await _dbContext.SaveChangesAsync();
@@ -86,6 +91,20 @@ namespace ProductStore.Repositories
         public async Task<PurchaseDetail> DeletePurchaseDetail(PurchaseDetail purchaseDetailToDelete)
         {
             _dbContext.PurchaseDetails.Remove(purchaseDetailToDelete);
+            await _dbContext.SaveChangesAsync();
+            return purchaseDetailToDelete;
+        }
+
+        public async Task<ICollection<PurchaseDetail>> GetPurchaseDetails(int orderId)
+        {
+            return await _dbContext.PurchaseDetails
+                .Where(p => p.PurchaseId == orderId)
+                .ToListAsync();
+        }
+
+        public async Task<ICollection<PurchaseDetail>> DeletePurchaseDetail(ICollection<PurchaseDetail> purchaseDetailToDelete)
+        {
+            _dbContext.PurchaseDetails.RemoveRange(purchaseDetailToDelete);
             await _dbContext.SaveChangesAsync();
             return purchaseDetailToDelete;
         }

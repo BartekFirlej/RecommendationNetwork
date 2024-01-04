@@ -11,9 +11,10 @@ public class StoreMapper : Profile
         CreateMap<ProductType, ProductTypeResponse>();
         CreateMap<Product, ProductResponse>();
         CreateMap<Product, ProductPostResponse>();
-        CreateMap<Voivodeship,  VoivodeshipResponse>();
+        CreateMap<Voivodeship, VoivodeshipResponse>();
         CreateMap<PurchaseDetail, PurchaseDetailResponse>().ForMember(dest => dest.Quantity, opt => opt.MapFrom(src => src.Number));
+        CreateMap<PurchaseProposal, PurchaseProposalResponse>();
+        CreateMap<Purchase, PurchaseResponse>();
     }
-
 }
 
