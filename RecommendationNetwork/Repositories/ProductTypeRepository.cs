@@ -81,16 +81,13 @@ namespace RecommendationNetwork.Repositories
                 var retrieveProductTypes = "MATCH (pt:ProductType) RETURN pt";
                 var result = await session.ReadTransactionAsync(async transaction =>
                 {
-                    try
-                    {
-                        var queryResult = await transaction.RunAsync(retrieveProductTypes);
-                        return await queryResult.ToListAsync();
-                    }
-                    catch
-                    {
-                        throw new NotFoundProductTypeException();
-                    }
+                    var queryResult = await transaction.RunAsync(retrieveProductTypes);
+                    return await queryResult.ToListAsync();
+
                 });
+
+                if (!result.Any())
+                    throw new NotFoundProductTypeException();
 
                 var productTypesResponse = result.Select(record => MapToProductTypeResponse(record)).ToList();
 

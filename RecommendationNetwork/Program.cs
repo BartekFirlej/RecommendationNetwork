@@ -9,7 +9,7 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddSingleton<IDriver>(provider =>
 {
     return GraphDatabase.Driver(
-        new Uri("bolt://neo4jdb-server:7687/RecommendationNetwork"),
+        new Uri("bolt://127.0.0.1:7687"),
         AuthTokens.Basic("neo4j", "bartekfirlej1")
     );
 });

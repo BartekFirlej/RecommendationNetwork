@@ -44,7 +44,7 @@ namespace RecommendationNetwork.Repositories
                 });
 
                 var voivodeshipResponse = MapToVoivodeshipResponse(result);
-                
+
                 return voivodeshipResponse;
             }
         }
@@ -56,16 +56,13 @@ namespace RecommendationNetwork.Repositories
                 var retrieveNodesCypher = "MATCH (v:Voivodeship) RETURN v";
                 var result = await session.ReadTransactionAsync(async transaction =>
                 {
-                    try
-                    {
-                        var queryResult = await transaction.RunAsync(retrieveNodesCypher);
-                        return await queryResult.ToListAsync();
-                    }
-                    catch
-                    {
-                        throw new NotFoundVoivodeshipException();
-                    }
+                    var queryResult = await transaction.RunAsync(retrieveNodesCypher);
+                    return await queryResult.ToListAsync();
+
                 });
+
+                if (!result.Any())
+                    throw new NotFoundVoivodeshipException();
 
                 var voivodeshipResponse = result.Select(record => MapToVoivodeshipResponse(record)).ToList();
 
