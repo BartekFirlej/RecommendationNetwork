@@ -1,8 +1,8 @@
 ﻿namespace RecommendationNetwork.DTOs
 {
-    public class OrderResponse
+    public class PurchaseResponse
     {
         public int Id { get; set; }
-        public DateTimeOffset OrderDate { get; set; }
+        public DateTimeOffset PurchaseDate { get; set; }
     }
 }

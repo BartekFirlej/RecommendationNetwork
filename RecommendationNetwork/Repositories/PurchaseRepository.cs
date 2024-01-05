@@ -4,34 +4,34 @@ using RecommendationNetwork.Exceptions;
 
 namespace RecommendationNetwork.Repositories
 {
-    public interface IOrderRepository
+    public interface IPurchaseRepository
     {
-        public Task<OrderResponse> AddOrder(OrderRequest orderToAdd);
-        public Task<List<OrderResponse>> GetOrders();
-        public Task<OrderResponse> GetOrder(int id);
+        public Task<PurchaseResponse> AddPurchase(PurchaseRequest purchaseToAdd);
+        public Task<List<PurchaseResponse>> GetPurchases();
+        public Task<PurchaseResponse> GetPurchase(int id);
     }
-    public class OrderRepository : IOrderRepository
+    public class PurchaseRepository : IPurchaseRepository
     {
         private readonly IDriver _driver;
-        public OrderRepository(IDriver driver)
+        public PurchaseRepository(IDriver driver)
         {
             _driver = driver;
         }
 
-        private static OrderResponse MapToOrderResponse(IRecord record)
+        private static PurchaseResponse MapToOrderResponse(IRecord record)
         {
-            var properties = record["o"].As<INode>().Properties;
+            var properties = record["p"].As<INode>().Properties;
 
-            var orderResponse = new OrderResponse
+            var orderResponse = new PurchaseResponse
             {
                 Id = properties["Id"].As<int>(),
-                OrderDate = properties["OrderDate"].As<DateTimeOffset>()
+                PurchaseDate = properties["PurchaseDate"].As<DateTimeOffset>()
             };
 
             return orderResponse;
         }
 
-        public async Task<OrderResponse> AddOrder(OrderRequest orderToAdd)
+        /*public async Task<PurchaseResponse> AddOrder(OrderRequest orderToAdd)
         {
             using (var session = _driver.AsyncSession())
             {
@@ -75,12 +75,46 @@ namespace RecommendationNetwork.Repositories
                 return orderResponse;
             }
         }
+        */
 
-        public async Task<OrderResponse> GetOrder(int id)
+        public async Task<PurchaseResponse> AddPurchase(PurchaseRequest purchaseToAdd)
         {
             using (var session = _driver.AsyncSession())
             {
-                var retrieveProduct = "MATCH (o:Order) WHERE o.Id=$id RETURN o";
+                var addOrdedQuery = "CREATE (p:Purchase {Id: $Id, PurchaseDate: datetime($PurchaseDate)}) RETURN p";
+                var addCustomerToOrderQuery = "MATCH (c:Customer {Id: $CustomerId}), (p:Purchase {Id: $Id}) MERGE (c)-[:PURCHASED]->(p)";
+                var parameters = purchaseToAdd;
+
+                var orderResult = await session.WriteTransactionAsync(async transaction =>
+                {
+                    var queryResult = await transaction.RunAsync(addOrdedQuery, parameters);
+                    return await queryResult.SingleAsync();
+                });
+
+                await session.WriteTransactionAsync(async transaction =>
+                {
+                    return await transaction.RunAsync(addCustomerToOrderQuery, parameters);
+                });
+
+                if (purchaseToAdd.RecommenderId != null)
+                {
+                    var addRecommenderToOrderQuery = "MATCH (c:Customer {Id: $RecommenderId}), (p:Purchase {Id: $Id}) MERGE (c)-[:RECOMMENDED_PURCHASE]->(p)";
+                    await session.WriteTransactionAsync(async transaction =>
+                    {
+                        return await transaction.RunAsync(addRecommenderToOrderQuery, parameters);
+                    });
+                }
+
+                var orderResponse = MapToOrderResponse(orderResult);
+                return orderResponse;
+            }
+        }
+
+        public async Task<PurchaseResponse> GetPurchase(int id)
+        {
+            using (var session = _driver.AsyncSession())
+            {
+                var retrieveProduct = "MATCH (p:Purchase) WHERE p.Id=$id RETURN p";
                 var result = await session.ReadTransactionAsync(async transaction =>
                 {
                     try
@@ -90,7 +124,7 @@ namespace RecommendationNetwork.Repositories
                     }
                     catch
                     {
-                        throw new NotFoundOrderException(id);
+                        throw new NotFoundPurchaseException(id);
                     }
                 });
 
@@ -100,23 +134,19 @@ namespace RecommendationNetwork.Repositories
             }
         }
 
-        public async Task<List<OrderResponse>> GetOrders()
+        public async Task<List<PurchaseResponse>> GetPurchases()
         {
             using (var session = _driver.AsyncSession())
             {
-                var retrieveNodesCypher = "MATCH (o:Order) RETURN o";
+                var retrieveNodesCypher = "MATCH (p:Purchase) RETURN p";
                 var result = await session.ReadTransactionAsync(async transaction =>
                 {
-                    try
-                    {
-                        var queryResult = await transaction.RunAsync(retrieveNodesCypher);
-                        return await queryResult.ToListAsync();
-                    }
-                    catch
-                    {
-                        throw new NotFoundOrderException();
-                    }
+                    var queryResult = await transaction.RunAsync(retrieveNodesCypher);
+                    return await queryResult.ToListAsync();
                 });
+
+                if (!result.Any())
+                    throw new NotFoundPurchaseException();
 
                 var ordersResponse = result.Select(record => MapToOrderResponse(record)).ToList();
 
