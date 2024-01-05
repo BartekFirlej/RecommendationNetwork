@@ -1,9 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using RecommendationNetwork.DTOs;
+using RecommendationNetwork.Exceptions;
 using RecommendationNetwork.Services;
 
 [ApiController]
-[Route("users")]
+[Route("customers")]
 public class CustomerController : ControllerBase
 {
     private readonly ICustomerService _customerService;
@@ -16,21 +17,58 @@ public class CustomerController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> CreateCustomer(CustomerRequest customerToAdd)
     {
-        var createdNode = await _customerService.AddCustomer(customerToAdd);
-        return Ok(createdNode);
+        try
+        {
+            var createdNode = await _customerService.AddCustomer(customerToAdd);
+            return Ok(createdNode);
+        }
+        catch(NotFoundVoivodeshipException e)
+        {
+            return NotFound(e.Message);
+        }
+        catch (NotFoundCustomerException e)
+        {
+            return NotFound(e.Message);
+        }
+        catch (Exception e)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError);
+        }
     }
 
     [HttpGet]
     public async Task<IActionResult> ReadCustomers()
     {
-        var customerNodes = await _customerService.GetCustomers();
-        return Ok(customerNodes);
+        try
+        {
+            var customerNodes = await _customerService.GetCustomers();
+            return Ok(customerNodes);
+        }
+        catch (NotFoundCustomerException e)
+        {
+            return NotFound(e.Message);
+        }
+        catch (Exception e)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError);
+        }
     }
 
     [HttpGet("{id}")]
     public async Task<IActionResult> GetCustomer(int id)
     {
-        var customer = await _customerService.GetCustomer(id);
-        return Ok(customer);
+        try
+        {
+            var customer = await _customerService.GetCustomer(id);
+            return Ok(customer);
+        }
+        catch (NotFoundCustomerException e)
+        {
+            return NotFound(e.Message);
+        }
+        catch (Exception e)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError);
+        }
     }
 }

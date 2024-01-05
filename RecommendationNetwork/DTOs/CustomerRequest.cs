@@ -4,7 +4,8 @@
     {
         public int Id { get; set; }
         public string Name { get; set; }
-        public string SecondName { get; set; }
+        public string LastName { get; set; }
         public int VoivodeshipId { get; set; }
+        public int? RecommenderId { get; set; }
     }
 }
