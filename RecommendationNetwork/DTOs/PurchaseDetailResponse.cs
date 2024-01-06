@@ -2,7 +2,8 @@
 {
     public class PurchaseDetailResponse
     {
-        public int PurchaseId { get; set; }
+        public int Id {  get; set; }
+        public int ProductId { get; set; }
         public float Quantity { get; set; }
         public float PriceForOnePiece { get; set; }
     }

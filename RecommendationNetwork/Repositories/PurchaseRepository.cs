@@ -38,7 +38,7 @@ namespace RecommendationNetwork.Repositories
             {
                 var addOrdedQuery = "CREATE (p:Purchase {Id: $Id, PurchaseDate: datetime($PurchaseDate)}) RETURN p";
                 var addCustomerToPurchaseQuery = "MATCH (c:Customer {Id: $CustomerId}), (p:Purchase {Id: $Id}) MERGE (c)-[:PURCHASED]->(p)";
-                var addPurchaseProducts = "MATCH (p:Purchase {Id: $Id}), (pr:Product{Id:$productId}) MERGE (p)-[:CONISTS_OF{Quantity: $Quantity, PriceForOnePiece: $Price}]->(pr)";
+                var addPurchaseProducts = "MATCH (p:Purchase {Id: $purchaseId}), (pr:Product{Id:$productId}) MERGE (p)-[:CONISTS_OF{Id: $purchaseDetailId, Quantity: $Quantity, PriceForOnePiece: $Price}]->(pr)";
                 var parameters = purchaseToAdd;
 
                 var orderResult = await session.WriteTransactionAsync(async transaction =>
@@ -62,13 +62,14 @@ namespace RecommendationNetwork.Repositories
 
                 foreach(var purchaseDetail in purchaseToAdd.PurchaseDetails)
                 {
-                    var Id = purchaseToAdd.Id;
+                    var purchaseId = purchaseToAdd.Id;
+                    var purchaseDetailId = purchaseDetail.Id;
                     var Quantity = purchaseDetail.Quantity;
                     var productId = purchaseDetail.ProductId;
                     var Price = purchaseDetail.PriceForOnePiece;
                     await session.WriteTransactionAsync(async transaction =>
                     {
-                        return await transaction.RunAsync(addPurchaseProducts, new { Id, Quantity, productId, Price });
+                        return await transaction.RunAsync(addPurchaseProducts, new { purchaseId, purchaseDetailId, Quantity, productId, Price });
                     });
                 }
 
