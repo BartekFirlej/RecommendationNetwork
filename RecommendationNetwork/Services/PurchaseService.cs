@@ -6,7 +6,8 @@ namespace RecommendationNetwork.Services
 {
     public interface IPurchaseService
     {
-        public Task<PurchaseResponse> AddPurchase(PurchaseRequest orderToAdd);
+        public Task<PurchaseResponse> AddPurchase(PurchaseRequest purchaseToAdd);
+        public Task<PurchaseResponse> AddPurchaseWithDetails(PurchaseWithDetailsRequest purchaseToAdd);
         public Task<List<PurchaseResponse>> GetPurchases();
         public Task<PurchaseResponse> GetPurchase(int id);
     }
@@ -22,14 +23,32 @@ namespace RecommendationNetwork.Services
             _productService = productService;
         }
 
-        public async Task<PurchaseResponse> AddPurchase(PurchaseRequest orderToAdd)
+        public async Task<PurchaseResponse> AddPurchase(PurchaseRequest purchaseToAdd)
         {
-            await _customerService.GetCustomer(orderToAdd.CustomerId);
-            if(orderToAdd.RecommenderId!=null)
+            await _customerService.GetCustomer(purchaseToAdd.CustomerId);
+            if(purchaseToAdd.RecommenderId!=null)
             {
-                await _customerService.GetCustomer((int)orderToAdd.RecommenderId);
+                await _customerService.GetCustomer((int)purchaseToAdd.RecommenderId);
             }
-            return await _purchaseRepository.AddPurchase(orderToAdd);
+            return await _purchaseRepository.AddPurchase(purchaseToAdd);
+        }
+
+        public async Task<PurchaseResponse> AddPurchaseWithDetails(PurchaseWithDetailsRequest purchaseToAdd)
+        {
+            await _customerService.GetCustomer(purchaseToAdd.CustomerId);
+            if (purchaseToAdd.RecommenderId != null)
+            {
+                await _customerService.GetCustomer((int)purchaseToAdd.RecommenderId);
+            }
+            foreach(var purchaseDetails in purchaseToAdd.PurchaseDetails)
+            {
+                await _productService.GetProduct(purchaseDetails.ProductId);
+                if (purchaseDetails.Quantity <= 0)
+                    throw new ValueMustBeGreaterThanZeroException("Quantity", purchaseDetails.ProductId);
+                if (purchaseDetails.PriceForOnePiece <= 0)
+                    throw new ValueMustBeGreaterThanZeroException("Price", purchaseDetails.ProductId);
+            }
+            return await _purchaseRepository.AddPurchaseWithDetails(purchaseToAdd);
         }
 
         public async Task<PurchaseResponse> GetPurchase(int id)

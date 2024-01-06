@@ -31,6 +31,36 @@ public class PurchaseController : ControllerBase
         }
     }
 
+    [HttpPost("details")]
+    public async Task<IActionResult> CreatePurchaseWithDetails(PurchaseWithDetailsRequest purchaseToAdd)
+    {
+        try
+        {
+            var createdNode = await _purchaseService.AddPurchaseWithDetails(purchaseToAdd);
+            return Ok(createdNode);
+        }
+        catch (NotFoundCustomerException e)
+        {
+            return NotFound(e.Message);
+        }
+        catch (NotFoundProductException e)
+        {
+            return NotFound(e.Message);
+        }
+        catch (ValueMustBeGreaterThanZeroException e)
+        {
+            return BadRequest(e.Message);
+        }
+        catch (DateTimeException e)
+        {
+            return BadRequest(e.Message);
+        }
+        catch (Exception e)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError);
+        }
+    }
+
     [HttpGet]
     public async Task<IActionResult> GetPurchases()
     {

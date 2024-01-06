@@ -7,6 +7,7 @@ namespace RecommendationNetwork.Repositories
     public interface IPurchaseRepository
     {
         public Task<PurchaseResponse> AddPurchase(PurchaseRequest purchaseToAdd);
+        public Task<PurchaseResponse> AddPurchaseWithDetails(PurchaseWithDetailsRequest purchaseToAdd);
         public Task<List<PurchaseResponse>> GetPurchases();
         public Task<PurchaseResponse> GetPurchase(int id);
     }
@@ -31,15 +32,14 @@ namespace RecommendationNetwork.Repositories
             return orderResponse;
         }
 
-        /*public async Task<PurchaseResponse> AddOrder(OrderRequest orderToAdd)
+        public async Task<PurchaseResponse> AddPurchaseWithDetails(PurchaseWithDetailsRequest purchaseToAdd)
         {
             using (var session = _driver.AsyncSession())
             {
-                var addOrdedQuery = "CREATE (o:Order {Id: $Id, OrderDate: datetime($OrderDate)}) RETURN o";
-                var addCustomerToOrderQuery = "MATCH (c:Customer {Id: $CustomerId}), (o:Order {Id: $Id}) MERGE (c)-[:PLACED_ORDER]->(o)";
-                var addRecommenderToOrderQuery = "MATCH (c:Customer {Id: $RecommenderId}), (o:Order {Id: $Id}) MERGE (c)-[:RECOMMENDED_ORDER]->(o)";
-                var addOrderProducts = "MATCH (o:Order {Id: $orderId}), (p:Product{Id:$Id}) MERGE (o)-[:CONISTS_OF{Quantity: $Quantity}]->(p)";
-                var parameters = orderToAdd;
+                var addOrdedQuery = "CREATE (p:Purchase {Id: $Id, PurchaseDate: datetime($PurchaseDate)}) RETURN p";
+                var addCustomerToPurchaseQuery = "MATCH (c:Customer {Id: $CustomerId}), (p:Purchase {Id: $Id}) MERGE (c)-[:PURCHASED]->(p)";
+                var addPurchaseProducts = "MATCH (p:Purchase {Id: $Id}), (pr:Product{Id:$productId}) MERGE (p)-[:CONISTS_OF{Quantity: $Quantity, PriceForOnePiece: $Price}]->(pr)";
+                var parameters = purchaseToAdd;
 
                 var orderResult = await session.WriteTransactionAsync(async transaction =>
                 {
@@ -49,25 +49,26 @@ namespace RecommendationNetwork.Repositories
 
                 await session.WriteTransactionAsync(async transaction =>
                 {
-                    return await transaction.RunAsync(addCustomerToOrderQuery, parameters);
+                    return await transaction.RunAsync(addCustomerToPurchaseQuery, parameters);
                 });
 
-                foreach(var orderDetail in orderToAdd.OrderDetails)
-                {
-                    var Id = orderDetail.Id;
-                    var Quantity = orderDetail.Quantity;
-                    var orderId = orderToAdd.Id;
+                if(purchaseToAdd.RecommenderId != null) {
+                    var addRecommenderToPurchaseQuery = "MATCH (c:Customer {Id: $RecommenderId}), (p:Purchase {Id: $Id}) MERGE (c)-[:RECOMMENDED_PURCHASE]->(p)";
                     await session.WriteTransactionAsync(async transaction =>
                     {
-                        return await transaction.RunAsync(addOrderProducts, new { orderId , Id, Quantity });
+                        return await transaction.RunAsync(addRecommenderToPurchaseQuery, parameters);
                     });
                 }
 
-                if (orderToAdd.RecommenderId != null)
+                foreach(var purchaseDetail in purchaseToAdd.PurchaseDetails)
                 {
+                    var Id = purchaseToAdd.Id;
+                    var Quantity = purchaseDetail.Quantity;
+                    var productId = purchaseDetail.ProductId;
+                    var Price = purchaseDetail.PriceForOnePiece;
                     await session.WriteTransactionAsync(async transaction =>
                     {
-                        return await transaction.RunAsync(addRecommenderToOrderQuery, parameters);
+                        return await transaction.RunAsync(addPurchaseProducts, new { Id, Quantity, productId, Price });
                     });
                 }
 
@@ -75,7 +76,6 @@ namespace RecommendationNetwork.Repositories
                 return orderResponse;
             }
         }
-        */
 
         public async Task<PurchaseResponse> AddPurchase(PurchaseRequest purchaseToAdd)
         {
