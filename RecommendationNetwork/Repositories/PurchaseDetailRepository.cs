@@ -18,7 +18,7 @@ namespace RecommendationNetwork.Repositories
             _driver = driver;
         }
 
-        private static PurchaseIdDetailResponse MapToOrderResponse(IRecord record)
+        private static PurchaseIdDetailResponse MapToPurchaseIdDetailResponse(IRecord record)
         {
             var propertiesPurchase = record["p"].As<INode>().Properties;
             var propertiesConsistOf = record["a"].As<IRelationship>().Properties;
@@ -35,28 +35,24 @@ namespace RecommendationNetwork.Repositories
 
             return orderResponse;
         }
+
         public async Task<PurchaseIdDetailResponse> AddPurchaseDetail(PurchaseIdDetailRequest purchaseDetailToAdd)
         {
             using (var session = _driver.AsyncSession())
             {
-                var addPurchaseDetail = "MATCH (p:Purchase {Id: $PurchaseId}), (pr:Product{Id:$ProductId}) MERGE (p)-[:CONISTS_OF{Id: $Id, Quantity: $Quantity, PriceForOnePiece: $PriceForOnePiece}]->(pr)";
+                var addPurchaseDetail = "MATCH (p:Purchase {Id: $PurchaseId}), (pt:Product{Id:$ProductId}) MERGE (p)-[a:CONISTS_OF{Id: $Id, Quantity: $Quantity, PriceForOnePiece: $PriceForOnePiece}]->(pt) RETURN p,a,pt";
                 var parameters = purchaseDetailToAdd;
 
                 var addedPurchaseDetail = await session.WriteTransactionAsync(async transaction =>
                 {
-                    return await transaction.RunAsync(addPurchaseDetail, parameters);
+                    var queryResult = await transaction.RunAsync(addPurchaseDetail, parameters);
+                    return await queryResult.SingleAsync();
                     
                 });
-                
+
+                var purchaseDetailResponse = MapToPurchaseIdDetailResponse(addedPurchaseDetail);
+                return purchaseDetailResponse;
             }
-            return new PurchaseIdDetailResponse
-            {
-                Id = purchaseDetailToAdd.Id,
-                Quantity = purchaseDetailToAdd.Quantity,
-                PriceForOnePiece = purchaseDetailToAdd.PriceForOnePiece,
-                ProductId = purchaseDetailToAdd.ProductId,
-                PurchaseId = purchaseDetailToAdd.PurchaseId
-            };
         }
 
         public async Task<PurchaseIdDetailResponse> GetPurchaseDetail(int id)
@@ -77,7 +73,7 @@ namespace RecommendationNetwork.Repositories
                     }
                 });
                     
-                var ordersResponse = MapToOrderResponse(result);
+                var ordersResponse = MapToPurchaseIdDetailResponse(result);
 
                 return ordersResponse;
             }
@@ -97,7 +93,7 @@ namespace RecommendationNetwork.Repositories
                 if (!result.Any())
                     throw new NotFoundPurchaseDetailException();
 
-                var ordersResponse = result.Select(record => MapToOrderResponse(record)).ToList();
+                var ordersResponse = result.Select(record => MapToPurchaseIdDetailResponse(record)).ToList();
 
                 return ordersResponse;
             }

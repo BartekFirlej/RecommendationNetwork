@@ -15,7 +15,7 @@ namespace RecommendationNetwork.Controllers
             _purchaseDetailService = purchaseDetailService;
         }
 
-        [HttpPost()]
+        [HttpPost]
         public async Task<IActionResult> CreatePurchaseDetail(PurchaseIdDetailRequest purchaseDetailToAdd)
         {
             try
