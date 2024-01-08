@@ -15,7 +15,7 @@ public class RecommmendationController : ControllerBase
     }
 
     [HttpGet("customers")]
-    public async Task<IActionResult> GetCustomersCustomersRecommenadtions()
+    public async Task<IActionResult> GetCustomersCustomersRecommendations()
     {
         try
         {
@@ -33,11 +33,11 @@ public class RecommmendationController : ControllerBase
     }
 
     [HttpGet("customers/{id}")]
-    public async Task<IActionResult> GetCustomerCustomerRecommendations(int id)
+    public async Task<IActionResult> GetCustomersCustomerRecommendations(int id)
     {
         try
         {
-            var customerRecommendations = await _customerRecommendationService.GetCustomersCustomerRecommmendation(id);
+            var customerRecommendations = await _customerRecommendationService.GetCustomersCustomerRecommmendations(id);
             return Ok(customerRecommendations);
         }
         catch(NotFoundCustomerException e)
@@ -45,6 +45,46 @@ public class RecommmendationController : ControllerBase
             return NotFound(e.Message);
         }
         catch (NotFoundCustomerRecommendationException e)
+        {
+            return NotFound(e.Message);
+        }
+        catch (Exception e)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError);
+        }
+    }
+
+    [HttpGet("purchases")]
+    public async Task<IActionResult> GetPurchasesCustomersRecommenadations()
+    {
+        try
+        {
+            var customerRecommendations = await _purchaseRecommendationService.GetPurchasesCustomersRecommmendations();
+            return Ok(customerRecommendations);
+        }
+        catch (NotFoundPurchasesRecommendationsException e)
+        {
+            return NotFound(e.Message);
+        }
+        catch (Exception e)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError);
+        }
+    }
+
+    [HttpGet("purchases/{id}")]
+    public async Task<IActionResult> GetPurchasesCustomerRecommendations(int id)
+    {
+        try
+        {
+            var customerRecommendations = await _purchaseRecommendationService.GetPurchasesCustomerRecommmendations(id);
+            return Ok(customerRecommendations);
+        }
+        catch (NotFoundCustomerException e)
+        {
+            return NotFound(e.Message);
+        }
+        catch (NotFoundPurchasesRecommendationsException e)
         {
             return NotFound(e.Message);
         }

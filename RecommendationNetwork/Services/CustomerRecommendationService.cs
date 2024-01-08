@@ -6,7 +6,7 @@ namespace RecommendationNetwork.Services
     public interface ICustomerRecommendationService
     {
         public Task<List<CustomerRecommendationResponse>> GetCustomersCustomersRecommmendations();
-        public Task<CustomerRecommendationResponse> GetCustomersCustomerRecommmendation(int customerId);
+        public Task<CustomerRecommendationResponse> GetCustomersCustomerRecommmendations(int customerId);
     }
     public class CustomerRecommendationService : ICustomerRecommendationService
     {
@@ -19,10 +19,10 @@ namespace RecommendationNetwork.Services
             _customerService = customerService;
         }
 
-        public async Task<CustomerRecommendationResponse> GetCustomersCustomerRecommmendation(int customerId)
+        public async Task<CustomerRecommendationResponse> GetCustomersCustomerRecommmendations(int customerId)
         {
             await _customerService.GetCustomer(customerId);
-            return await _customerRecommendationRepository.GetCustomersCustomerRecommmendation(customerId);
+            return await _customerRecommendationRepository.GetCustomersCustomerRecommmendations(customerId);
         }
 
         public async Task<List<CustomerRecommendationResponse>> GetCustomersCustomersRecommmendations()

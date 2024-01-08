@@ -1,14 +1,13 @@
 ﻿using Neo4j.Driver;
 using RecommendationNetwork.DTOs;
 using RecommendationNetwork.Exceptions;
-using RecommendationNetwork.Models;
 
 namespace RecommendationNetwork.Repositories
 {
     public interface IPurchaseRecommendationRepository
     {
         public Task<List<PurchaseRecommendationResponse>> GetPurchasesCustomersRecommmendations();
-        public Task<PurchaseRecommendationResponse> GetPurchasesCustomerRecommmendation(int customerId);
+        public Task<PurchaseRecommendationResponse> GetPurchasesCustomerRecommmendations(int customerId);
     }
     public class PurchaseRecommendationRepository : IPurchaseRecommendationRepository
     {
@@ -27,7 +26,10 @@ namespace RecommendationNetwork.Repositories
             {
                 Id = properties["Id"].As<int>(),
                 Name = properties["Name"].As<string>(),
-                LastName = properties["LastName"].As<string>()
+                LastName = properties["LastName"].As<string>(),
+                FirstLevelRecommendations = record["directRecommendedPurchases"].As<int>(),
+                SecondLevelRecommendations = record["indirect1RecommendedPurchases"].As<int>(),
+                ThirdLevelRecommendations = record["indirect2RecommendedPurchases"].As<int>()
             };
 
             return customerResponse;
@@ -37,19 +39,7 @@ namespace RecommendationNetwork.Repositories
         {
             using (var session = _driver.AsyncSession())
             {
-                var retrieveNodesCypher = "MATCH (c:Customer)" +
-                    " OPTIONAL MATCH (c)-[:RECOMMENDED]->(direct:Customer)" +
-                    " WITH c, direct" +
-                    " OPTIONAL MATCH (direct)-[:PURCHASED]->(purchase1)" +
-                    " WITH c, direct, COUNT(DISTINCT purchase1) AS purchasesByDirect" +
-                    " WITH c, purchasesByDirect, indirect1" +
-                    " OPTIONAL MATCH (indirect1)-[:PURCHASED]->(purchase2)" +
-                    " WITH c, purchasesByDirect, indirect1, COUNT(DISTINCT purchase2) AS purchasesByIndirect1" +
-                    " OPTIONAL MATCH (indirect1)-[:RECOMMENDED]->(indirect2:Customer)" +
-                    " WITH c, purchasesByDirect, purchasesByIndirect1, indirect2" +
-                    " OPTIONAL MATCH (indirect2)-[:PURCHASED]->(purchase3)" +
-                    " WITH c, purchasesByDirect, purchasesByIndirect1, indirect2, COUNT(DISTINCT purchase3) AS purchasesByIndirect2" +
-                    " RETURN c, purchasesByDirect, purchasesByIndirect1, purchasesByIndirect2,";
+                var retrieveNodesCypher = "MATCH (c:Customer)\r\n// First level of recommendation purchases\r\nOPTIONAL MATCH (c)-[direct:RECOMMENDED_PURCHASE]->()\r\nWITH c, COUNT(direct) AS directRecommendedPurchases\r\n\r\n// Second level of recommendation purchases\r\nOPTIONAL MATCH (c)-[:RECOMMENDED_CUSTOMER]->()-[indirect1:RECOMMENDED_PURCHASE]->()\r\nWITH c, directRecommendedPurchases, COUNT(indirect1) AS indirect1RecommendedPurchases\r\n\r\n// Third level of recommendation purchases\r\nOPTIONAL MATCH (c)-[:RECOMMENDED_CUSTOMER]->()-[:RECOMMENDED_CUSTOMER]->()-[indirect2:RECOMMENDED_PURCHASE]->()\r\nRETURN c, directRecommendedPurchases, indirect1RecommendedPurchases, COUNT(indirect2) AS indirect2RecommendedPurchases\r\n";
 
                 var result = await session.ReadTransactionAsync(async transaction =>
                 {
@@ -66,23 +56,11 @@ namespace RecommendationNetwork.Repositories
             }
         }
 
-        public async Task<PurchaseRecommendationResponse> GetPurchasesCustomerRecommmendation(int customerId)
+        public async Task<PurchaseRecommendationResponse> GetPurchasesCustomerRecommmendations(int customerId)
         {
             using (var session = _driver.AsyncSession())
             {
-                var retrieveNodesCypher = "MATCH (c:Customer {Id: $customerId})" +
-                    " OPTIONAL MATCH (c)-[:RECOMMENDED]->(direct:Customer)" +
-                    " WITH c, direct" +
-                    " OPTIONAL MATCH (direct)-[:PURCHASED]->(purchase1)" +
-                    " WITH c, direct, COUNT(DISTINCT purchase1) AS purchasesByDirect" +
-                    " WITH c, purchasesByDirect, indirect1" +
-                    " OPTIONAL MATCH (indirect1)-[:PURCHASED]->(purchase2)" +
-                    " WITH c, purchasesByDirect, indirect1, COUNT(DISTINCT purchase2) AS purchasesByIndirect1" +
-                    " OPTIONAL MATCH (indirect1)-[:RECOMMENDED]->(indirect2:Customer)" +
-                    " WITH c, purchasesByDirect, purchasesByIndirect1, indirect2" +
-                    " OPTIONAL MATCH (indirect2)-[:PURCHASED]->(purchase3)" +
-                    " WITH c, purchasesByDirect, purchasesByIndirect1, indirect2, COUNT(DISTINCT purchase3) AS purchasesByIndirect2" +
-                    " RETURN c, purchasesByDirect, purchasesByIndirect1, purchasesByIndirect2,";
+                var retrieveNodesCypher = "MATCH (c:Customer {Id:$customerId})\r\n// First level of recommendation purchases\r\nOPTIONAL MATCH (c)-[direct:RECOMMENDED_PURCHASE]->()\r\nWITH c, COUNT(direct) AS directRecommendedPurchases\r\n\r\n// Second level of recommendation purchases\r\nOPTIONAL MATCH (c)-[:RECOMMENDED_CUSTOMER]->()-[indirect1:RECOMMENDED_PURCHASE]->()\r\nWITH c, directRecommendedPurchases, COUNT(indirect1) AS indirect1RecommendedPurchases\r\n\r\n// Third level of recommendation purchases\r\nOPTIONAL MATCH (c)-[:RECOMMENDED_CUSTOMER]->()-[:RECOMMENDED_CUSTOMER]->()-[indirect2:RECOMMENDED_PURCHASE]->()\r\nRETURN c, directRecommendedPurchases, indirect1RecommendedPurchases, COUNT(indirect2) AS indirect2RecommendedPurchases\r\n";
 
                 var result = await session.ReadTransactionAsync(async transaction =>
                 {

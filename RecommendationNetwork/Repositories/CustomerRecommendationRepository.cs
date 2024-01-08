@@ -7,7 +7,7 @@ namespace RecommendationNetwork.Repositories
     public interface ICustomerRecommendationRepository
     {
         public Task<List<CustomerRecommendationResponse>> GetCustomersCustomersRecommmendations();
-        public Task<CustomerRecommendationResponse> GetCustomersCustomerRecommmendation(int customerId);
+        public Task<CustomerRecommendationResponse> GetCustomersCustomerRecommmendations(int customerId);
     }
     public class CustomerRecommendationRepository : ICustomerRecommendationRepository
     {
@@ -57,7 +57,7 @@ namespace RecommendationNetwork.Repositories
             }
         }
 
-        public async Task<CustomerRecommendationResponse> GetCustomersCustomerRecommmendation(int customerId)
+        public async Task<CustomerRecommendationResponse> GetCustomersCustomerRecommmendations(int customerId)
         {
             using (var session = _driver.AsyncSession())
             {
