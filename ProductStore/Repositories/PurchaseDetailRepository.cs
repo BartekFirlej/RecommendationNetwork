@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Identity.Client;
 using ProductStore.DTOs;
 using ProductStore.Models;
 

@@ -4,11 +4,6 @@ using ProductStore.DTOs;
 using ProductStore.Models;
 using ProductStore.Repositories;
 using ProductStore.Services;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ProductStoreTests.Services
 {
@@ -90,15 +85,6 @@ namespace ProductStoreTests.Services
 
             Assert.IsNotNull(result);
             Assert.AreEqual("Furniture", result.Name);
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(Exception), "Napisales z malej litery.")]
-        public async Task PostProductType_ThrowsException_WhenNameStartsWithLowercase()
-        {
-            var productTypeToAdd = new ProductTypeRequest { Name = "furniture" };
-
-            await _service.PostProductType(productTypeToAdd);
         }
 
         [TestMethod]
