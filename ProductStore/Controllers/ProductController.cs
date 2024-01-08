@@ -56,6 +56,20 @@ namespace ProductStore.Controllers
             }
         }
 
+        [HttpPost("api")]
+        public async Task<IActionResult> PostProduct()
+        {
+            try
+            {
+                var addedProduct = await _productService.PostProductFromAPI();
+                return CreatedAtAction(nameof(PostProduct), addedProduct);
+            }
+            catch (Exception e)
+            {
+                return NotFound(e.Message);
+            }
+        }
+
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteProduct(int id)
         {

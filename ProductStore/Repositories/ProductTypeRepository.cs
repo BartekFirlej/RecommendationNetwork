@@ -9,6 +9,7 @@ namespace ProductStore.Repositories
         public Task<ICollection<ProductTypeResponse>> GetProductTypes();
         public Task<ProductTypeResponse> GetProductTypeResponse(int id);
         public Task<ProductType> GetProductType(int id);
+        public Task<ProductTypeResponse> GetProductTypeResponse(string productTypeName);
         public Task<ProductType> DeleteProductType(ProductType productTypeToDelete);
         public Task<ProductType> PostProductType(ProductTypeRequest productTypeToAdd);
     }
@@ -52,6 +53,19 @@ namespace ProductStore.Repositories
             return productType;
         }
 
+        public async Task<ProductTypeResponse> GetProductTypeResponse(string productTypeName)
+        {
+            var productType = await _dbContext.ProductTypes
+                .Select(p => new ProductTypeResponse
+                {
+                    Id = p.Id,
+                    Name = p.Name
+                })
+                .Where(p => p.Name == productTypeName)
+                .FirstOrDefaultAsync();
+            return productType;
+        }
+
         public async Task<ProductType> DeleteProductType(ProductType productTypeToDelete)
         {
             _dbContext.ProductTypes.Remove(productTypeToDelete);  
@@ -70,6 +84,5 @@ namespace ProductStore.Repositories
             return newProductType;
         }
 
-        
     }
 }

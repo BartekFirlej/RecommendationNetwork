@@ -9,6 +9,7 @@ namespace ProductStore.Services
         public Task<ICollection<ProductTypeResponse>> GetProductTypes();
         public Task<ProductTypeResponse> GetProductTypeResponse(int id);
         public Task<ProductType> GetProductType(int id);
+        public Task<ProductTypeResponse> GetProductTypeResponse(string productTypeName);
         public Task<ProductTypeResponse> DeleteProductType(int id);
         public Task<ProductTypeResponse> PostProductType(ProductTypeRequest productTypeToAdd);
     }
@@ -47,6 +48,15 @@ namespace ProductStore.Services
             return productType;
         }
 
+
+        public async Task<ProductTypeResponse> GetProductTypeResponse(string productTypeName)
+        {
+            var productType = await _productTypeRepository.GetProductTypeResponse(productTypeName);
+            if (productType == null)
+                throw new Exception(String.Format("Not found product type with name {0}.", productTypeName));
+            return productType;
+        }
+
         public async Task<ProductTypeResponse> DeleteProductType(int id)
         {
             var productType = await GetProductType(id);
@@ -56,12 +66,9 @@ namespace ProductStore.Services
 
         public async Task<ProductTypeResponse> PostProductType(ProductTypeRequest productTypeToAdd)
         {
-            if (char.IsLower(productTypeToAdd.Name[0]))
-                throw new Exception("Napisales z malej litery.");
             var addedProductType = await _productTypeRepository.PostProductType(productTypeToAdd);
             return _mapper.Map<ProductTypeResponse>(addedProductType);
         }
 
-        
     }
 }
