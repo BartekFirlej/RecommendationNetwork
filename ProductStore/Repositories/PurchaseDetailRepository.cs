@@ -32,7 +32,7 @@ namespace ProductStore.Repositories
                     Id = p.Id,
                     PurchaseId = p.PurchaseId,
                     PriceForOnePiece = p.PriceForOnePiece,
-                    Quantity = p.Number,
+                    Quantity = p.Quantity,
                     ProductId = p.ProductId
                 }).ToListAsync();
         }
@@ -52,7 +52,7 @@ namespace ProductStore.Repositories
                     Id = p.Id,
                     PurchaseId = p.PurchaseId,
                     PriceForOnePiece = p.PriceForOnePiece,
-                    Quantity = p.Number,
+                    Quantity = p.Quantity,
                     ProductId = p.ProductId
                 })
                 .Where(p => p.Id == id)
@@ -63,7 +63,7 @@ namespace ProductStore.Repositories
         {
             var detail = new PurchaseDetail
             {
-                Number = purchaseDetail.Quantity,
+                Quantity = purchaseDetail.Quantity,
                 PriceForOnePiece = purchaseDetail.PriceForOnePiece,
                 ProductId = purchaseDetail.ProductId,
                 PurchaseId = orderId
@@ -77,7 +77,7 @@ namespace ProductStore.Repositories
         {
             var detail = new PurchaseDetail
             {
-                Number = purchaseDetail.Quantity,
+                Quantity = purchaseDetail.Quantity,
                 PriceForOnePiece = purchaseDetail.PriceForOnePiece,
                 ProductId = purchaseDetail.ProductId,
                 PurchaseId = purchaseDetail.PurchaseId

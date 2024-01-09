@@ -29,7 +29,7 @@ namespace RecommendationNetwork.Repositories
                 Id = propertiesConsistOf["Id"].As<int>(),
                 ProductId = propertiesProduct["Id"].As<int>(),
                 PurchaseId = propertiesPurchase["Id"].As<int>(),
-                Quantity = propertiesConsistOf["Quantity"].As<float>(),
+                Quantity = propertiesConsistOf["Quantity"].As<int>(),
                 PriceForOnePiece = propertiesConsistOf["PriceForOnePiece"].As<float>()
             };
 

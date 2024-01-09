@@ -9,13 +9,15 @@ public class RabbitMqBackgroundService : BackgroundService
     private readonly IProductService _productService;
     private readonly IProductTypeService _productTypeService;
     private readonly IPurchaseService _purchaseService;
+    private readonly IPurchaseDetailService _purchaseDetailService;
 
     public RabbitMqBackgroundService(RabbitMqConsumer rabbitMqConsumer,
                                      ICustomerService customerService,
                                      IVoivodeshipService voivodeshipService, 
                                      IProductService productService,
                                      IProductTypeService productTypeService,
-                                     IPurchaseService purchaseService)
+                                     IPurchaseService purchaseService,
+                                     IPurchaseDetailService purchaseDetailService)
     {
         _rabbitMqConsumer = rabbitMqConsumer;
         _customerService = customerService;
@@ -23,6 +25,7 @@ public class RabbitMqBackgroundService : BackgroundService
         _productService = productService;
         _productTypeService = productTypeService;
         _purchaseService = purchaseService;
+        _purchaseDetailService = purchaseDetailService;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -37,6 +40,7 @@ public class RabbitMqBackgroundService : BackgroundService
         await Task.Run(() => _rabbitMqConsumer.StartConsuming<ProductTypeRequest>("productTypeQueue"), stoppingToken);
         await Task.Run(() => _rabbitMqConsumer.StartConsuming<PurchaseRequest>("purchaseQueue"), stoppingToken);
         await Task.Run(() => _rabbitMqConsumer.StartConsuming<PurchaseWithDetailsRequest>("purchaseWithDetailsQueue"), stoppingToken);
+        await Task.Run(() => _rabbitMqConsumer.StartConsuming<PurchaseIdDetailRequest>("purchaseDetailQueue"), stoppingToken);
 
     }
 
@@ -120,6 +124,19 @@ public class RabbitMqBackgroundService : BackgroundService
                 {
                     Console.WriteLine("Consuming PurchaseWithDetailsRequest again");
                     await _purchaseService.AddPurchaseWithDetails(purchaseWithDetailsRequest);
+                }
+            }
+            else if (e.Message is PurchaseIdDetailRequest purchaseDetailRequest)
+            {
+                try
+                {
+                    Console.WriteLine("Consuming PurchaseDetailRequest");
+                    await _purchaseDetailService.AddPurchaseDetail(purchaseDetailRequest);
+                }
+                catch
+                {
+                    Console.WriteLine("Consuming PurchaseDetailRequest again");
+                    await _purchaseDetailService.AddPurchaseDetail(purchaseDetailRequest);
                 }
             }
         }

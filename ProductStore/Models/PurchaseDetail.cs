@@ -7,7 +7,7 @@ public partial class PurchaseDetail
 {
     public int Id { get; set; }
 
-    public float Number { get; set; }
+    public int Quantity { get; set; }
 
     public float PriceForOnePiece { get; set; }
 

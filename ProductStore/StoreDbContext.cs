@@ -125,7 +125,7 @@ public partial class StoreDbContext : DbContext
 
             entity.ToTable("PurchaseDetail");
 
-            entity.Property(e => e.Number).HasColumnType("numeric(18, 0)");
+            entity.Property(e => e.Quantity).HasColumnName("Quantity");
             entity.Property(e => e.ProductId).HasColumnName("Product_Id");
             entity.Property(e => e.PurchaseId).HasColumnName("Purchase_Id");
 

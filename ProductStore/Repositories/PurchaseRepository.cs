@@ -90,7 +90,7 @@ namespace ProductStore.Repositories
                         Id = t.Id,
                         PriceForOnePiece = t.PriceForOnePiece,
                         ProductId = t.ProductId,
-                        Quantity = t.Number
+                        Quantity = t.Quantity
                     }).ToList()
                 }).FirstOrDefaultAsync();
         }
@@ -109,7 +109,7 @@ namespace ProductStore.Repositories
                        Id = t.Id,
                        PriceForOnePiece = t.PriceForOnePiece,
                        ProductId = t.ProductId,
-                       Quantity = t.Number
+                       Quantity = t.Quantity
                    }).ToList()
                })
                .ToListAsync();

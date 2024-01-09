@@ -21,12 +21,14 @@ namespace ProductStore.Services
         private readonly IProductService _productService;
         private readonly IPurchaseDetailRepository _purchaseDetailRepository;
         private readonly IMapper _mapper;
+        private readonly RabbitMqPublisher _rabbitMqPublisher;
 
-        public PurchaseDetailService(IPurchaseDetailRepository purchaseDetailRepository, IProductService productService, IMapper mapper)
+        public PurchaseDetailService(IPurchaseDetailRepository purchaseDetailRepository, IProductService productService, IMapper mapper, RabbitMqPublisher rabbitMqPublisher)
         {
             _productService = productService;
             _purchaseDetailRepository = purchaseDetailRepository;
             _mapper = mapper;
+            _rabbitMqPublisher = rabbitMqPublisher;
         }
         public async Task<ICollection<PurchaseDetailResponse>> GetPurchaseDetails()
         {
@@ -56,7 +58,9 @@ namespace ProductStore.Services
         {
             await _productService.GetProduct(purchaseDetail.ProductId);
             var addedDetail = await _purchaseDetailRepository.AddPurchaseDetail(purchaseDetail, orderId);
-            return _mapper.Map<PurchaseDetailResponse>(addedDetail);
+            var addedDetailResponse = _mapper.Map<PurchaseDetailResponse>(addedDetail);
+            _rabbitMqPublisher.PublishMessage(addedDetailResponse, "purchaseDetailQueue");
+            return addedDetailResponse;
         }
 
         public async Task<PurchaseDetailResponse> AddPurchaseDetail(PurchaseIdDetailRequest purchaseDetail)
@@ -67,7 +71,9 @@ namespace ProductStore.Services
                 throw new Exception(String.Format("Wrong price of product with id {0}.", purchaseDetail.ProductId));
             await _productService.GetProduct(purchaseDetail.ProductId);
             var addedDetail = await _purchaseDetailRepository.AddPurchaseDetail(purchaseDetail);
-            return _mapper.Map<PurchaseDetailResponse>(addedDetail);
+            var addedDetailResponse = _mapper.Map<PurchaseDetailResponse>(addedDetail);
+            _rabbitMqPublisher.PublishMessage(addedDetailResponse, "purchaseDetailQueue");
+            return addedDetailResponse;
         }
 
         public async Task<PurchaseDetailResponse> DeletePurchaseDetail(int id)
