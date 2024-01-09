@@ -76,9 +76,11 @@ public partial class StoreDbContext : DbContext
 
             entity.ToTable("Product");
 
-            entity.Property(e => e.ProductName)
+            entity.Property(e => e.Name)
                 .HasMaxLength(30)
-                .IsUnicode(false);
+                .IsUnicode(false)
+                .HasColumnName("Name");
+
             entity.Property(e => e.ProductTypeId).HasColumnName("ProductType_Id");
 
             entity.HasOne(d => d.ProductType).WithMany(p => p.Products)

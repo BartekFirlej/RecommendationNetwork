@@ -13,7 +13,7 @@ namespace RecommendationNetwork.Services
     {
         private readonly ICustomerRepository _customerRepository;
         private readonly IVoivodeshipService _voivodeshipService;
-        public CustomerService(ICustomerRepository customerRepository, IVoivodeshipService voivodeshipService)
+        public CustomerService(ICustomerRepository customerRepository, IVoivodeshipService voivodeshipService, RabbitMqConsumer rabbitMqConsumer)
         {
             _customerRepository = customerRepository;
             _voivodeshipService = voivodeshipService;

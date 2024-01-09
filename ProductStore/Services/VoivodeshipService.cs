@@ -17,10 +17,12 @@ namespace ProductStore.Services
     {
         private readonly IVoivodeshipRepository _voivodeshipRepository;
         private readonly IMapper _mapper;
-        public VoivodeshipService(IVoivodeshipRepository voivodeshipRepository, IMapper mapper)
+        private readonly RabbitMqPublisher _rabbitMqPublisher;
+        public VoivodeshipService(IVoivodeshipRepository voivodeshipRepository, IMapper mapper, RabbitMqPublisher rabbitMqPublisher)
         {
             _voivodeshipRepository = voivodeshipRepository;
             _mapper = mapper;
+            _rabbitMqPublisher = rabbitMqPublisher;
         }
 
         public async Task<ICollection<VoivodeshipResponse>> GetVoivodeships()
@@ -57,7 +59,9 @@ namespace ProductStore.Services
         public async Task<VoivodeshipResponse> PostVoivodeship(VoivodeshipRequest voivodeshipToAdd)
         {
             var addedVoivodeship = await _voivodeshipRepository.PostVoivodeship(voivodeshipToAdd);
-            return _mapper.Map<VoivodeshipResponse>(addedVoivodeship);
+            var addedVoivodeshipResponse =  _mapper.Map<VoivodeshipResponse>(addedVoivodeship);
+            _rabbitMqPublisher.PublishMessage(addedVoivodeshipResponse, "voivodeshipQueue");
+            return addedVoivodeshipResponse;
         }
     }
 }

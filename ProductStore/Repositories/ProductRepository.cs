@@ -27,7 +27,7 @@ namespace ProductStore.Repositories
                    .Select(p => new ProductResponse
                    {
                        Id = p.Id,
-                       ProductName = p.ProductName,
+                       Name = p.Name,
                        Price = p.Price,
                        ProductTypeId = p.ProductTypeId,
                        ProductTypeName = p.ProductType.Name
@@ -42,7 +42,7 @@ namespace ProductStore.Repositories
                    .Select(p => new ProductResponse
                    {
                        Id = p.Id,
-                       ProductName = p.ProductName,
+                       Name = p.Name,
                        Price = p.Price,
                        ProductTypeId = p.ProductTypeId,
                        ProductTypeName = p.ProductType.Name
@@ -71,7 +71,7 @@ namespace ProductStore.Repositories
             {
                 Price = productToAdd.Price,
                 ProductTypeId = productToAdd.ProductTypeId,
-                ProductName = productToAdd.ProductName
+                Name = productToAdd.Name
             };
             await _dbContext.Products.AddAsync(newProduct);
             await _dbContext.SaveChangesAsync();

@@ -18,11 +18,13 @@ namespace ProductStore.Services
     {
         private readonly IProductTypeRepository _productTypeRepository;
         private readonly IMapper _mapper;
+        private readonly RabbitMqPublisher _rabbitMqPublisher;
 
-        public ProductTypeService(IProductTypeRepository productTypeRepository, IMapper mapper)
+        public ProductTypeService(IProductTypeRepository productTypeRepository, IMapper mapper, RabbitMqPublisher rabbitMqPublisher)
         {
             _productTypeRepository = productTypeRepository;
             _mapper = mapper;
+            _rabbitMqPublisher = rabbitMqPublisher;
         }
 
         public async Task<ICollection<ProductTypeResponse>> GetProductTypes()
@@ -68,7 +70,9 @@ namespace ProductStore.Services
         public async Task<ProductTypeResponse> PostProductType(ProductTypeRequest productTypeToAdd)
         {
             var addedProductType = await _productTypeRepository.PostProductType(productTypeToAdd);
-            return _mapper.Map<ProductTypeResponse>(addedProductType);
+            var addedProductTypeResponse =  _mapper.Map<ProductTypeResponse>(addedProductType);
+            _rabbitMqPublisher.PublishMessage(addedProductTypeResponse, "productTypeQueue");
+            return addedProductTypeResponse;
         }
 
     }

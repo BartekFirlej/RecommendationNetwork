@@ -20,12 +20,14 @@ namespace ProductStore.Services
         private readonly IProductRepository _productRepository;
         private readonly IProductTypeService _productTypeService;
         private readonly IMapper _mapper;
+        private readonly RabbitMqPublisher _rabbitMqPublisher;
 
-        public ProductService(IProductRepository productRepository, IProductTypeService productTypeService, IMapper mapper)
+        public ProductService(IProductRepository productRepository, IProductTypeService productTypeService, IMapper mapper, RabbitMqPublisher rabbitMqPublisher)
         {
             _productRepository = productRepository;
             _productTypeService = productTypeService;
             _mapper = mapper;
+            _rabbitMqPublisher = rabbitMqPublisher;
         }
 
         public async Task<ICollection<ProductResponse>> GetProducts()
@@ -65,7 +67,9 @@ namespace ProductStore.Services
                 throw new Exception("Price must be greater than 0.");
             await _productTypeService.GetProductType(productToAdd.ProductTypeId);
             var addedProduct = await _productRepository.PostProduct(productToAdd);
-            return _mapper.Map<ProductPostResponse>(addedProduct);
+            var addedProductResponse =  _mapper.Map<ProductPostResponse>(addedProduct);
+            _rabbitMqPublisher.PublishMessage(addedProductResponse, "productQueue");
+            return addedProductResponse;
         }
 
         public async Task<ProductPostResponse> PostProductFromAPI()
@@ -106,7 +110,7 @@ namespace ProductStore.Services
                             productTypeResponse = await _productTypeService.PostProductType(ProductTypeToAdd);
                         }
 
-                        var productToAdd = new ProductRequest { ProductTypeId = productTypeResponse.Id, Price = price, ProductName = name };
+                        var productToAdd = new ProductRequest { ProductTypeId = productTypeResponse.Id, Price = price, Name = name };
                         addedProduct = await _productRepository.PostProduct(productToAdd);
                     }
                     else
@@ -119,7 +123,9 @@ namespace ProductStore.Services
                     Console.WriteLine("Exception caught: " + e.Message);
                 }
             }
-            return _mapper.Map<ProductPostResponse>(addedProduct);
+            var addedProductResponse = _mapper.Map<ProductPostResponse>(addedProduct);
+            _rabbitMqPublisher.PublishMessage(addedProductResponse, "productQueue");
+            return addedProductResponse;
         }
     }
 }

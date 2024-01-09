@@ -9,12 +9,10 @@ namespace ProductStore.Controllers
     public class ProductTypeController : ControllerBase
     {
         private readonly IProductTypeService _productTypeService;
-        private readonly RabbitMqPublisher _rabbitMqPublisher;
 
-        public ProductTypeController(IProductTypeService productTypeService, RabbitMqPublisher rabbitMqPublisher)
+        public ProductTypeController(IProductTypeService productTypeService)
         {
             _productTypeService = productTypeService;
-            _rabbitMqPublisher = rabbitMqPublisher;
         }
 
         [HttpGet]
@@ -51,7 +49,6 @@ namespace ProductStore.Controllers
             try
             {
                 var addedProductType = await _productTypeService.PostProductType(productTypeToAdd);
-                _rabbitMqPublisher.PublishMessage(addedProductType, "productTypeQueue");
                 return CreatedAtAction(nameof(PostProductType), addedProductType);
             }
             catch (Exception e)

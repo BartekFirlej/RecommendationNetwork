@@ -10,7 +10,6 @@ public class RabbitMqConsumer
     private readonly IConnection _rabbitMQConnection;
     private IModel _channel;
 
-    // Generic event handler for any type of message
     public event EventHandler<GenericEventArgs> MessageReceived;
 
     public RabbitMqConsumer(IConnection rabbitMqConnection)

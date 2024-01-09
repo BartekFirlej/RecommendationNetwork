@@ -6,7 +6,7 @@ public partial class Product
 {
     public int Id { get; set; }
 
-    public string ProductName { get; set; } = null!; 
+    public string Name { get; set; } = null!; 
 
     public float Price { get; set; }
 
