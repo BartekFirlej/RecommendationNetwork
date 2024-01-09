@@ -14,6 +14,7 @@ public class StoreMapper : Profile
         CreateMap<Voivodeship,  VoivodeshipResponse>();
         CreateMap<PurchaseDetail,  PurchaseDetailResponse>();
         CreateMap<Purchase,  PurchaseResponse>();
+        CreateMap<PurchaseProposal,  PurchaseProposalResponse>();
     }
 
 }

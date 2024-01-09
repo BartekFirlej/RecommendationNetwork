@@ -57,6 +57,8 @@ builder.Services.AddSingleton<RabbitMqConsumer>();
 
 builder.Services.AddHostedService<RabbitMqBackgroundService>();
 
+builder.Services.AddSingleton<RabbitMqPublisher>();
+
 
 var app = builder.Build();
 

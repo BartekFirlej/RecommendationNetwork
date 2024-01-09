@@ -15,12 +15,15 @@ namespace RecommendationNetwork.Services
         private readonly IPurchaseProposalRepository _purchaseProposalRepository;
         private readonly ICustomerService _customerService;
         private readonly IProductService _productService;
+        private readonly RabbitMqPublisher _rabbitMqPublisher;
 
-        public PurchaseProposalService(IPurchaseProposalRepository purchaseProposalRepository, ICustomerService customerService, IProductService productService)
+
+        public PurchaseProposalService(IPurchaseProposalRepository purchaseProposalRepository, ICustomerService customerService, IProductService productService, RabbitMqPublisher rabbitMqPublisher)
         {
             _purchaseProposalRepository = purchaseProposalRepository;
             _customerService = customerService;
             _productService = productService;
+            _rabbitMqPublisher = rabbitMqPublisher;
         }
 
         public async Task<PurchaseProposalResponse> AddPurchaseProposal(PurchaseProposalRequest purchasePropsalRequest)
@@ -29,7 +32,9 @@ namespace RecommendationNetwork.Services
             var products = await _productService.GetProducts();
             Random random = new Random();
             int randomIndex = random.Next(products.Count);
-            return await _purchaseProposalRepository.AddPurchaseProposal(purchasePropsalRequest, products[randomIndex].Id);
+            var purchaseProposalResponse = await _purchaseProposalRepository.AddPurchaseProposal(purchasePropsalRequest, products[randomIndex].Id);
+            _rabbitMqPublisher.PublishMessage(purchaseProposalResponse, "purchaseProposalQueue");
+            return purchaseProposalResponse;
         }
 
         public async Task<PurchaseProposalResponse> GetPurchaseProposal(int customerId, int productId)
