@@ -9,13 +9,11 @@ namespace ProductStore.Controllers
     [Route("voivodeships")]
     public class VoivodeshipController : ControllerBase
     {
-        private readonly IVoivodeshipService _voivodeshipService; 
-        private readonly RabbitMqPublisher _rabbitMqPublisher;
+        private readonly IVoivodeshipService _voivodeshipService;
 
-        public VoivodeshipController(IVoivodeshipService voivodeshipService, RabbitMqPublisher rabbitMqPublisher)
+        public VoivodeshipController(IVoivodeshipService voivodeshipService)
         {
             _voivodeshipService = voivodeshipService;
-            _rabbitMqPublisher = rabbitMqPublisher;
         }
 
         [HttpGet]
@@ -55,7 +53,6 @@ namespace ProductStore.Controllers
             try
             {
                 voivodeship = await _voivodeshipService.PostVoivodeship(voiovdeshipToAdd);
-                _rabbitMqPublisher.PublishMessage(voivodeship, "voivodeshipQueue");
             }
             catch (Exception ex)
             {

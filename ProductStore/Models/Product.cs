@@ -1,17 +1,16 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace ProductStore.Models;
 
 public partial class Product
 {
-    public int Id { get; set; } // robi baza za nas nie chce wysylac, chce wyswietlac
+    public int Id { get; set; }
 
-    public string Name { get; set; } = null!; // chce wysylac chce wyswietal
+    public string ProductName { get; set; } = null!; 
 
-    public float Price { get; set; }// chce wysylac chce wyswietal
+    public float Price { get; set; }
 
-    public int ProductTypeId { get; set; } // chce wysylac chce wyswietal
+    public int ProductTypeId { get; set; } 
 
     public virtual ProductType ProductType { get; set; } = null!;
 

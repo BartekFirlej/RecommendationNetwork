@@ -6,5 +6,6 @@
         public string Name { get; set; }
         public string LastName { get; set; }
         public int VoivodeshipId { get; set; }
+        public int? RecommenderId { get; set; }
     }
 }

@@ -13,14 +13,17 @@ namespace RecommendationNetwork.Services
     {
         private readonly ICustomerRepository _customerRepository;
         private readonly IVoivodeshipService _voivodeshipService;
-        public CustomerService(ICustomerRepository customerRepository, IVoivodeshipService voivodeshipService, RabbitMqConsumer rabbitMqConsumer)
+        public CustomerService(ICustomerRepository customerRepository, IVoivodeshipService voivodeshipService)
         {
             _customerRepository = customerRepository;
             _voivodeshipService = voivodeshipService;
         }
+
         public async Task<CustomerResponse> AddCustomer(CustomerRequest customerToAdd)
         {
             await _voivodeshipService.GetVoivodeship(customerToAdd.VoivodeshipId);
+            if (customerToAdd.RecommenderId != null)
+                await GetCustomer((int)customerToAdd.RecommenderId);
             return await _customerRepository.AddCustomer(customerToAdd);
         }
 

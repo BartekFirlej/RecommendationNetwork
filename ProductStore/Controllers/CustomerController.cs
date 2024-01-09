@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using ProductStore.DTOs;
 using ProductStore.Services;
-using RabbitMQ.Client;
 
 namespace ProductStore.Controllers
 {
@@ -18,7 +17,8 @@ namespace ProductStore.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetCustomers() {
+        public async Task<IActionResult> GetCustomers()
+        {
             ICollection<CustomerResponse> customers;
             try
             {

@@ -10,7 +10,8 @@ namespace RecommendationNetwork.Exceptions
         {
             this.HResult = 404;
         }
-        public DataInconsistencyException(string message) : base(message) {
+        public DataInconsistencyException(string message) : base(message)
+        {
             this.Message = message;
         }
         public Dictionary<string, object> ToJson()

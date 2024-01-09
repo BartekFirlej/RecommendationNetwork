@@ -53,6 +53,7 @@ public partial class StoreDbContext : DbContext
                 .HasMaxLength(20)
                 .IsUnicode(false);
             entity.Property(e => e.VoivodeshipId).HasColumnName("Voivodeship_Id");
+            entity.Property(e => e.RecommenderId).HasColumnName("RecommenderId").IsRequired(false);
             entity.Property(e => e.ZipCode)
                 .HasMaxLength(6)
                 .IsUnicode(false);
@@ -61,6 +62,12 @@ public partial class StoreDbContext : DbContext
                 .HasForeignKey(d => d.VoivodeshipId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("Customer_Voivodeship_FK");
+
+            entity.HasOne(d => d.Recommender)
+                .WithMany(p => p.RecommendedCustomers)
+                .HasForeignKey(d => d.RecommenderId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("Customer_Recommender_FK");
         });
 
         modelBuilder.Entity<Product>(entity =>
@@ -69,7 +76,7 @@ public partial class StoreDbContext : DbContext
 
             entity.ToTable("Product");
 
-            entity.Property(e => e.Name).HasColumnName("ProductName")
+            entity.Property(e => e.ProductName)
                 .HasMaxLength(30)
                 .IsUnicode(false);
             entity.Property(e => e.ProductTypeId).HasColumnName("ProductType_Id");

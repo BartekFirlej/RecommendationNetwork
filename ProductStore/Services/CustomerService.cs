@@ -49,6 +49,8 @@ namespace ProductStore.Services
 
         public async Task<CustomerResponse> PostCustomer(CustomerRequest customerToAdd)
         {
+            if (customerToAdd.RecommenderId != null)
+                await GetCustomer((int)customerToAdd.RecommenderId);
             var addedCustomer = await _customerRepository.PostCustomer(customerToAdd);
             return _mapper.Map<CustomerResponse>(addedCustomer);
         }

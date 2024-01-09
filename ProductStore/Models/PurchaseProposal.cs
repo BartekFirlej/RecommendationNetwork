@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace ProductStore.Models;
+﻿namespace ProductStore.Models;
 
 public partial class PurchaseProposal
 {

@@ -5,7 +5,8 @@ using ProductStore.Repositories;
 
 namespace ProductStore.Services
 {
-    public interface IVoivodeshipService {
+    public interface IVoivodeshipService
+    {
         public Task<ICollection<VoivodeshipResponse>> GetVoivodeships();
         public Task<VoivodeshipResponse> GetVoivodeshipResponse(int id);
         public Task<Voivodeship> GetVoivodeship(int id);
@@ -34,7 +35,7 @@ namespace ProductStore.Services
         {
             var voivodeship = await _voivodeshipRepository.GetVoivodeship(id);
             if (voivodeship == null)
-                throw new Exception(String.Format("Not found voivodeship with id {0}.",id));
+                throw new Exception(String.Format("Not found voivodeship with id {0}.", id));
             return voivodeship;
         }
 

@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Newtonsoft.Json.Linq;
 using ProductStore.DTOs;
 using ProductStore.Models;
 using ProductStore.Repositories;
@@ -12,6 +13,7 @@ namespace ProductStore.Services
         public Task<Product> GetProduct(int id);
         public Task<ProductPostResponse> DeleteProduct(int id);
         public Task<ProductPostResponse> PostProduct(ProductRequest productToAdd);
+        public Task<ProductPostResponse> PostProductFromAPI();
     }
     public class ProductService : IProductService
     {
@@ -59,8 +61,64 @@ namespace ProductStore.Services
 
         public async Task<ProductPostResponse> PostProduct(ProductRequest productToAdd)
         {
+            if (productToAdd.Price <= 0)
+                throw new Exception("Price must be greater than 0.");
             await _productTypeService.GetProductType(productToAdd.ProductTypeId);
             var addedProduct = await _productRepository.PostProduct(productToAdd);
+            return _mapper.Map<ProductPostResponse>(addedProduct);
+        }
+
+        public async Task<ProductPostResponse> PostProductFromAPI()
+        {
+            Product addedProduct = new Product();
+            using (HttpClient client = new HttpClient())
+            {
+                try
+                {
+                    Random random = new Random();
+                    int productId = random.Next(1, 21);
+                    string url = $"https://fakestoreapi.com/products/{productId}";
+                    HttpResponseMessage response = await client.GetAsync(url);
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        string jsonResponse = await response.Content.ReadAsStringAsync();
+
+                        Console.WriteLine(jsonResponse);
+
+                        JObject parsedJson = JObject.Parse(jsonResponse);
+                        string category = parsedJson["category"].ToString();
+                        string name = parsedJson["title"].ToString();
+                        if (name.Length > 29)
+                        {
+                            name = name.Substring(0, 29);
+                        }
+                        float price = parsedJson["price"].Value<float>();
+
+                        ProductTypeResponse productTypeResponse;
+                        try
+                        {
+                            productTypeResponse = await _productTypeService.GetProductTypeResponse(category);
+                        }
+                        catch (Exception e)
+                        {
+                            var ProductTypeToAdd = new ProductTypeRequest { Name = category };
+                            productTypeResponse = await _productTypeService.PostProductType(ProductTypeToAdd);
+                        }
+
+                        var productToAdd = new ProductRequest { ProductTypeId = productTypeResponse.Id, Price = price, ProductName = name };
+                        addedProduct = await _productRepository.PostProduct(productToAdd);
+                    }
+                    else
+                    {
+                        Console.WriteLine("Error: " + response.StatusCode);
+                    }
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("Exception caught: " + e.Message);
+                }
+            }
             return _mapper.Map<ProductPostResponse>(addedProduct);
         }
     }

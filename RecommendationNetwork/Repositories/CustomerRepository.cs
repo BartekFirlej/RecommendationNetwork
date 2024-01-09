@@ -50,6 +50,15 @@ namespace RecommendationNetwork.Repositories
                     return await transaction.RunAsync(addCustomerToVoivodeshipQuery, parameters);
                 });
 
+                if (customerToAdd.RecommenderId != null)
+                {
+                    var addCustomerRecommenderQuery = "MATCH (r:Customer {Id: $RecommenderId}), (c:Customer {Id: $Id}) MERGE (r)-[:RECOMMENDED_CUSTOMER]->(c)";
+                    var recommenderResult = await session.WriteTransactionAsync(async transaction =>
+                    {
+                        return await transaction.RunAsync(addCustomerRecommenderQuery, parameters);
+                    });
+                }
+
                 var customerResponse = MapToCustomerResponse(customerResult);
                 return customerResponse;
             }
@@ -62,16 +71,13 @@ namespace RecommendationNetwork.Repositories
                 var retrieveNodesCypher = "MATCH (c:Customer) RETURN c";
                 var result = await session.ReadTransactionAsync(async transaction =>
                 {
-                    try
-                    {
-                        var queryResult = await transaction.RunAsync(retrieveNodesCypher);
-                        return await queryResult.ToListAsync();
-                    }
-                    catch
-                    {
-                        throw new NotFoundCustomerException();
-                    }
+
+                    var queryResult = await transaction.RunAsync(retrieveNodesCypher);
+                    return await queryResult.ToListAsync();
                 });
+
+                if (!result.Any())
+                    throw new NotFoundCustomerException();
 
                 var customerResponses = result.Select(record => MapToCustomerResponse(record)).ToList();
 

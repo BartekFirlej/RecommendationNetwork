@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using RecommendationNetwork.DTOs;
+using RecommendationNetwork.Exceptions;
 using RecommendationNetwork.Services;
 
 [ApiController]
@@ -16,22 +17,50 @@ public class ProductTypeController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> AddProductType(ProductTypeRequest productTypeToAdd)
     {
-        var addedProductType = await _productTypeService.AddProductType(productTypeToAdd);
-        return Ok(addedProductType);
+        try
+        {
+            var addedProductType = await _productTypeService.AddProductType(productTypeToAdd);
+            return Ok(addedProductType);
+        }
+        catch (Exception e)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError);
+        }
     }
 
     [HttpGet]
     public async Task<IActionResult> GetProductTypes()
     {
-        var productTypes = await _productTypeService.GetProductTypes();
-        return Ok(productTypes);
+        try
+        {
+            var productTypes = await _productTypeService.GetProductTypes();
+            return Ok(productTypes);
+        }
+        catch (NotFoundProductTypeException e)
+        {
+            return NotFound(e.Message);
+        }
+        catch (Exception e)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError);
+        }
     }
 
     [HttpGet("{id}")]
     public async Task<IActionResult> GetProductType(int id)
     {
-        var productType = await _productTypeService.GetProductType(id);
-        return Ok(productType);
+        try
+        {
+            var productType = await _productTypeService.GetProductType(id);
+            return Ok(productType);
+        }
+        catch (NotFoundProductTypeException e)
+        {
+            return NotFound(e.Message);
+        }
+        catch (Exception e)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError);
+        }
     }
 }
-

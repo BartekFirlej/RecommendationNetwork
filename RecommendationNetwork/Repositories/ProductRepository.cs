@@ -36,7 +36,7 @@ namespace RecommendationNetwork.Repositories
             using (var session = _driver.AsyncSession())
             {
                 var addProductQuery = "CREATE (p:Product {Id: $Id, Name: $Name}) RETURN p";
-                var addProductToCategoryQuery = "MATCH (p:Product {Id: $Id}), (pt:ProductType {Id: $ProductTypeId}) MERGE (p)-[:IS_CATEGORY]->(pt)";
+                var addProductToCategoryQuery = "MATCH (p:Product {Id: $Id}), (pt:ProductType {Id: $ProductTypeId}) MERGE (p)-[:IS_TYPE]->(pt)";
 
                 var parameters = productToAdd;
 
@@ -88,16 +88,13 @@ namespace RecommendationNetwork.Repositories
                 var retrieveNodesCypher = "MATCH (p:Product) RETURN p";
                 var result = await session.ReadTransactionAsync(async transaction =>
                 {
-                    try
-                    {
-                        var queryResult = await transaction.RunAsync(retrieveNodesCypher);
-                        return await queryResult.ToListAsync();
-                    }
-                    catch
-                    {
-                        throw new NotFoundProductException();
-                    }
+                    var queryResult = await transaction.RunAsync(retrieveNodesCypher);
+                    return await queryResult.ToListAsync();
+
                 });
+
+                if (!result.Any())
+                    throw new NotFoundProductException();
 
                 var productsResponse = result.Select(record => MapToProductResponse(record)).ToList();
 
