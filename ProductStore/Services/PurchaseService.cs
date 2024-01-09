@@ -22,13 +22,15 @@ namespace ProductStore.Services
         private readonly IPurchaseDetailService _purchaseDetailService;
         private readonly ICustomerService _customerService;
         private readonly IMapper _mapper;
+        private readonly RabbitMqPublisher _rabbitMqPublisher;
 
-        public PurchaseService(IPurchaseRepository purchaseRepository, ICustomerService customerService, IMapper mapper, IPurchaseDetailService purchaseDetailService)
+        public PurchaseService(IPurchaseRepository purchaseRepository, ICustomerService customerService, IMapper mapper, IPurchaseDetailService purchaseDetailService, RabbitMqPublisher rabbitMqPublisher)
         {
             _purchaseRepository = purchaseRepository;
             _customerService = customerService;
             _mapper = mapper;
             _purchaseDetailService = purchaseDetailService;
+            _rabbitMqPublisher = rabbitMqPublisher;
         }
 
         public async Task<ICollection<PurchaseResponse>> GetPurchases()
@@ -87,7 +89,9 @@ namespace ProductStore.Services
             if (purchaseToAdd.RecommenderId != null)
                 await _customerService.GetCustomer((int)purchaseToAdd.RecommenderId);
             var addedPurchase = await _purchaseRepository.PostPurchase(purchaseToAdd);
-            return _mapper.Map<PurchaseResponse>(addedPurchase);
+            var addedPurchaseResponse = _mapper.Map<PurchaseResponse>(addedPurchase);
+            _rabbitMqPublisher.PublishMessage(addedPurchaseResponse, "purchaseQueue");
+            return addedPurchaseResponse;
         }
 
         public async Task<PurchaseWithDetailsResponse> PostPurchaseWithDetails(PurchaseWithDetailsRequest purchaseToAdd)
@@ -106,7 +110,9 @@ namespace ProductStore.Services
                     throw new Exception(String.Format("Wrong price of product with id {0}.", item.ProductId));
                 await _purchaseDetailService.AddPurchaseDetail(item, addedPurchase.Id);
             }
-            return await GetPurchaseWithDetails(addedPurchase.Id);
+            var addedPurchaseWithDetailsResponse = await GetPurchaseWithDetails(addedPurchase.Id);
+            _rabbitMqPublisher.PublishMessage(addedPurchaseWithDetailsResponse, "purchaseWithDetailsQueue");
+            return addedPurchaseWithDetailsResponse;
         }
     }
 }

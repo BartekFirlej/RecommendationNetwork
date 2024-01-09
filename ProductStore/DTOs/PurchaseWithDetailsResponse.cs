@@ -8,6 +8,6 @@
         public int CustomerId { get; set; }
 
         public int? RecommenderId { get; set; }
-        public List<PurchaseDetailResponse> Products { get; set; }
+        public List<PurchaseDetailResponse> PurchaseDetails { get; set; }
     }
 }

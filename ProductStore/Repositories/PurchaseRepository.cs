@@ -85,7 +85,7 @@ namespace ProductStore.Repositories
                     CustomerId = p.CustomerId,
                     RecommenderId = p.RecommenderId,
                     PurchaseDate = p.PurchaseDate,
-                    Products = p.PurchaseDetails.Select(t => new PurchaseDetailResponse
+                    PurchaseDetails = p.PurchaseDetails.Select(t => new PurchaseDetailResponse
                     {
                         Id = t.Id,
                         PriceForOnePiece = t.PriceForOnePiece,
@@ -104,7 +104,7 @@ namespace ProductStore.Repositories
                    CustomerId = p.CustomerId,
                    RecommenderId = p.RecommenderId,
                    PurchaseDate = p.PurchaseDate,
-                   Products = p.PurchaseDetails.Select(t => new PurchaseDetailResponse
+                   PurchaseDetails = p.PurchaseDetails.Select(t => new PurchaseDetailResponse
                    {
                        Id = t.Id,
                        PriceForOnePiece = t.PriceForOnePiece,

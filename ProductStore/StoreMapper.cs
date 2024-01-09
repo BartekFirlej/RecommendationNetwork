@@ -13,6 +13,7 @@ public class StoreMapper : Profile
         CreateMap<Product, ProductPostResponse>();
         CreateMap<Voivodeship,  VoivodeshipResponse>();
         CreateMap<PurchaseDetail,  PurchaseDetailResponse>();
+        CreateMap<Purchase,  PurchaseResponse>();
     }
 
 }

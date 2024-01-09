@@ -8,18 +8,21 @@ public class RabbitMqBackgroundService : BackgroundService
     private readonly IVoivodeshipService _voivodeshipService;
     private readonly IProductService _productService;
     private readonly IProductTypeService _productTypeService;
+    private readonly IPurchaseService _purchaseService;
 
     public RabbitMqBackgroundService(RabbitMqConsumer rabbitMqConsumer,
                                      ICustomerService customerService,
                                      IVoivodeshipService voivodeshipService, 
                                      IProductService productService,
-                                     IProductTypeService productTypeService)
+                                     IProductTypeService productTypeService,
+                                     IPurchaseService purchaseService)
     {
         _rabbitMqConsumer = rabbitMqConsumer;
         _customerService = customerService;
         _voivodeshipService = voivodeshipService;
         _productService = productService;
         _productTypeService = productTypeService;
+        _purchaseService = purchaseService;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -32,8 +35,9 @@ public class RabbitMqBackgroundService : BackgroundService
         await Task.Run(() => _rabbitMqConsumer.StartConsuming<VoivodeshipRequest>("voivodeshipQueue"), stoppingToken);
         await Task.Run(() => _rabbitMqConsumer.StartConsuming<ProductRequest>("productQueue"), stoppingToken);
         await Task.Run(() => _rabbitMqConsumer.StartConsuming<ProductTypeRequest>("productTypeQueue"), stoppingToken);
+        await Task.Run(() => _rabbitMqConsumer.StartConsuming<PurchaseRequest>("purchaseQueue"), stoppingToken);
+        await Task.Run(() => _rabbitMqConsumer.StartConsuming<PurchaseWithDetailsRequest>("purchaseWithDetailsQueue"), stoppingToken);
 
-        Console.WriteLine("Started listening on customer, voivodeship product and product type queues");
     }
 
     private async void OnMessageReceived(object sender, RabbitMqConsumer.GenericEventArgs e)
@@ -90,6 +94,32 @@ public class RabbitMqBackgroundService : BackgroundService
                 {
                     Console.WriteLine("Consuming ProductTypeRequest again");
                     await _productTypeService.AddProductType(productTypeRequest);
+                }
+            }
+            else if(e.Message is PurchaseRequest purchaseRequest)
+            {
+                try
+                {
+                    Console.WriteLine("Consuming PurchaseRequest");
+                    await _purchaseService.AddPurchase(purchaseRequest);
+                }
+                catch
+                {
+                    Console.WriteLine("Consuming PurchaseRequest again");
+                    await _purchaseService.AddPurchase(purchaseRequest);
+                }
+            }
+            else if(e.Message is PurchaseWithDetailsRequest purchaseWithDetailsRequest)
+            {
+                try
+                {
+                    Console.WriteLine("Consuming PurchaseWithDetailsRequest");
+                    await _purchaseService.AddPurchaseWithDetails(purchaseWithDetailsRequest);
+                }
+                catch
+                {
+                    Console.WriteLine("Consuming PurchaseWithDetailsRequest again");
+                    await _purchaseService.AddPurchaseWithDetails(purchaseWithDetailsRequest);
                 }
             }
         }
