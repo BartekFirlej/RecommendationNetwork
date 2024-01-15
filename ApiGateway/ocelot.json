@@ -23,6 +23,174 @@
       ],
       "UpstreamPathTemplate": "/customers/{everything}",
       "UpstreamHttpMethod": [ "GET", "POST", "DELETE" ]
+    },
+    {
+      "DownstreamPathTemplate": "/products",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "productstore-container",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/products",
+      "UpstreamHttpMethod": [ "GET", "POST" ]
+    },
+    {
+      "DownstreamPathTemplate": "/products/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "productstore-container",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/products/{everything}",
+      "UpstreamHttpMethod": [ "GET", "POST", "DELETE" ]
+    },
+    {
+      "DownstreamPathTemplate": "/product-types",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "productstore-container",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/product-types",
+      "UpstreamHttpMethod": [ "GET", "POST" ]
+    },
+    {
+      "DownstreamPathTemplate": "/product-types/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "productstore-container",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/product-types/{everything}",
+      "UpstreamHttpMethod": [ "GET", "POST", "DELETE" ]
+    },
+    {
+      "DownstreamPathTemplate": "/purchases",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "productstore-container",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/purchases",
+      "UpstreamHttpMethod": [ "GET", "POST" ]
+    },
+    {
+      "DownstreamPathTemplate": "/purchases/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "productstore-container",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/purchases/{everything}",
+      "UpstreamHttpMethod": [ "GET", "POST", "DELETE" ]
+    },
+    {
+      "DownstreamPathTemplate": "/purchase-details",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "productstore-container",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/purchase-details",
+      "UpstreamHttpMethod": [ "GET", "POST" ]
+    },
+    {
+      "DownstreamPathTemplate": "/purchase-details/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "productstore-container",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/purchase-details/{everything}",
+      "UpstreamHttpMethod": [ "GET", "POST", "DELETE" ]
+    },
+    {
+      "DownstreamPathTemplate": "/voivodeships",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "productstore-container",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/voivodeships",
+      "UpstreamHttpMethod": [ "GET", "POST" ]
+    },
+    {
+      "DownstreamPathTemplate": "/voivodeships/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "productstore-container",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/voivodeships/{everything}",
+      "UpstreamHttpMethod": [ "GET", "POST", "DELETE" ]
+    },
+    {
+      "DownstreamPathTemplate": "/purchase-proposals",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "productstore-container",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/purchase-proposals",
+      "UpstreamHttpMethod": [ "GET" ]
+    },
+    {
+      "DownstreamPathTemplate": "/purchase-proposals",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "recommendationnetwork-container",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/purchase-proposals",
+      "UpstreamHttpMethod": [ "POST" ]
+    },
+    {
+      "DownstreamPathTemplate": "/purchase-proposals/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "productstore-container",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/purchase-proposals/{everything}",
+      "UpstreamHttpMethod": [ "GET", "POST", "DELETE" ]
+    },
+    {
+      "DownstreamPathTemplate": "/recommmendations/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "recommendationnetwork-container",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/recommmendations/{everything}",
+      "UpstreamHttpMethod": [ "GET" ]
     }
   ]
 }

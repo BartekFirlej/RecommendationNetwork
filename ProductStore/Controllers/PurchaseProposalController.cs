@@ -1,7 +1,6 @@
 ﻿using ProductStore.Services;
 using Microsoft.AspNetCore.Mvc;
 using ProductStore.DTOs;
-using ProductStore.Services;
 
 namespace ProductStore.Controllers
 {
