@@ -4,13 +4,13 @@ using ProductStore.DTOs;
 public class RabbitMqBackgroundService : BackgroundService
 {
     private readonly RabbitMqConsumer _rabbitMqConsumer;
-    private readonly IPurchaseProposalService _purchaseProposalService;
+    private readonly IServiceScopeFactory _scopeFactory;
 
     public RabbitMqBackgroundService(RabbitMqConsumer rabbitMqConsumer,
-                                     IPurchaseProposalService purchaseProposalService)
+                                     IServiceScopeFactory scopeFactory)
     {
         _rabbitMqConsumer = rabbitMqConsumer;
-        _purchaseProposalService = purchaseProposalService;
+        _scopeFactory = scopeFactory;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -20,30 +20,34 @@ public class RabbitMqBackgroundService : BackgroundService
         _rabbitMqConsumer.MessageReceived += OnMessageReceived;
 
         await Task.Run(() => _rabbitMqConsumer.StartConsuming<PurchaseProposalRequest>("purchaseProposalQueue"), stoppingToken);
-
     }
 
     private async void OnMessageReceived(object sender, RabbitMqConsumer.GenericEventArgs e)
     {
-        try
+        using (var scope = _scopeFactory.CreateScope())
         {
-            if (e.Message is PurchaseProposalRequest purchaseProposalRequest)
+            var purchaseProposalService = scope.ServiceProvider.GetRequiredService<IPurchaseProposalService>();
+
+            try
             {
-                try
+                if (e.Message is PurchaseProposalRequest purchaseProposalRequest)
                 {
-                    Console.WriteLine("Consuming PurchaseProposalRequest");
-                    await _purchaseProposalService.PostPurchaseProposal(purchaseProposalRequest);
-                }
-                catch
-                {
-                    Console.WriteLine("Consuming PurchaseProposalRequest again");
-                    await _purchaseProposalService.PostPurchaseProposal(purchaseProposalRequest);
+                    try
+                    {
+                        Console.WriteLine("Consuming PurchaseProposalRequest");
+                        await purchaseProposalService.PostPurchaseProposal(purchaseProposalRequest);
+                    }
+                    catch
+                    {
+                        Console.WriteLine("Consuming PurchaseProposalRequest again");
+                        await purchaseProposalService.PostPurchaseProposal(purchaseProposalRequest);
+                    }
                 }
             }
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error processing message: {ex.Message}");
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error processing message: {ex.Message}");
+            }
         }
     }
 
