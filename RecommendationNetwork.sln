@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RecommendationNetwork", "Re
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ProductStore", "ProductStore\ProductStore.csproj", "{A1174736-2A2A-4507-B77C-5C69ED7FAFE6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApiGateway", "ApiGateway\ApiGateway.csproj", "{32D37229-FB22-4D02-B29D-6CE14C3F7910}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{A1174736-2A2A-4507-B77C-5C69ED7FAFE6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A1174736-2A2A-4507-B77C-5C69ED7FAFE6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A1174736-2A2A-4507-B77C-5C69ED7FAFE6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{32D37229-FB22-4D02-B29D-6CE14C3F7910}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{32D37229-FB22-4D02-B29D-6CE14C3F7910}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{32D37229-FB22-4D02-B29D-6CE14C3F7910}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{32D37229-FB22-4D02-B29D-6CE14C3F7910}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
