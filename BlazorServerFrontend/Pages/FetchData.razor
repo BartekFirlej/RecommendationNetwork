@@ -1,0 +1,44 @@
+﻿@page "/fetchdata"
+
+@using BlazorServerFrontend.Services
+@using BlazorServerFrontend.DTOs
+
+@inject CustomerService CustomerService
+
+<h1>Customer Data</h1>
+
+@if (customers == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Name</th>
+                <!-- Inne nagłówki -->
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var customer in customers)
+            {
+                <tr>
+                    <td>@customer.Id</td>
+                    <td>@customer.Name</td>
+                    <!-- Inne dane -->
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<CustomerResponse> customers;
+
+    protected override async Task OnInitializedAsync()
+    {
+        customers = await CustomerService.GetCustomersAsync();
+    }
+}
