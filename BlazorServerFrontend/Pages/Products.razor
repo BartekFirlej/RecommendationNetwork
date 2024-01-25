@@ -10,24 +10,24 @@
 <table class="table">
     <thead>
         <tr>
-            <th>Id</th>
-            <th>Name</th>
-            <th>Product Type Name</th>
-            <th>Price</th>
-            <th></th> 
+            <th class="center-align">Id</th>
+            <th class="center-align">Name</th>
+            <th class="center-align">Product Type Name</th>
+            <th class="center-align">Price</th>
+            <th class="center-align"></th>
         </tr>
     </thead>
     <tbody>
-        @if(products != null)
+        @if (products != null)
         {
             @foreach (var product in products)
             {
                 <tr>
-                    <td>@product.Id</td>
-                    <td>@product.Name</td>
-                    <td>@product.ProductTypeName</td>
-                    <td>@product.Price</td>
-                    <td>
+                    <td class="center-align">@product.Id</td>
+                    <td class="center-align">@product.Name</td>
+                    <td class="center-align">@product.ProductTypeName</td>
+                    <td class="center-align">@product.Price</td>
+                    <td class="center-align">
                         <button class="btn btn-primary" @onclick="() => AddToCart(product)">Dodaj do koszyka</button>
                     </td>
                 </tr>
@@ -35,7 +35,6 @@
         }
     </tbody>
 </table>
-
 
 @code {
     private List<ProductResponse> products;
@@ -47,7 +46,7 @@
 
     private void AddToCart(ProductResponse product)
     {
-        // Implementacja dodawania klienta do koszyka
-        // Możesz tu dodać logikę dotyczącą dodawania wybranego klienta do koszyka
+        // Implementacja dodawania produktu do koszyka
+        // Możesz tu dodać logikę dotyczącą dodawania wybranego produktu do koszyka
     }
 }

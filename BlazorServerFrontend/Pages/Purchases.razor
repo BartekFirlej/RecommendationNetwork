@@ -1,0 +1,53 @@
+﻿@page "/purchases"
+
+@using BlazorServerFrontend.Services
+@using BlazorServerFrontend.DTOs
+
+@inject ProductsService ProductsService
+
+<h1>Available Products</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Id</th>
+            <th>Name</th>
+            <th>Product Type Name</th>
+            <th>Price</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (products != null)
+        {
+            @foreach (var product in products)
+            {
+                <tr>
+                    <td>@product.Id</td>
+                    <td>@product.Name</td>
+                    <td>@product.ProductTypeName</td>
+                    <td>@product.Price</td>
+                    <td>
+                        <button class="btn btn-primary" @onclick="() => AddToCart(product)">View details</button>
+                    </td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>
+
+
+@code {
+    private List<ProductResponse> products;
+
+    protected override async Task OnInitializedAsync()
+    {
+        products = await ProductsService.GetProductsAsync();
+    }
+
+    private void AddToCart(ProductResponse product)
+    {
+        // Implementacja dodawania klienta do koszyka
+        // Możesz tu dodać logikę dotyczącą dodawania wybranego klienta do koszyka
+    }
+}

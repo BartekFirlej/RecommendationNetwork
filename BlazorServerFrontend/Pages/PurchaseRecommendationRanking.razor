@@ -1,0 +1,45 @@
+﻿@page "/purchaserecommendationranking"
+
+@using BlazorServerFrontend.Services
+@using BlazorServerFrontend.DTOs
+
+@inject RecommendationsService RecommendationsService
+
+<h1>Purchases Recommendations Ranking</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th class="center-align">Name</th>
+            <th class="center-align">Last Name</th>
+            <th class="center-align">1st Level Recommendations</th>
+            <th class="center-align">2nd Level Recommendations</th>
+            <th class="center-align">3rd Level Recommendations</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (purchaseRecommendations != null)
+        {
+            @foreach (var purchaseRecommendation in purchaseRecommendations)
+            {
+                <tr>
+                    <td class="center-align">@purchaseRecommendation.Name</td>
+                    <td class="center-align">@purchaseRecommendation.LastName</td>
+                    <td class="center-align">@purchaseRecommendation.FirstLevelRecommendations</td>
+                    <td class="center-align">@purchaseRecommendation.SecondLevelRecommendations</td>
+                    <td class="center-align">@purchaseRecommendation.ThirdLevelRecommendations</td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>
+
+
+@code {
+    private List<RecommendationResponse> purchaseRecommendations;
+
+    protected override async Task OnInitializedAsync()
+    {
+        purchaseRecommendations = await RecommendationsService.GetPurchasesRecommendationsAsync();
+    }
+}

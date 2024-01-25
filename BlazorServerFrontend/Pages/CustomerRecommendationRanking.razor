@@ -1,0 +1,44 @@
+﻿@page "/customerrecommendationranking"
+
+@using BlazorServerFrontend.Services
+@using BlazorServerFrontend.DTOs
+
+@inject RecommendationsService RecommendationsService
+
+<h1>Customers Recommendations Ranking</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th class="center-align">Name</th>
+            <th class="center-align">Last Name</th>
+            <th class="center-align">1st Level Recommendations</th>
+            <th class="center-align">2nd Level Recommendations</th>
+            <th class="center-align">3rd Level Recommendations</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (customerRecommendations != null)
+        {
+            @foreach (var customerRecommendation in customerRecommendations)
+            {
+                <tr>
+                    <td class="center-align">@customerRecommendation.Name</td>
+                    <td class="center-align">@customerRecommendation.LastName</td>
+                    <td class="center-align">@customerRecommendation.FirstLevelRecommendations</td>
+                    <td class="center-align">@customerRecommendation.SecondLevelRecommendations</td>
+                    <td class="center-align">@customerRecommendation.ThirdLevelRecommendations</td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>
+
+@code {
+    private List<RecommendationResponse> customerRecommendations;
+
+    protected override async Task OnInitializedAsync()
+    {
+        customerRecommendations = await RecommendationsService.GetCustomersRecommendationsAsync();
+    }
+}
