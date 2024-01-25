@@ -4,6 +4,7 @@
 @using BlazorServerFrontend.DTOs
 
 @inject PurchasesService PurchasesService
+@inject NavigationManager NavigationManager
 
 <h1>Purchase History</h1>
 
@@ -45,9 +46,8 @@
         purchases = await PurchasesService.GetPurchasesAsync();
     }
 
-    private void AddToCart(PurchaseResponse product)
+    private void AddToCart(PurchaseResponse purchase)
     {
-        // Implementacja dodawania klienta do koszyka
-        // Możesz tu dodać logikę dotyczącą dodawania wybranego klienta do koszyka
+        NavigationManager.NavigateTo($"/purchasedetails/{purchase.Id}");
     }
 }

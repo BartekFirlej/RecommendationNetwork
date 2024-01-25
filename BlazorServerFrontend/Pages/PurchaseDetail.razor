@@ -1,0 +1,90 @@
+﻿@page "/purchasedetails/{PurchaseId:int}"
+
+@using BlazorServerFrontend.Services
+@using BlazorServerFrontend.DTOs
+
+@inject PurchasesService PurchaseService
+
+<h1>Purchase Details</h1>
+
+<div class="nav-item px-3">
+    <NavLink class="nav-link" href="purchases">
+        <span class="oi oi-arrow-thick-left" aria-hidden="true"></span> Purchases
+    </NavLink>
+</div>
+
+@if (purchaseDetails == null)
+{
+    <p>Not found purchase details</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th class="center-align">Date</th>
+                <th class="center-align">Customer Id</th>
+                <th class="center-align">Recommender Id</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td class="center-align">@purchaseDetails.PurchaseDate.ToString("yyyy-MM-dd")</td>
+                <td class="center-align">@purchaseDetails.CustomerId</td>
+                <td class="center-align">@purchaseDetails.RecommenderId</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th class="center-align">Product Id</th>
+                <th class="center-align">Price For One Piece</th>
+                <th class="center-align">Quantity</th>
+                <th class="center-align">Price</th>
+                <th class="center-align">Total Price</th>
+            </tr>
+        </thead>
+        <tbody>
+
+            @foreach (var product in purchaseDetails.PurchaseDetails)
+            {
+                <tr>
+                    <td class="center-align">@product.Id</td>
+                    <td class="center-align">@product.PriceForOnePiece</td>
+                    <td class="center-align">@product.Quantity</td>
+                    <td class="center-align">@CalculateTotalPrice(product.PriceForOnePiece, product.Quantity).ToString("C")</td>
+                    <td class="center-align">
+                    </td>
+                </tr>
+            }
+            <tr>
+                <td class="center-align"></td>
+                <td class="center-align"></td>
+                <td class="center-align"></td>
+                <td class="center-align"></td>
+                <td class="center-align">@sum.ToString("C")</td>
+            </tr>
+        </tbody>
+    </table>
+}
+
+
+@code {
+    [Parameter]
+    public int PurchaseId { get; set; }
+    private PurchaseWithDetailsResponse purchaseDetails;
+    public float sum { get; set; } = 0;
+
+    protected override async Task OnInitializedAsync()
+    {
+        purchaseDetails = await PurchaseService.GetPurchaseDetailsAsync(PurchaseId);
+        sum = purchaseDetails.PurchaseDetails.Sum(pd => pd.PriceForOnePiece * pd.Quantity);
+    }
+
+    private float CalculateTotalPrice(float price, float quantity)
+    {
+        return price * quantity;
+    }
+}

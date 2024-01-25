@@ -15,7 +15,7 @@ namespace ProductStore.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetPurchaseDetailss()
+        public async Task<IActionResult> GetPurchaseDetails()
         {
             try
             {
