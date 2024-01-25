@@ -14,6 +14,7 @@ builder.Services.AddSingleton<ProductTypesService>();
 builder.Services.AddSingleton<RecommendationsService>();
 builder.Services.AddSingleton<PurchasesService>();
 builder.Services.AddSingleton<PurchaseProposalsService>();
+builder.Services.AddSingleton<CartService>();
 
 var app = builder.Build();
 
