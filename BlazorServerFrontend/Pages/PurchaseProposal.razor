@@ -7,61 +7,78 @@
 
 <h1>Purchase Proposal</h1>
 
-<input type="number" @bind="customerId" placeholder="Customer ID" />
+<EditForm Model="purchaseProposalRequest" OnValidSubmit="HandleValidSubmit">
+    <div class="form-group">
+        <label for="customerId">Customer ID:</label>
+        <InputNumber id="customerId" class="form-control" @bind-Value="purchaseProposalRequest.CustomerId" />
+    </div>
 
-<button class="btn btn-primary" @onclick="() => GetPurchaseProposal((int)customerId)">View Details</button>
+    <button class="btn btn-primary" type="submit">View Details</button>
+</EditForm>
 
-
-@if (purchaseProposal != null)
+@if (successMessage != null)
 {
-    <table class="table">
-    <thead>
-        <tr>
-            <th class="center-align">Date</th>
-            <th class="center-align">Customer Id</th>
-            <th class="center-align">Product Id</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td class="center-align">@purchaseProposal.Date.ToString("yyyy-MM-dd")</td>
-            <td class="center-align">@purchaseProposal.CustomerId</td>
-            <td class="center-align">@purchaseProposal.ProductId</td>
-
-        </tr>
-    </tbody>
-    </table>
+    <div class="alert alert-success">@successMessage</div>
 }
+
 @if (errorMessage != null)
 {
     <div class="alert alert-danger">@errorMessage</div>
 }
 
+@if (purchaseProposal != null)
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th class="center-align">Date</th>
+                <th class="center-align">Customer Id</th>
+                <th class="center-align">Product Id</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td class="center-align">@purchaseProposal.Date.ToString("yyyy-MM-dd")</td>
+                <td class="center-align">@purchaseProposal.CustomerId</td>
+                <td class="center-align">@purchaseProposal.ProductId</td>
+            </tr>
+        </tbody>
+    </table>
+}
 
 @code {
     private PurchaseProposalResponse purchaseProposal;
-    private int? customerId;
+    private PurchaseProposalRequest purchaseProposalRequest = new PurchaseProposalRequest();
     private string errorMessage;
+    private string successMessage;
 
-    private async void GetPurchaseProposal(int customerId)
+    private async Task HandleValidSubmit()
+    {
+        await GetPurchaseProposal(purchaseProposalRequest);
+    }
+
+    private async Task GetPurchaseProposal(PurchaseProposalRequest customerRequest)
     {
         errorMessage = null;
+        successMessage = null;
         purchaseProposal = null;
-        if (customerId > 0)
+
+        if (customerRequest.CustomerId > 0)
         {
             try
             {
-                purchaseProposal = await PurchaseProposalsService.GetPurchaseProposalAsync(customerId);
+                purchaseProposal = await PurchaseProposalsService.GetPurchaseProposalAsync(customerRequest);
+                successMessage = $"Purchase proposal for customer ID {customerRequest.CustomerId} successfully retrieved.";
             }
             catch (Exception ex)
             {
-                errorMessage = String.Format("Not found proposal for customer with ID {0}. ", customerId);
+                errorMessage = $"Not found proposal for customer with ID {customerRequest.CustomerId}. Error: {ex.Message}";
             }
             StateHasChanged();
         }
         else
         {
-            errorMessage = String.Format("Customer Id must be greater than 0. ", customerId);
+            errorMessage = "Customer Id must be greater than 0.";
         }
     }
 }

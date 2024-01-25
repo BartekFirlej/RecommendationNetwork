@@ -14,9 +14,9 @@ namespace BlazorServerFrontend.Services
             _httpClient = httpClient;
         }
 
-        public async Task<PurchaseProposalResponse> GetPurchaseProposalAsync(int customerId)
+        public async Task<PurchaseProposalResponse> GetPurchaseProposalAsync(PurchaseProposalRequest purchaseProposalRequest)
         {
-            var response = await _httpClient.PostAsJsonAsync("http://localhost:8082/purchase-proposals", new PurchaseProposalRequest{ CustomerId = customerId });
+            var response = await _httpClient.PostAsJsonAsync("http://localhost:8082/purchase-proposals", purchaseProposalRequest);
 
             if (response.IsSuccessStatusCode)
             {

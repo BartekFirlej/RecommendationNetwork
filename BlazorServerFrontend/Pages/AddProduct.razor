@@ -1,0 +1,35 @@
+﻿@page "/addproduct"
+@using BlazorServerFrontend.DTOs
+
+<h3>Add New Product</h3>
+
+<EditForm Model="@productRequest" OnValidSubmit="@HandleValidSubmit">
+    <DataAnnotationsValidator />
+
+    <div class="form-group">
+        <label for="name">Name:</label>
+        <InputText id="name" class="form-control" @bind-Value="@productRequest.Name" />
+    </div>
+
+    <div class="form-group">
+        <label for="price">Price:</label>
+        <InputNumber id="price" class="form-control" @bind-Value="@productRequest.Price" />
+    </div>
+
+    <div class="form-group">
+        <label for="productTypeId">Product Type ID:</label>
+        <InputNumber id="productTypeId" class="form-control" @bind-Value="@productRequest.ProductTypeId" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Add Product</button>
+</EditForm>
+
+@code {
+    private ProductRequest productRequest = new ProductRequest();
+
+    private void HandleValidSubmit()
+    {
+        // Handle the form submission logic here
+        // For example, calling an API to add the product
+    }
+}

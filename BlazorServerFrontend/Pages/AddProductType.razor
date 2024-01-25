@@ -1,0 +1,60 @@
+﻿@page "/addproducttype"
+@using BlazorServerFrontend.DTOs
+@using BlazorServerFrontend.Services
+
+@inject ProductTypesService ProductTypesService
+
+<h3>Add New Product</h3>
+
+<EditForm Model="@productTypeRequest" OnValidSubmit="@HandleValidSubmit">
+    <DataAnnotationsValidator />
+
+    <div class="form-group">
+        <label for="name">Name:</label>
+        <InputText id="name" class="form-control" @bind-Value="@productTypeRequest.Name" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Add Product Type</button>
+</EditForm>
+
+@if (succesMessage != null)
+{
+    <div class="alert alert-success">@succesMessage</div>
+}
+
+@if (errorMessage != null)
+{
+    <div class="alert alert-danger">@errorMessage</div>
+}
+
+@code {
+    private ProductTypeRequest productTypeRequest = new ProductTypeRequest();
+    private ProductTypeResponse productTypeResponse;
+    private string errorMessage;
+    private string succesMessage;
+
+
+    private async void HandleValidSubmit()
+    {
+        await PostProductType(productTypeRequest);
+    }
+
+    private async Task PostProductType(ProductTypeRequest productTypeRequest)
+    {
+        errorMessage = null;
+        productTypeResponse = null;
+        succesMessage = null;
+        try
+        {
+            productTypeResponse = await ProductTypesService.PostProductTypeAsync(productTypeRequest);
+            succesMessage = String.Format("Succesfully added product type with name {0}.", productTypeRequest.Name);
+            this.productTypeRequest = new ProductTypeRequest();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = String.Format("Can't add product type with name {0}. ", productTypeRequest.Name);
+        }
+        StateHasChanged();
+
+    }
+}

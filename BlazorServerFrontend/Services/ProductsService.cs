@@ -18,5 +18,19 @@ namespace BlazorServerFrontend.Services
         {
             return await _httpClient.GetFromJsonAsync<List<ProductResponse>>("http://localhost:8082/products");
         }
+
+        public async Task<ProductResponse> PostProductAsync(ProductRequest productRequest)
+        {
+            var response = await _httpClient.PostAsJsonAsync("http://localhost:8082/products", productRequest);
+
+            if (response.IsSuccessStatusCode)
+            {
+                return await response.Content.ReadFromJsonAsync<ProductResponse>();
+            }
+            else
+            {
+                throw new HttpRequestException($"Invalid response: {response.StatusCode}");
+            }
+        }
     }
 }
