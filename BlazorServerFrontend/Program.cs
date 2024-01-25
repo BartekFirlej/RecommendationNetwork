@@ -14,6 +14,7 @@ builder.Services.AddSingleton(new HttpClient());
 builder.Services.AddSingleton<CustomersService>();
 builder.Services.AddSingleton<ProductsService>();
 builder.Services.AddSingleton<RecommendationsService>();
+builder.Services.AddSingleton<PurchasesService>();
 
 var app = builder.Build();
 

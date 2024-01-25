@@ -3,32 +3,32 @@
 @using BlazorServerFrontend.Services
 @using BlazorServerFrontend.DTOs
 
-@inject ProductsService ProductsService
+@inject PurchasesService PurchasesService
 
-<h1>Available Products</h1>
+<h1>Purchase History</h1>
 
 <table class="table">
     <thead>
         <tr>
-            <th>Id</th>
-            <th>Name</th>
-            <th>Product Type Name</th>
-            <th>Price</th>
+            <th class="center-align">Purchase Id</th>
+            <th class="center-align">Purchase Date</th>
+            <th class="center-align">Customer Id</th>
+            <th class="center-align">Recommender Id</th>
             <th></th>
         </tr>
     </thead>
     <tbody>
-        @if (products != null)
+        @if (purchases != null)
         {
-            @foreach (var product in products)
+            @foreach (var purchase in purchases)
             {
                 <tr>
-                    <td>@product.Id</td>
-                    <td>@product.Name</td>
-                    <td>@product.ProductTypeName</td>
-                    <td>@product.Price</td>
-                    <td>
-                        <button class="btn btn-primary" @onclick="() => AddToCart(product)">View details</button>
+                    <td class="center-align">@purchase.Id</td>
+                    <td class="center-align">@purchase.PurchaseDate.Date.ToString("yyyy-MM-dd")</td>
+                    <td class="center-align">@purchase.CustomerId</td>
+                    <td class="center-align">@purchase.RecommenderId</td>
+                    <td class="center-align">
+                        <button class="btn btn-primary" @onclick="() => AddToCart(purchase)">View details</button>
                     </td>
                 </tr>
             }
@@ -38,14 +38,14 @@
 
 
 @code {
-    private List<ProductResponse> products;
+    private List<PurchaseResponse> purchases;
 
     protected override async Task OnInitializedAsync()
     {
-        products = await ProductsService.GetProductsAsync();
+        purchases = await PurchasesService.GetPurchasesAsync();
     }
 
-    private void AddToCart(ProductResponse product)
+    private void AddToCart(PurchaseResponse product)
     {
         // Implementacja dodawania klienta do koszyka
         // Możesz tu dodać logikę dotyczącą dodawania wybranego klienta do koszyka
