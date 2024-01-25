@@ -7,9 +7,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RecommendationNetwork", "Re
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ProductStore", "ProductStore\ProductStore.csproj", "{A1174736-2A2A-4507-B77C-5C69ED7FAFE6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApiGateway", "ApiGateway\ApiGateway.csproj", "{32D37229-FB22-4D02-B29D-6CE14C3F7910}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ApiGateway", "ApiGateway\ApiGateway.csproj", "{32D37229-FB22-4D02-B29D-6CE14C3F7910}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazorServerFrontend", "BlazorServerFrontend\BlazorServerFrontend.csproj", "{F6CFCE1B-87A7-48C5-A65C-1B8168E41E61}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazorServerFrontend", "BlazorServerFrontend\BlazorServerFrontend.csproj", "{F6CFCE1B-87A7-48C5-A65C-1B8168E41E61}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

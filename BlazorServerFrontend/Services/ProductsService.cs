@@ -5,18 +5,18 @@ using BlazorServerFrontend.DTOs;
 
 namespace BlazorServerFrontend.Services
 {
-    public class CustomerService
+    public class ProductsService
     {
         private readonly HttpClient _httpClient;
 
-        public CustomerService(HttpClient httpClient)
+        public ProductsService(HttpClient httpClient)
         {
             _httpClient = httpClient;
         }
 
-        public async Task<List<CustomerResponse>> GetCustomersAsync()
+        public async Task<List<ProductResponse>> GetProductsAsync()
         {
-            return await _httpClient.GetFromJsonAsync<List<CustomerResponse>>("http://localhost:8082/customers");
+            return await _httpClient.GetFromJsonAsync<List<ProductResponse>>("http://localhost:8082/products");
         }
     }
 }
