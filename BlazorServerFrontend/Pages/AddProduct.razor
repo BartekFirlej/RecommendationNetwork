@@ -1,5 +1,8 @@
 ﻿@page "/addproduct"
 @using BlazorServerFrontend.DTOs
+@using BlazorServerFrontend.Services
+@inject ProductsService ProductsService
+@inject HttpClient Http
 
 <h3>Add New Product</h3>
 
@@ -18,18 +21,67 @@
 
     <div class="form-group">
         <label for="productTypeId">Product Type ID:</label>
-        <InputNumber id="productTypeId" class="form-control" @bind-Value="@productRequest.ProductTypeId" />
+        <InputSelect id="productTypeId" class="form-control" @bind-Value="@productRequest.ProductTypeId">
+            @foreach (var productType in productTypes)
+            {
+                <option value="@productType.Id">@productType.Name</option>
+            }
+        </InputSelect>
     </div>
 
-    <button type="submit" class="btn btn-primary">Add Product</button>
+    <button type="submit" class="btn btn-primary" disabled="@string.IsNullOrEmpty(productRequest.Name)">Add Product</button>
 </EditForm>
+
+@if (successMessage != null)
+{
+    <div class="alert alert-success">@successMessage</div>
+}
+
+@if (errorMessage != null)
+{
+    <div class="alert alert-danger">@errorMessage</div>
+}
+
 
 @code {
     private ProductRequest productRequest = new ProductRequest();
+    private ProductResponse productResponse;
+    private string errorMessage;
+    private string successMessage;
+    private List<ProductTypeResponse> productTypes = new List<ProductTypeResponse>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            productTypes = await Http.GetFromJsonAsync<List<ProductTypeResponse>>("http://localhost:8082/product-types");
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error fetching product types: {ex.Message}";
+        }
+    }
 
     private void HandleValidSubmit()
     {
-        // Handle the form submission logic here
-        // For example, calling an API to add the product
+        PostProduct(productRequest);
+    }
+
+    private async Task PostProduct(ProductRequest productRequest)
+    {
+        errorMessage = null;
+        successMessage = null;
+        productResponse = null;
+        try
+        {
+            productResponse = await ProductsService.PostProductAsync(productRequest);
+            successMessage = $"Successfully added product '{productResponse.Name}'.";
+            this.productRequest = new ProductRequest(); 
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Can't add product: {ex.Message}";
+        }
+        StateHasChanged();
     }
 }

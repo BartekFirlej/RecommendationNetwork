@@ -4,7 +4,7 @@
 
 @inject ProductTypesService ProductTypesService
 
-<h3>Add New Product</h3>
+<h3>Add New Product Type</h3>
 
 <EditForm Model="@productTypeRequest" OnValidSubmit="@HandleValidSubmit">
     <DataAnnotationsValidator />
@@ -14,12 +14,12 @@
         <InputText id="name" class="form-control" @bind-Value="@productTypeRequest.Name" />
     </div>
 
-    <button type="submit" class="btn btn-primary">Add Product Type</button>
+    <button type="submit" class="btn btn-primary" disabled="@string.IsNullOrEmpty(productTypeRequest.Name)">Add Product Type</button>
 </EditForm>
 
-@if (succesMessage != null)
+@if (successMessage != null)
 {
-    <div class="alert alert-success">@succesMessage</div>
+    <div class="alert alert-success">@successMessage</div>
 }
 
 @if (errorMessage != null)
@@ -31,8 +31,7 @@
     private ProductTypeRequest productTypeRequest = new ProductTypeRequest();
     private ProductTypeResponse productTypeResponse;
     private string errorMessage;
-    private string succesMessage;
-
+    private string successMessage; 
 
     private async void HandleValidSubmit()
     {
@@ -42,19 +41,19 @@
     private async Task PostProductType(ProductTypeRequest productTypeRequest)
     {
         errorMessage = null;
+        successMessage = null;
         productTypeResponse = null;
-        succesMessage = null;
+
         try
         {
             productTypeResponse = await ProductTypesService.PostProductTypeAsync(productTypeRequest);
-            succesMessage = String.Format("Succesfully added product type with name {0}.", productTypeRequest.Name);
-            this.productTypeRequest = new ProductTypeRequest();
+            successMessage = $"Successfully added product type '{productTypeRequest.Name}'.";
+            this.productTypeRequest = new ProductTypeRequest(); 
         }
         catch (Exception ex)
         {
-            errorMessage = String.Format("Can't add product type with name {0}. ", productTypeRequest.Name);
+            errorMessage = $"Can't add product type '{productTypeRequest.Name}'. Error: {ex.Message}";
         }
         StateHasChanged();
-
     }
 }
