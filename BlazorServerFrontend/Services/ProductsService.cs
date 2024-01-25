@@ -32,5 +32,19 @@ namespace BlazorServerFrontend.Services
                 throw new HttpRequestException($"Invalid response: {response.StatusCode}");
             }
         }
+
+        public async Task<ProductResponse> PostFakeProductAsync()
+        {
+            var response = await _httpClient.PostAsync("http://localhost:8082/products/api",null);
+
+            if (response.IsSuccessStatusCode)
+            {
+                return await response.Content.ReadFromJsonAsync<ProductResponse>();
+            }
+            else
+            {
+                throw new HttpRequestException($"Invalid response: {response.StatusCode}");
+            }
+        }
     }
 }

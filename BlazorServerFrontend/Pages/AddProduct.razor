@@ -32,6 +32,9 @@
     <button type="submit" class="btn btn-primary" disabled="@string.IsNullOrEmpty(productRequest.Name)">Add Product</button>
 </EditForm>
 
+
+<button type="submit" class="btn btn-primary" @onclick="PostFakeProduct">Add Product From External API</button>
+
 @if (successMessage != null)
 {
     <div class="alert alert-success">@successMessage</div>
@@ -41,6 +44,37 @@
 {
     <div class="alert alert-danger">@errorMessage</div>
 }
+
+@if (productResponse != null)
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th class="center-align">Id</th>
+                <th class="center-align">Name</th>
+                <th class="center-align">Product Type Name</th>
+                <th class="center-align">Price</th>
+            </tr>
+        </thead>
+        <tbody>
+
+            <tr>
+                <td class="center-align">@productResponse.Id</td>
+                <td class="center-align">@productResponse.Name</td>
+                <td class="center-align">@productResponse.ProductTypeName</td>
+                <td class="center-align">@productResponse.Price</td>
+
+            </tr>
+
+        </tbody>
+    </table>
+}
+
+<div class="nav-item px-3">
+    <NavLink class="nav-link" href="products">
+        <span class="oi oi-arrow-thick-left" aria-hidden="true"></span> Products
+    </NavLink>
+</div>
 
 
 @code {
@@ -76,7 +110,25 @@
         {
             productResponse = await ProductsService.PostProductAsync(productRequest);
             successMessage = $"Successfully added product '{productResponse.Name}'.";
-            this.productRequest = new ProductRequest(); 
+            this.productRequest = new ProductRequest();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Can't add product: {ex.Message}";
+        }
+        StateHasChanged();
+    }
+
+    private async void PostFakeProduct()
+    {
+        errorMessage = null;
+        successMessage = null;
+        productResponse = null;
+        try
+        {
+            productResponse = await ProductsService.PostFakeProductAsync();
+            successMessage = $"Successfully added product '{productResponse.Name}'.";
+            this.productRequest = new ProductRequest();
         }
         catch (Exception ex)
         {
