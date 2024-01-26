@@ -23,12 +23,16 @@ namespace RecommendationNetwork.Repositories
             var propertiesCustomer = record["c"].As<INode>().Properties;
             var propertiesProposal = record["prop"].As<IRelationship>().Properties;
             var propertiesProduct = record["p"].As<INode>().Properties;
+            var propertiesProductType = record["pt"].As<INode>().Properties;
 
             var purchaseProposalResponse = new PurchaseProposalResponse
             {
                 CustomerId = propertiesCustomer["Id"].As<int>(),
                 ProductId = propertiesProduct["Id"].As<int>(),
-                Date = propertiesProposal["Date"].As<DateTime>()
+                Date = propertiesProposal["Date"].As<DateTime>(),
+                ProductName = propertiesProduct["Name"].As<string>(),
+                ProductTypeId = propertiesProductType["Id"].As<int>(),
+                ProductTypeName = propertiesProductType["Name"].As<string>()
             };
 
             return purchaseProposalResponse;
@@ -38,7 +42,7 @@ namespace RecommendationNetwork.Repositories
         {
             using (var session = _driver.AsyncSession())
             {
-                var addPurchaseProposal = "MATCH (c:Customer {Id: $customerId}), (p:Product{Id:$productId}) MERGE (c)-[prop:PURCHASE_PROPOSAL{Date: $Date}]->(p) RETURN c,prop,p";
+                var addPurchaseProposal = "MATCH (c:Customer {Id: $customerId}), (p:Product{Id:$productId}) MATCH (p)-[:IS_TYPE]->(pt:ProductType) MERGE (c)-[prop:PURCHASE_PROPOSAL{Date: $Date}]->(p) RETURN c,prop,p,pt";
                 var parameters = new { customerId = purchaseProposalRequest.CustomerId, productId = productId, Date = DateTime.Now };
 
                 var addedPurchaseProposal = await session.WriteTransactionAsync(async transaction =>
@@ -56,7 +60,7 @@ namespace RecommendationNetwork.Repositories
         {
             using (var session = _driver.AsyncSession())
             {
-                var retrievePurchaseProposals = "MATCH (c:Customer {Id:$customerId} )-[prop:PURCHASE_PROPOSAL]->(p:Product {Id:$productId} ) RETURN c, prop, p";
+                var retrievePurchaseProposals = "MATCH (c:Customer {Id:$customerId} )-[prop:PURCHASE_PROPOSAL]->(p:Product {Id:$productId}) MATCH (p)-[:IS_TYPE]->(pt:ProductType) RETURN c, prop, p, pt";
                 var result = await session.ReadTransactionAsync(async transaction =>
                 {
                     try
@@ -80,7 +84,7 @@ namespace RecommendationNetwork.Repositories
         {
             using (var session = _driver.AsyncSession())
             {
-                var retrievePurchaseProposals = "MATCH (c:Customer)-[prop:PURCHASE_PROPOSAL]->(p:Product) RETURN c, prop, p";
+                var retrievePurchaseProposals = "MATCH (c:Customer)-[prop:PURCHASE_PROPOSAL]->(p:Product) MATCH (p)-[:IS_TYPE]->(pt:ProductType) RETURN c, prop, p, pt";
                 var result = await session.ReadTransactionAsync(async transaction =>
                 {
                     var queryResult = await transaction.RunAsync(retrievePurchaseProposals);
