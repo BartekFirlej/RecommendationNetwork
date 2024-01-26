@@ -29,7 +29,8 @@ namespace RecommendationNetwork.Repositories
                 LastName = properties["LastName"].As<string>(),
                 FirstLevelRecommendations = record["directRecommendations"].As<int>(),
                 SecondLevelRecommendations = record["indirect1Recommendations"].As<int>(),
-                ThirdLevelRecommendations = record["indirect2Recommendations"].As<int>()
+                ThirdLevelRecommendations = record["indirect2Recommendations"].As<int>(),
+                Points = record["directRecommendations"].As<int>()*10+ record["indirect1Recommendations"].As<int>()*5+ record["indirect2Recommendations"].As<int>()*2
             };
 
             return customerRecommendationResponse;
@@ -51,7 +52,7 @@ namespace RecommendationNetwork.Repositories
                 if (!result.Any())
                     throw new NotFoundCustomerRecommendationException();
 
-                var customerRecommendations = result.Select(record => MapToCustomerRecommendationResponse(record)).ToList();
+                var customerRecommendations = result.Select(record => MapToCustomerRecommendationResponse(record)).OrderByDescending(record => record.Points).ToList();
 
                 return customerRecommendations;
             }

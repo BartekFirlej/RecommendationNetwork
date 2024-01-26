@@ -8,5 +8,6 @@
         public int FirstLevelRecommendations { get; set; }
         public int SecondLevelRecommendations { get; set; }
         public int ThirdLevelRecommendations { get; set; }
+        public int Points { get; set; }
     }
 }
