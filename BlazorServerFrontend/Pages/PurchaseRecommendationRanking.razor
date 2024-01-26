@@ -10,25 +10,31 @@
 <table class="table">
     <thead>
         <tr>
+            <th class="center-align">Position</th>
             <th class="center-align">Name</th>
             <th class="center-align">Last Name</th>
             <th class="center-align">1st Level Recommendations</th>
             <th class="center-align">2nd Level Recommendations</th>
             <th class="center-align">3rd Level Recommendations</th>
+            <th class="center-align">Points</th>
         </tr>
     </thead>
     <tbody>
         @if (purchaseRecommendations != null)
         {
+            int position = 1;
             @foreach (var purchaseRecommendation in purchaseRecommendations)
             {
                 <tr>
+                    <td class="center-align">@position</td>
                     <td class="center-align">@purchaseRecommendation.Name</td>
                     <td class="center-align">@purchaseRecommendation.LastName</td>
                     <td class="center-align">@purchaseRecommendation.FirstLevelRecommendations</td>
                     <td class="center-align">@purchaseRecommendation.SecondLevelRecommendations</td>
                     <td class="center-align">@purchaseRecommendation.ThirdLevelRecommendations</td>
+                    <td class="center-align">@purchaseRecommendation.Points</td>
                 </tr>
+                position++;
             }
         }
     </tbody>
