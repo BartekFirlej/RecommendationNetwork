@@ -13,7 +13,7 @@ namespace ProductStore.Services
         public Task<Product> GetProduct(int id);
         public Task<ProductPostResponse> DeleteProduct(int id);
         public Task<ProductPostResponse> PostProduct(ProductRequest productToAdd);
-        public Task<ProductPostResponse> PostProductFromAPI();
+        public Task<ProductResponse> PostProductFromAPI();
     }
     public class ProductService : IProductService
     {
@@ -72,7 +72,7 @@ namespace ProductStore.Services
             return addedProductResponse;
         }
 
-        public async Task<ProductPostResponse> PostProductFromAPI()
+        public async Task<ProductResponse> PostProductFromAPI()
         {
             Product addedProduct = new Product();
             using (HttpClient client = new HttpClient())
@@ -93,6 +93,8 @@ namespace ProductStore.Services
                         JObject parsedJson = JObject.Parse(jsonResponse);
                         string category = parsedJson["category"].ToString();
                         string name = parsedJson["title"].ToString();
+                        name = char.ToUpper(name[0]) + name.Substring(1);
+                        category = char.ToUpper(category[0]) + category.Substring(1);
                         if (name.Length > 29)
                         {
                             name = name.Substring(0, 29);
@@ -125,7 +127,7 @@ namespace ProductStore.Services
             }
             var addedProductResponse = _mapper.Map<ProductPostResponse>(addedProduct);
             _rabbitMqPublisher.PublishMessage(addedProductResponse, "productQueue");
-            return addedProductResponse;
+            return await GetProductResponse(addedProduct.Id);
         }
     }
 }
