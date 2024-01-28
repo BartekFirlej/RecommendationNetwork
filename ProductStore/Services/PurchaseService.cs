@@ -8,6 +8,7 @@ namespace ProductStore.Services
     public interface IPurchaseService
     {
         public Task<ICollection<PurchaseResponse>> GetPurchases();
+        public Task<ICollection<PurchaseResponse>> GetCustomersPurchases(int customerId);
         public Task<PurchaseResponse> GetPurchaseResponse(int id);
         public Task<Purchase> GetPurchase(int id);
         public Task<PurchaseWithDetailsResponse> GetPurchaseWithDetails(int id);
@@ -38,6 +39,15 @@ namespace ProductStore.Services
             var purchases = await _purchaseRepository.GetPurchases();
             if (!purchases.Any())
                 throw new Exception("Not found any purchase.");
+            return purchases;
+        }
+
+
+        public async Task<ICollection<PurchaseResponse>> GetCustomersPurchases(int customerId)
+        {
+            var purchases = await _purchaseRepository.GetCustomersPurchases(customerId);
+            if (!purchases.Any())
+                throw new Exception(String.Format("Not found any purchase for customer with id {0}.",customerId));
             return purchases;
         }
 

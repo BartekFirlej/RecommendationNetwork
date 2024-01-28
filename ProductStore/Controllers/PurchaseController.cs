@@ -56,6 +56,20 @@ namespace ProductStore.Controllers
             }
         }
 
+        [HttpGet("customer/{id}")]
+        public async Task<IActionResult> GetCustomersPurchases(int id)
+        {
+            try
+            {
+                var purchase = await _purchaseService.GetCustomersPurchases(id);
+                return Ok(purchase);
+            }
+            catch (Exception e)
+            {
+                return NotFound(e.Message);
+            }
+        }
+
         [HttpGet("details/{id}")]
         public async Task<IActionResult> GetPurchaseWithDetails(int id)
         {

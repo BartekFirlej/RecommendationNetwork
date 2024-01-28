@@ -7,6 +7,7 @@ namespace ProductStore.Repositories
     public interface IPurchaseRepository
     {
         public Task<ICollection<PurchaseResponse>> GetPurchases();
+        public Task<ICollection<PurchaseResponse>> GetCustomersPurchases(int customerId);
         public Task<PurchaseResponse> GetPurchaseResponse(int id);
         public Task<Purchase> GetPurchase(int id);
         public Task<Purchase> DeletePurchase(Purchase purchaseToDelete);
@@ -23,15 +24,35 @@ namespace ProductStore.Repositories
         }
         public async Task<ICollection<PurchaseResponse>> GetPurchases()
         {
-            return await _dbContext.Purchases
-                .Select(p => new PurchaseResponse
-                {
-                    Id = p.Id,
-                    PurchaseDate = p.PurchaseDate,
-                    CustomerId = p.CustomerId,
-                    RecommenderId = p.RecommenderId
-                })
-                .ToListAsync();
+            return await _dbContext.PurchaseDetails
+   .Include(p => p.Purchase)
+   .GroupBy(p => p.Purchase.Id) // Group by PurchaseId
+   .Select(group => new PurchaseResponse
+   {
+       Id = group.Key, // Use the PurchaseId as key
+       PurchaseDate = group.First().Purchase.PurchaseDate, // Assuming all items in the group have the same PurchaseDate
+       CustomerId = group.First().Purchase.CustomerId, // Assuming all items in the group have the same CustomerId
+       RecommenderId = group.First().Purchase.RecommenderId, // Assuming all items in the group have the same RecommenderId
+       Amount = group.Sum(item => item.PriceForOnePiece * item.Quantity) // Correctly summing ProductPrice * Quantity for each item
+   }).ToListAsync();
+        }
+
+
+        public async Task<ICollection<PurchaseResponse>> GetCustomersPurchases(int customerId)
+        {
+            return await _dbContext.PurchaseDetails
+    .Include(p => p.Purchase)
+    .GroupBy(p => p.Purchase.Id) // Group by PurchaseId
+    .Select(group => new PurchaseResponse
+    {
+        Id = group.Key, // Use the PurchaseId as key
+        PurchaseDate = group.First().Purchase.PurchaseDate, // Assuming all items in the group have the same PurchaseDate
+        CustomerId = group.First().Purchase.CustomerId, // Assuming all items in the group have the same CustomerId
+        RecommenderId = group.First().Purchase.RecommenderId, // Assuming all items in the group have the same RecommenderId
+        Amount = group.Sum(item => item.PriceForOnePiece * item.Quantity) // Correctly summing ProductPrice * Quantity for each item
+    })
+               .Where(p => p.CustomerId == customerId)
+               .ToListAsync();
         }
 
         public async Task<Purchase> GetPurchase(int id)
@@ -43,15 +64,18 @@ namespace ProductStore.Repositories
 
         public async Task<PurchaseResponse> GetPurchaseResponse(int id)
         {
-            return await _dbContext.Purchases
-                .Select(p => new PurchaseResponse
-                {
-                    Id = p.Id,
-                    PurchaseDate = p.PurchaseDate,
-                    CustomerId = p.CustomerId,
-                    RecommenderId = p.RecommenderId
-                })
-                .Where(p => p.Id == id)
+            return await _dbContext.PurchaseDetails
+               .Include(p => p.Purchase)
+               .GroupBy(p => p.Purchase.Id)
+               .Select(group => new PurchaseResponse
+               {
+                   Id = group.Key,
+                   PurchaseDate = group.First().Purchase.PurchaseDate,
+                   CustomerId = group.First().Purchase.CustomerId,
+                   RecommenderId = group.First().Purchase.RecommenderId,
+                   Amount = group.Sum(item => item.PriceForOnePiece * item.Quantity)
+               })
+               .Where(p => p.Id == id)
                 .FirstOrDefaultAsync();
         }
 
@@ -114,5 +138,6 @@ namespace ProductStore.Repositories
                })
                .ToListAsync();
         }
+
     }
 }

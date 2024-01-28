@@ -6,6 +6,8 @@
 
         public DateTime PurchaseDate { get; set; }
 
+        public float Amount { get; set; }
+
         public int CustomerId { get; set; }
 
         public int? RecommenderId { get; set; }
