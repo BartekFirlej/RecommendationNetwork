@@ -1,4 +1,5 @@
 ﻿using BlazorServerFrontend.DTOs;
+using System.Net;
 
 namespace BlazorServerFrontend.Services
 {
@@ -13,10 +14,17 @@ namespace BlazorServerFrontend.Services
 
         public async Task<List<ProductTypeResponse>> GetProductTypesAsync()
         {
-            return await _httpClient.GetFromJsonAsync<List<ProductTypeResponse>>("http://localhost:8082/product-types");
+            try
+            {
+                return await _httpClient.GetFromJsonAsync<List<ProductTypeResponse>>("http://localhost:8082/product-types");
+            }
+            catch (HttpRequestException e) when (e.StatusCode == HttpStatusCode.NotFound)
+            {
+                return new List<ProductTypeResponse>();
+            }
         }
 
-        public async Task<ProductTypeResponse> PostProductTypeAsync(ProductTypeRequest productTypeRequest)
+            public async Task<ProductTypeResponse> PostProductTypeAsync(ProductTypeRequest productTypeRequest)
         {
             var response = await _httpClient.PostAsJsonAsync("http://localhost:8082/product-types", productTypeRequest);
 

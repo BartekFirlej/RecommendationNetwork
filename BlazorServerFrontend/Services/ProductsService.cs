@@ -1,4 +1,5 @@
-﻿using System.Net.Http;
+﻿using System.Net;
+using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
 using BlazorServerFrontend.DTOs;
@@ -16,7 +17,14 @@ namespace BlazorServerFrontend.Services
 
         public async Task<List<ProductResponse>> GetProductsAsync()
         {
-            return await _httpClient.GetFromJsonAsync<List<ProductResponse>>("http://localhost:8082/products");
+            try
+            {
+                return await _httpClient.GetFromJsonAsync<List<ProductResponse>>("http://localhost:8082/products");
+            }
+            catch (HttpRequestException e) when (e.StatusCode == HttpStatusCode.NotFound)
+            {
+                return new List<ProductResponse>();
+            }
         }
 
         public async Task<ProductResponse> PostProductAsync(ProductRequest productRequest)

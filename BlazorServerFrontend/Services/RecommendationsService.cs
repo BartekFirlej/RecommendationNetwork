@@ -1,4 +1,5 @@
-﻿using System.Net.Http;
+﻿using System.Net;
+using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
 using BlazorServerFrontend.DTOs;
@@ -16,12 +17,26 @@ namespace BlazorServerFrontend.Services
 
         public async Task<List<RecommendationResponse>> GetCustomersRecommendationsAsync()
         {
-            return await _httpClient.GetFromJsonAsync<List<RecommendationResponse>>("http://localhost:8082/recommmendations/customers");
+            try
+            {
+                return await _httpClient.GetFromJsonAsync<List<RecommendationResponse>>("http://localhost:8082/recommmendations/customers");
+            }
+            catch (HttpRequestException e) when (e.StatusCode == HttpStatusCode.NotFound)
+            {
+                return new List<RecommendationResponse>();
+            }
         }
 
         public async Task<List<RecommendationResponse>> GetPurchasesRecommendationsAsync()
         {
-            return await _httpClient.GetFromJsonAsync<List<RecommendationResponse>>("http://localhost:8082/recommmendations/purchases");
+            try
+            {
+                return await _httpClient.GetFromJsonAsync<List<RecommendationResponse>>("http://localhost:8082/recommmendations/purchases");
+            }
+            catch (HttpRequestException e) when (e.StatusCode == HttpStatusCode.NotFound)
+            {
+                return new List<RecommendationResponse>();
+            }
         }
     }
 }
