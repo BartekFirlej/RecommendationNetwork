@@ -6,21 +6,75 @@
 @inject ProductsService ProductsService
 @inject CartService CartService
 
-<table class="table">
-    <thead>
-        <tr>
-            <th class="center-align">Purchase Id</th>
-            <th class="center-align">Purchase Date</th>
-            <th class="center-align">Customer Id</th>
-            <th class="center-align">Recommender Id</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        
-    </tbody>
-</table>
+@if (!CartItems.Any())
+{
+    <h2>Your cart is empty.</h2>
+}
+
+
+@if (CartItems.Any())
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th class="center-align">Product Name</th>
+                <th class="center-align">Product Type Name</th>
+                <th class="center-align">Price For One Piece</th>
+                <th class="center-align">Quantity</th>
+                <th class="center-align">Price</th>
+                <th class="center-align">Total Price</th>
+            </tr>
+        </thead>
+        <tbody>
+
+            @foreach (var product in CartProductsDetails)
+            {
+                <tr>
+                    <td class="center-align">@product.Name</td>
+                    <td class="center-align">@product.ProductTypeName</td>
+                    <td class="center-align">@product.Price</td>
+                    <td class="center-align">@product.ItemQuantity</td>
+                    <td class="center-align">@CalculateTotalPrice(product.Price, product.ItemQuantity).ToString("C")</td>
+                    <td class="center-align">
+                    </td>
+                </tr>
+            }
+            <tr>
+                <td class="center-align"></td>
+                <td class="center-align"></td>
+                <td class="center-align"></td>
+                <td class="center-align"></td>
+                <td class="center-align"></td>
+                <td class="center-align">@sum.ToString("C")</td>
+            </tr>
+        </tbody>
+    </table>
+
+}
 
 @code {
+    public List<CartItem> CartItems = new List<CartItem>();
+    public List<ProductResponse> Products = new List<ProductResponse>();
+    public List<CartProduct> CartProductsDetails = new List<CartProduct>();
+    private float CalculateTotalPrice(float price, float quantity)
+    {
+        return price * quantity;
+    }
+    public float sum { get; set; } = 0;
 
+    protected override async Task OnInitializedAsync()
+    {
+        CartItems = await CartService.GetCart("8");
+        if (CartItems.Any())
+        {
+            List<int> itemsId = CartItems.Select(i => i.ItemId).ToList();
+            var idsList = new IdsListDTO { ids = itemsId };
+            Products = await ProductsService.GetProductsIdsAsync(idsList);
+            if (Products.Any())
+            {
+                CartProductsDetails = CartService.JoinLists(CartItems, Products);
+                sum = CartItems.Zip(Products, (a, b) => a.ItemQuantity * b.Price).Sum();
+            }
+        }
+    }
 }

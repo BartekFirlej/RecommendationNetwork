@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
 using ProductStore.DTOs;
 using ProductStore.Models;
@@ -9,6 +10,7 @@ namespace ProductStore.Services
     public interface IProductService
     {
         public Task<ICollection<ProductResponse>> GetProducts();
+        public Task<ICollection<ProductResponse>> GetProductsByIds(IdsListDTO ids);
         public Task<ProductResponse> GetProductResponse(int id);
         public Task<Product> GetProduct(int id);
         public Task<ProductPostResponse> DeleteProduct(int id);
@@ -33,6 +35,14 @@ namespace ProductStore.Services
         public async Task<ICollection<ProductResponse>> GetProducts()
         {
             var products = await _productRepository.GetProducts();
+            if (!products.Any())
+                throw new Exception("Not found any products.");
+            return products;
+        }
+
+        public async Task<ICollection<ProductResponse>> GetProductsByIds(IdsListDTO ids)
+        {
+            var products = await _productRepository.GetProductsByIds(ids);
             if (!products.Any())
                 throw new Exception("Not found any products.");
             return products;

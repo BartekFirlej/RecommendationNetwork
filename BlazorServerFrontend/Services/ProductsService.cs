@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
+using System.Text.Json;
 using System.Threading.Tasks;
 using BlazorServerFrontend.DTOs;
 
@@ -27,6 +28,24 @@ namespace BlazorServerFrontend.Services
             }
         }
 
+        public async Task<List<ProductResponse>> GetProductsIdsAsync(IdsListDTO ids)
+        {
+
+            var jsonRequest = JsonSerializer.Serialize(ids);
+            var content = new StringContent(jsonRequest, System.Text.Encoding.UTF8, "application/json");
+            var response = await _httpClient.PostAsync("http://localhost:8082/products/byids", content);
+
+            if (response.IsSuccessStatusCode)
+            {
+                return await response.Content.ReadFromJsonAsync<List<ProductResponse>>();
+            }
+            else
+            {
+                throw new HttpRequestException($"Invalid response: {response.StatusCode}");
+            }
+        }
+
+
         public async Task<ProductResponse> PostProductAsync(ProductRequest productRequest)
         {
             var response = await _httpClient.PostAsJsonAsync("http://localhost:8082/products", productRequest);
@@ -43,7 +62,7 @@ namespace BlazorServerFrontend.Services
 
         public async Task<ProductResponse> PostFakeProductAsync()
         {
-            var response = await _httpClient.PostAsync("http://localhost:8082/products/api",null);
+            var response = await _httpClient.PostAsync("http://localhost:8082/products/api", null);
 
             if (response.IsSuccessStatusCode)
             {

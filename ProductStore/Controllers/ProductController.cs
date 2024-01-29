@@ -56,6 +56,20 @@ namespace ProductStore.Controllers
             }
         }
 
+        [HttpPost("byids")]
+        public async Task<IActionResult> GetProductsByIds(IdsListDTO ids)
+        {
+            try
+            {
+                var products = await _productService.GetProductsByIds(ids);
+                return Ok(products);
+            }
+            catch (Exception e)
+            {
+                return NotFound(e.Message);
+            }
+        }
+
         [HttpPost("api")]
         public async Task<IActionResult> PostProduct()
         {

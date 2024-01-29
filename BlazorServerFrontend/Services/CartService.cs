@@ -59,5 +59,22 @@ namespace BlazorServerFrontend.Services
         {
             await _httpClient.DeleteAsync($"http://localhost:8082/cart/{key}/{itemId}");
         }
+
+        public List<CartProduct> JoinLists(List<CartItem> listOfProductsInCarts, List<ProductResponse> listOfProductsDetails)
+        {
+            return   listOfProductsInCarts.Join(
+                listOfProductsDetails,
+                p => p.ItemId,
+                pd => pd.Id,
+                (p, pd) => new CartProduct
+                {
+                    ItemId = pd.Id,
+                    Name = pd.Name,
+                    ProductTypeId = pd.ProductTypeId,
+                    ProductTypeName = pd.ProductTypeName,
+                    ItemQuantity = p.ItemQuantity,
+                    Price = pd.Price,
+                }).ToList();
+        }
     }
 }

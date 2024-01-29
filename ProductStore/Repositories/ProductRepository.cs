@@ -7,6 +7,7 @@ namespace ProductStore.Repositories
     public interface IProductRepository
     {
         public Task<ICollection<ProductResponse>> GetProducts();
+        public Task<ICollection<ProductResponse>> GetProductsByIds(IdsListDTO ids);
         public Task<ProductResponse> GetProductResponse(int id);
         public Task<Product> GetProduct(int id);
         public Task<Product> DeleteProduct(Product productToDelete);
@@ -24,6 +25,23 @@ namespace ProductStore.Repositories
         {
             var products = await _dbContext.Products
                    .Include(p => p.ProductType)
+                   .Select(p => new ProductResponse
+                   {
+                       Id = p.Id,
+                       Name = p.Name,
+                       Price = p.Price,
+                       ProductTypeId = p.ProductTypeId,
+                       ProductTypeName = p.ProductType.Name
+                   }).ToListAsync();
+            return products;
+        }
+
+
+        public async Task<ICollection<ProductResponse>> GetProductsByIds(IdsListDTO ids)
+        {
+            var products = await _dbContext.Products
+                   .Include(p => p.ProductType)
+                   .Where(p => ids.ids.Contains(p.Id))
                    .Select(p => new ProductResponse
                    {
                        Id = p.Id,
