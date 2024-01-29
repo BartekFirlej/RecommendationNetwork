@@ -4,6 +4,7 @@
 @using BlazorServerFrontend.DTOs
 
 @inject ProductsService ProductsService
+@inject CartService CartService
 
 <h1>Available Products</h1>
 
@@ -16,6 +17,15 @@
     <NavLink class="nav-link" href="addproducttype" style="color: white;">Add product type</NavLink>
 </button>
 
+@if (successMessage != null)
+{
+    <div class="alert alert-success">@successMessage</div>
+}
+
+@if (errorMessage != null)
+{
+    <div class="alert alert-danger">@errorMessage</div>
+}
 
 <table class="table">
     <thead>
@@ -38,28 +48,53 @@
                     <td class="center-align">@product.ProductTypeName</td>
                     <td class="center-align">@product.Price</td>
                     <td class="center-align">
-
-
-
-                        <button class="btn btn-primary" @onclick="() => AddToCart(product)">Add to cart</button>
+                        <input type="number" id="@($"quantity_{product.Id}")" class="form-control" @bind="productQuantities[product.Id]" />
+                        <button class="btn btn-primary" @onclick="() => AddToCart(product, productQuantities[product.Id])">Add to cart</button>
                     </td>
                 </tr>
             }
         }
+
     </tbody>
 </table>
 
 @code {
     private List<ProductResponse> products;
+    private Dictionary<int, int> productQuantities = new Dictionary<int, int>();
+    private string errorMessage;
+    private string successMessage;
 
     protected override async Task OnInitializedAsync()
     {
         products = await ProductsService.GetProductsAsync();
+        foreach (var product in products)
+        {
+            productQuantities[product.Id] = 1;
+        }
     }
 
-    private void AddToCart(ProductResponse product)
+    private void AddToCart(ProductResponse product, int quantity)
     {
-        // Implementacja dodawania produktu do koszyka
-        // Możesz tu dodać logikę dotyczącą dodawania wybranego produktu do koszyka
+        try
+        {
+            errorMessage = null;
+            successMessage = null;
+
+            var cartItemToAdd = new CartItem
+                {
+                    ItemId = product.Id,
+                    ItemQuantity = quantity
+                };
+
+            CartService.AddItemToCart("8", cartItemToAdd);
+            successMessage = "Successfully added product to cart.";
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Can't add product to cart: {ex.Message}";
+        }
+        StateHasChanged();
     }
+
+
 }
