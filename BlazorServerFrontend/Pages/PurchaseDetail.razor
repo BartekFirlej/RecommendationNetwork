@@ -23,15 +23,17 @@ else
         <thead>
             <tr>
                 <th class="center-align">Date</th>
-                <th class="center-align">Customer Id</th>
-                <th class="center-align">Recommender Id</th>
+                <th class="center-align">Customer</th>
+                <th class="center-align">Recommender</th>
             </tr>
         </thead>
         <tbody>
             <tr>
                 <td class="center-align">@purchaseDetails.PurchaseDate.ToString("yyyy-MM-dd")</td>
-                <td class="center-align">@purchaseDetails.CustomerId</td>
-                <td class="center-align">@purchaseDetails.RecommenderId</td>
+                <td class="center-align">@purchaseDetails.CustomerName @(" ") @purchaseDetails.CustomerLastName</td>
+                <td class="center-align">
+                    @(purchaseDetails.RecommenderName != null ? purchaseDetails.RecommenderName + " " + purchaseDetails.RecommenderLastName : "")
+                </td>
             </tr>
         </tbody>
     </table>
@@ -39,7 +41,8 @@ else
     <table class="table">
         <thead>
             <tr>
-                <th class="center-align">Product Id</th>
+                <th class="center-align">Product Name</th>
+                <th class="center-align">Product Type Name</th>
                 <th class="center-align">Price For One Piece</th>
                 <th class="center-align">Quantity</th>
                 <th class="center-align">Price</th>
@@ -51,7 +54,8 @@ else
             @foreach (var product in purchaseDetails.PurchaseDetails)
             {
                 <tr>
-                    <td class="center-align">@product.Id</td>
+                    <td class="center-align">@product.ProductName</td>
+                    <td class="center-align">@product.ProductTypeName</td>
                     <td class="center-align">@product.PriceForOnePiece</td>
                     <td class="center-align">@product.Quantity</td>
                     <td class="center-align">@CalculateTotalPrice(product.PriceForOnePiece, product.Quantity).ToString("C")</td>
@@ -60,6 +64,7 @@ else
                 </tr>
             }
             <tr>
+                <td class="center-align"></td>
                 <td class="center-align"></td>
                 <td class="center-align"></td>
                 <td class="center-align"></td>

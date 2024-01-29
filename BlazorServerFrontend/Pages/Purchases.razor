@@ -13,9 +13,9 @@
         <tr>
             <th class="center-align">Purchase Id</th>
             <th class="center-align">Purchase Date</th>
-            <th class="center-align">Customer Id</th>
+            <th class="center-align">Customer</th>
+            <th class="center-align">Recommender</th>
             <th class="center-align">Amount</th>
-            <th class="center-align">Recommender Id</th>
             <th></th>
         </tr>
     </thead>
@@ -27,9 +27,11 @@
                 <tr>
                     <td class="center-align">@purchase.Id</td>
                     <td class="center-align">@purchase.PurchaseDate.Date.ToString("yyyy-MM-dd")</td>
-                    <td class="center-align">@purchase.CustomerId</td>
+                    <td class="center-align">@purchase.CustomerName @(" ") @purchase.CustomerLastName</td>
+                    <td class="center-align">
+                        @(purchase.RecommenderName != null ? purchase.RecommenderName + " " + purchase.RecommenderLastName : "")
+                    </td>
                     <td class="center-align">@purchase.Amount</td>
-                    <td class="center-align">@purchase.RecommenderId</td>
                     <td class="center-align">
                         <button class="btn btn-primary" @onclick="() => AddToCart(purchase)">View details</button>
                     </td>

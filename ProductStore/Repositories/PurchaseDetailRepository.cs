@@ -30,7 +30,6 @@ namespace ProductStore.Repositories
                 .Select(p => new PurchaseDetailResponse
                 {
                     Id = p.Id,
-                    PurchaseId = p.PurchaseId,
                     PriceForOnePiece = p.PriceForOnePiece,
                     Quantity = p.Quantity,
                     ProductId = p.ProductId
@@ -50,7 +49,6 @@ namespace ProductStore.Repositories
                 .Select(p => new PurchaseDetailResponse
                 {
                     Id = p.Id,
-                    PurchaseId = p.PurchaseId,
                     PriceForOnePiece = p.PriceForOnePiece,
                     Quantity = p.Quantity,
                     ProductId = p.ProductId

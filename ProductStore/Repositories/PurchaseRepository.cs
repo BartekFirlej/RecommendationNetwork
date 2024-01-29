@@ -25,32 +25,43 @@ namespace ProductStore.Repositories
         public async Task<ICollection<PurchaseResponse>> GetPurchases()
         {
             return await _dbContext.PurchaseDetails
-   .Include(p => p.Purchase)
-   .GroupBy(p => p.Purchase.Id) // Group by PurchaseId
-   .Select(group => new PurchaseResponse
-   {
-       Id = group.Key, // Use the PurchaseId as key
-       PurchaseDate = group.First().Purchase.PurchaseDate, // Assuming all items in the group have the same PurchaseDate
-       CustomerId = group.First().Purchase.CustomerId, // Assuming all items in the group have the same CustomerId
-       RecommenderId = group.First().Purchase.RecommenderId, // Assuming all items in the group have the same RecommenderId
-       Amount = group.Sum(item => item.PriceForOnePiece * item.Quantity) // Correctly summing ProductPrice * Quantity for each item
-   }).ToListAsync();
+                .Include(p => p.Purchase)
+                .Include(c => c.Purchase.Customer)
+                .Include(c => c.Purchase.Recommender)
+                .GroupBy(p => p.Purchase.Id)
+                .Select(group => new PurchaseResponse
+                {
+                    Id = group.Key,
+                    PurchaseDate = group.First().Purchase.PurchaseDate,
+                    CustomerId = group.First().Purchase.CustomerId,
+                    CustomerName = group.First().Purchase.Customer.Name,
+                    CustomerLastName = group.First().Purchase.Customer.LastName,
+                    RecommenderId = group.First().Purchase.RecommenderId,
+                    RecommenderName = group.First().Purchase.Recommender.Name,
+                    RecommenderLastName = group.First().Purchase.Recommender.LastName,
+                    Amount = group.Sum(item => item.PriceForOnePiece * item.Quantity)
+                }).ToListAsync();
         }
-
 
         public async Task<ICollection<PurchaseResponse>> GetCustomersPurchases(int customerId)
         {
             return await _dbContext.PurchaseDetails
-    .Include(p => p.Purchase)
-    .GroupBy(p => p.Purchase.Id) // Group by PurchaseId
-    .Select(group => new PurchaseResponse
-    {
-        Id = group.Key, // Use the PurchaseId as key
-        PurchaseDate = group.First().Purchase.PurchaseDate, // Assuming all items in the group have the same PurchaseDate
-        CustomerId = group.First().Purchase.CustomerId, // Assuming all items in the group have the same CustomerId
-        RecommenderId = group.First().Purchase.RecommenderId, // Assuming all items in the group have the same RecommenderId
-        Amount = group.Sum(item => item.PriceForOnePiece * item.Quantity) // Correctly summing ProductPrice * Quantity for each item
-    })
+                .Include(p => p.Purchase)
+                .Include(c => c.Purchase.Customer)
+                .Include(c => c.Purchase.Recommender)
+                .GroupBy(p => p.Purchase.Id)
+                .Select(group => new PurchaseResponse
+                {
+                    Id = group.Key,
+                    PurchaseDate = group.First().Purchase.PurchaseDate,
+                    CustomerId = group.First().Purchase.CustomerId,
+                    CustomerName = group.First().Purchase.Customer.Name,
+                    CustomerLastName = group.First().Purchase.Customer.LastName,
+                    RecommenderId = group.First().Purchase.RecommenderId,
+                    RecommenderName = group.First().Purchase.Recommender.Name,
+                    RecommenderLastName = group.First().Purchase.Recommender.LastName,
+                    Amount = group.Sum(item => item.PriceForOnePiece * item.Quantity)
+                })
                .Where(p => p.CustomerId == customerId)
                .ToListAsync();
         }
@@ -66,13 +77,19 @@ namespace ProductStore.Repositories
         {
             return await _dbContext.PurchaseDetails
                .Include(p => p.Purchase)
+               .Include(c => c.Purchase.Customer)
+               .Include(c => c.Purchase.Recommender)
                .GroupBy(p => p.Purchase.Id)
                .Select(group => new PurchaseResponse
                {
                    Id = group.Key,
                    PurchaseDate = group.First().Purchase.PurchaseDate,
                    CustomerId = group.First().Purchase.CustomerId,
+                   CustomerName = group.First().Purchase.Customer.Name,
+                   CustomerLastName = group.First().Purchase.Customer.LastName,
                    RecommenderId = group.First().Purchase.RecommenderId,
+                   RecommenderName = group.First().Purchase.Recommender.Name,
+                   RecommenderLastName = group.First().Purchase.Recommender.LastName,
                    Amount = group.Sum(item => item.PriceForOnePiece * item.Quantity)
                })
                .Where(p => p.Id == id)
@@ -99,45 +116,82 @@ namespace ProductStore.Repositories
             return purchaseToDelete;
         }
 
-        public Task<PurchaseWithDetailsResponse> GetPurchaseWithDetails(int id)
+        public async Task<PurchaseWithDetailsResponse> GetPurchaseWithDetails(int id)
         {
-            return _dbContext.Purchases.Include(p => p.PurchaseDetails)
-                .Where(p => p.Id == id)
-                .Select(p => new PurchaseWithDetailsResponse
+            return await _dbContext.PurchaseDetails
+        .Where(p => p.Purchase.Id == id)
+        .Include(p => p.Purchase)
+        .Include(p => p.Purchase.Customer)
+        .Include(p => p.Purchase.Recommender)
+        .Include(p => p.Product)
+        .Include(p => p.Product.ProductType)
+        .Select(p => new
+        {
+            Purchase = p.Purchase,
+            PurchaseDetail = p
+        })
+        .ToListAsync()
+        .ContinueWith(task =>
+        {
+            var results = task.Result;
+            if (!results.Any()) return null;
+
+            var firstResult = results.First();
+            var purchase = firstResult.Purchase;
+
+            return new PurchaseWithDetailsResponse
+            {
+                Id = purchase.Id,
+                CustomerId = purchase.CustomerId,
+                CustomerName = purchase.Customer.Name,
+                CustomerLastName = purchase.Customer.LastName,
+                RecommenderId = purchase.RecommenderId,
+                RecommenderName = purchase.Recommender?.Name,
+                RecommenderLastName = purchase.Recommender?.LastName,
+                PurchaseDate = purchase.PurchaseDate,
+                PurchaseDetails = results.Select(r => new PurchaseDetailResponse
                 {
-                    Id = p.Id,
-                    CustomerId = p.CustomerId,
-                    RecommenderId = p.RecommenderId,
-                    PurchaseDate = p.PurchaseDate,
-                    PurchaseDetails = p.PurchaseDetails.Select(t => new PurchaseDetailResponse
-                    {
-                        Id = t.Id,
-                        PriceForOnePiece = t.PriceForOnePiece,
-                        ProductId = t.ProductId,
-                        Quantity = t.Quantity
-                    }).ToList()
-                }).FirstOrDefaultAsync();
+                    Id = r.PurchaseDetail.Id,
+                    PriceForOnePiece = r.PurchaseDetail.PriceForOnePiece,
+                    ProductId = r.PurchaseDetail.ProductId,
+                    ProductName = r.PurchaseDetail.Product.Name,
+                    ProductTypeId = r.PurchaseDetail.Product.ProductTypeId,
+                    ProductTypeName = r.PurchaseDetail.Product.ProductType.Name,
+                    Quantity = r.PurchaseDetail.Quantity
+                }).ToList()
+            };
+        });
         }
 
         public async Task<ICollection<PurchaseWithDetailsResponse>> GetPurchasesWithDetails()
         {
-            return await _dbContext.Purchases.Include(p => p.PurchaseDetails)
-               .Select(p => new PurchaseWithDetailsResponse
-               {
-                   Id = p.Id,
-                   CustomerId = p.CustomerId,
-                   RecommenderId = p.RecommenderId,
-                   PurchaseDate = p.PurchaseDate,
-                   PurchaseDetails = p.PurchaseDetails.Select(t => new PurchaseDetailResponse
-                   {
-                       Id = t.Id,
-                       PriceForOnePiece = t.PriceForOnePiece,
-                       ProductId = t.ProductId,
-                       Quantity = t.Quantity
-                   }).ToList()
-               })
-               .ToListAsync();
+            return await _dbContext.Purchases
+                .Include(p => p.Customer)
+                .Include(p => p.Recommender)
+                .Include(p => p.PurchaseDetails)
+                    .ThenInclude(pd => pd.Product)
+                        .ThenInclude(pr => pr.ProductType)
+                .Select(p => new PurchaseWithDetailsResponse
+                {
+                    Id = p.Id,
+                    CustomerId = p.CustomerId,
+                    CustomerName = p.Customer.Name,
+                    CustomerLastName = p.Customer.LastName,
+                    RecommenderId = p.Recommender != null ? p.Recommender.Id : (int?)null, // Handle nullable Recommender
+                    RecommenderName = p.Recommender != null ? p.Recommender.Name : null, // Handle nullable Recommender
+                    RecommenderLastName = p.Recommender != null ? p.Recommender.LastName : null, // Handle nullable Recommender
+                    PurchaseDate = p.PurchaseDate,
+                    PurchaseDetails = p.PurchaseDetails.Select(pd => new PurchaseDetailResponse
+                    {
+                        Id = pd.Id,
+                        PriceForOnePiece = pd.PriceForOnePiece,
+                        ProductId = pd.ProductId,
+                        ProductName = pd.Product.Name,
+                        ProductTypeId = pd.Product.ProductTypeId,
+                        ProductTypeName = pd.Product.ProductType.Name,
+                        Quantity = pd.Quantity
+                    }).ToList()
+                }).ToListAsync();
         }
-
     }
 }
