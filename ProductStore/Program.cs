@@ -9,6 +9,8 @@ builder.Services.AddControllersWithViews();
 
 builder.Services.AddDbContext<StoreDbContext>();
 
+builder.Services.AddSingleton(new HttpClient());
+
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();

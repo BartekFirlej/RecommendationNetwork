@@ -2,6 +2,9 @@
 using ProductStore.DTOs;
 using ProductStore.Models;
 using AutoMapper;
+using System.Text;
+using System.Text.Json;
+
 
 namespace ProductStore.Services
 {
@@ -16,13 +19,16 @@ namespace ProductStore.Services
     public class CustomerService : ICustomerService
     {
         private readonly ICustomerRepository _customerRepository;
+        private readonly HttpClient _httpClient;
         private readonly RabbitMqPublisher _rabbitMqPublisher;
+
         private readonly IMapper _mapper;
-        public CustomerService(ICustomerRepository customerRepository, IMapper mapper, RabbitMqPublisher rabbitMqPublisher)
+        public CustomerService(ICustomerRepository customerRepository, IMapper mapper, RabbitMqPublisher rabbitMqPublisher, HttpClient httpClient)
         {
             _customerRepository = customerRepository;
             _mapper = mapper;
             _rabbitMqPublisher = rabbitMqPublisher;
+            _httpClient = httpClient;
         }
 
         public async Task<ICollection<CustomerResponse>> GetCustomers()
@@ -56,6 +62,9 @@ namespace ProductStore.Services
             var addedCustomer = await _customerRepository.PostCustomer(customerToAdd);
             var addedCustomerResponse =  _mapper.Map<CustomerResponse>(addedCustomer);
             _rabbitMqPublisher.PublishMessage(addedCustomerResponse, "customerQueue");
+            List<CartItem> emptyCart = new List<CartItem>();
+            HttpContent content = new StringContent(JsonSerializer.Serialize(emptyCart), Encoding.UTF8, "application/json");
+            await _httpClient.PostAsJsonAsync(String.Format("http://host.docker.internal:8082/cart/{0}", addedCustomerResponse.Id), emptyCart);
             return addedCustomerResponse;
         }
 
@@ -63,6 +72,7 @@ namespace ProductStore.Services
         {
             var customerToDelete = await GetCustomer(id);
             await _customerRepository.DeleteCustomer(customerToDelete);
+            await _httpClient.DeleteAsync(String.Format("http://host.docker.internal:8082/cart/{0}", customerToDelete.Id));
             return _mapper.Map<CustomerResponse>(customerToDelete);
         }
     }
