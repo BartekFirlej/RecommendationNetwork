@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using StackExchange.Redis;
 using System.Text.Json;
 
-[Route("api/[controller]")]
+[Route("cart")]
 [ApiController]
 public class CartController : ControllerBase
 {
