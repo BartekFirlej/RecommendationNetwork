@@ -66,3 +66,13 @@ a, .btn-link {
 .center-align {
     text-align: center;
 }
+
+.small-blue-button {
+    background-color: transparent;
+    border: 1px solid blue;
+    color: blue;
+    padding: 3px 6px; /* Adjust padding as needed */
+    cursor: pointer;
+    font-size: 12px; /* Adjust font size as needed */
+    margin-left: 5px; /* Add margin for spacing */
+}

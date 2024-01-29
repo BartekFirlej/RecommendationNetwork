@@ -48,8 +48,11 @@
                     <td class="center-align">@product.ProductTypeName</td>
                     <td class="center-align">@product.Price</td>
                     <td class="center-align">
-                        <input type="number" id="@($"quantity_{product.Id}")" class="form-control" @bind="productQuantities[product.Id]" />
-                        <button class="btn btn-primary" @onclick="() => AddToCart(product, productQuantities[product.Id])">Add to cart</button>
+                        <div style="display: flex; align-items: center;">
+                            <input type="number" id="@($"quantity_{product.Id}")" class="form-control" @bind="productQuantities[product.Id]" style="display: inline; flex: 1; width: 30px;line-height: 1.5; text-align: center;" min="1" />
+                            <button class="btn btn-primary" @onclick="() => AddToCart(product, productQuantities[product.Id])" style="margin-left: 10px;">Add to cart</button>
+                        </div>
+
                     </td>
                 </tr>
             }

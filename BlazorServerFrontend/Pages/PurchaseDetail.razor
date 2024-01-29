@@ -45,7 +45,6 @@ else
                 <th class="center-align">Product Type Name</th>
                 <th class="center-align">Price For One Piece</th>
                 <th class="center-align">Quantity</th>
-                <th class="center-align">Price</th>
                 <th class="center-align">Total Price</th>
             </tr>
         </thead>
@@ -59,8 +58,6 @@ else
                     <td class="center-align">@product.PriceForOnePiece</td>
                     <td class="center-align">@product.Quantity</td>
                     <td class="center-align">@CalculateTotalPrice(product.PriceForOnePiece, product.Quantity).ToString("C")</td>
-                    <td class="center-align">
-                    </td>
                 </tr>
             }
             <tr>
@@ -68,8 +65,7 @@ else
                 <td class="center-align"></td>
                 <td class="center-align"></td>
                 <td class="center-align"></td>
-                <td class="center-align"></td>
-                <td class="center-align">@sum.ToString("C")</td>
+                <td class="center-align"><b>@sum.ToString("C")</b></td>
             </tr>
         </tbody>
     </table>

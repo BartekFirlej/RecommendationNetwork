@@ -21,8 +21,8 @@
                 <th class="center-align">Product Type Name</th>
                 <th class="center-align">Price For One Piece</th>
                 <th class="center-align">Quantity</th>
-                <th class="center-align">Price</th>
                 <th class="center-align">Total Price</th>
+                <th class="center-align"></th>
             </tr>
         </thead>
         <tbody>
@@ -33,9 +33,16 @@
                     <td class="center-align">@product.Name</td>
                     <td class="center-align">@product.ProductTypeName</td>
                     <td class="center-align">@product.Price</td>
-                    <td class="center-align">@product.ItemQuantity</td>
+                    <td class="center-align">
+                        <div style="display: flex; justify-content: center; align-items: center; text-align: center;">
+                            <button class="small-blue-button oi oi-minus" @onclick="() => DecrementQuantity(product.ItemId)"></button>
+                            <span style="width: 30px;">@product.ItemQuantity</span>
+                            <button class="small-blue-button oi oi-plus" @onclick="() => IncrementQuantity(product.ItemId)"></button>
+                        </div>
+                    </td>
                     <td class="center-align">@CalculateTotalPrice(product.Price, product.ItemQuantity).ToString("C")</td>
                     <td class="center-align">
+                        <button class="small-blue-button oi oi-trash" @onclick="() => DeleteProduct(product.ItemId)"></button>
                     </td>
                 </tr>
             }
@@ -44,8 +51,8 @@
                 <td class="center-align"></td>
                 <td class="center-align"></td>
                 <td class="center-align"></td>
+                <td class="center-align"><b>@sum.ToString("C")</b></td>
                 <td class="center-align"></td>
-                <td class="center-align">@sum.ToString("C")</td>
             </tr>
         </tbody>
     </table>
@@ -76,5 +83,53 @@
                 sum = CartItems.Zip(Products, (a, b) => a.ItemQuantity * b.Price).Sum();
             }
         }
+    }
+    private async Task IncrementQuantity(int productId)
+    {
+        var cartItem = CartItems.Find(item => item.ItemId == productId);
+        if (cartItem != null)
+        {
+            cartItem.ItemQuantity++;
+            await CartService.ModifyItemQuantity("8", productId, cartItem.ItemQuantity);
+            UpdateCartItems();
+        }
+    }
+
+    private async Task DecrementQuantity(int productId)
+    {
+        var cartItem = CartItems.Find(item => item.ItemId == productId);
+        if (cartItem != null && cartItem.ItemQuantity > 1)
+        {
+            cartItem.ItemQuantity--;
+            await CartService.ModifyItemQuantity("8", productId, cartItem.ItemQuantity);
+            UpdateCartItems();
+        }
+    }
+
+    private async Task DeleteProduct(int productId)
+    {
+        var cartItem = CartItems.Find(item => item.ItemId == productId);
+        if (cartItem != null)
+        {
+            await CartService.DeleteCartItem("8", productId);
+            UpdateCartItems();
+        }
+    }
+
+    private async void UpdateCartItems()
+    {
+        CartItems = await CartService.GetCart("8");
+        if (CartItems.Any())
+        {
+            List<int> itemsId = CartItems.Select(i => i.ItemId).ToList();
+            var idsList = new IdsListDTO { ids = itemsId };
+            Products = await ProductsService.GetProductsIdsAsync(idsList);
+            if (Products.Any())
+            {
+                CartProductsDetails = CartService.JoinLists(CartItems, Products);
+                sum = CartItems.Zip(Products, (a, b) => a.ItemQuantity * b.Price).Sum();
+            }
+        }
+        StateHasChanged();
     }
 }
