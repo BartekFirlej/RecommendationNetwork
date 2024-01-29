@@ -23,6 +23,7 @@ namespace ProductStore.Repositories
         public async Task<ICollection<CustomerResponse>> GetCustomers()
         {
             return await _dbContext.Customers
+                .Include(c => c.Voivodeship)
                 .Select(c => new CustomerResponse
                 {
                     Id = c.Id,
@@ -33,6 +34,7 @@ namespace ProductStore.Repositories
                     Street = c.Street,
                     Town = c.Town,
                     VoivodeshipId = c.VoivodeshipId,
+                    VoivodeshipName = c.Voivodeship.Name,
                     RecommenderId = c.RecommenderId
                 })
                 .ToListAsync();
@@ -41,6 +43,7 @@ namespace ProductStore.Repositories
         public async Task<CustomerResponse> GetCustomerResponse(int id)
         {
             return await _dbContext.Customers
+                .Include(c => c.Voivodeship)
                 .Select(c => new CustomerResponse
                 {
                     Id = c.Id,
@@ -51,6 +54,7 @@ namespace ProductStore.Repositories
                     Street = c.Street,
                     Town = c.Town,
                     VoivodeshipId = c.VoivodeshipId,
+                    VoivodeshipName = c.Voivodeship.Name,
                     RecommenderId = c.RecommenderId
                 })
                 .Where(c => c.Id == id)

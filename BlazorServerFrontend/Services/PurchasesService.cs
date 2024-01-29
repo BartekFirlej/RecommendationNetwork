@@ -39,5 +39,19 @@ namespace BlazorServerFrontend.Services
                 return new PurchaseWithDetailsResponse();
             }
         }
+
+        public async Task<PurchaseWithDetailsResponse> PostPurchaseDetailsAsync(PurchaseWithDetailsRequest purchaseToAdd)
+        {
+            var response = await _httpClient.PostAsJsonAsync("http://localhost:8082/purchases/details", purchaseToAdd);
+
+            if (response.IsSuccessStatusCode)
+            {
+                return await response.Content.ReadFromJsonAsync<PurchaseWithDetailsResponse>();
+            }
+            else
+            {
+                throw new HttpRequestException($"Invalid response: {response.StatusCode}");
+            }
+        }
     }
 }

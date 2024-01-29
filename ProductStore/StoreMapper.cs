@@ -7,7 +7,8 @@ public class StoreMapper : Profile
 {
     public StoreMapper()
     {
-        CreateMap<Customer, CustomerResponse>();
+        CreateMap<Customer, CustomerResponse>()
+            .ForMember(dest => dest.VoivodeshipName, opt => opt.MapFrom(src => (string)null));
         CreateMap<ProductType, ProductTypeResponse>();
         CreateMap<Product, ProductResponse>();
         CreateMap<Product, ProductPostResponse>();

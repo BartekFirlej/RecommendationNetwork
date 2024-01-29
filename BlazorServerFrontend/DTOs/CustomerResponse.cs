@@ -17,6 +17,7 @@
         public string Country { get; set; } = null!;
 
         public int VoivodeshipId { get; set; }
+        public string VoivodeshipName { get; set; } = null!;
         public int? RecommenderId { get; set; }
     }
 }

@@ -1,0 +1,169 @@
+﻿@page "/purchase"
+
+@using BlazorServerFrontend.Services
+@using BlazorServerFrontend.DTOs
+
+@inject ProductsService ProductsService
+@inject CartService CartService
+@inject CustomersService CustomerService
+@inject PurchasesService PurchaseService
+
+<h1>Order Completion</h1>
+<div class="nav-item px-3">
+    <NavLink class="nav-link" href="cart">
+        <span class="oi oi-arrow-thick-left" aria-hidden="true"></span> Cart
+    </NavLink>
+</div>
+
+<div style="display: flex;">
+    <div style="border: 1px solid black; margin-right: 10px; padding: 10px;">
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th class="center-align">Name</th>
+                    <th class="center-align">Quantity</th>
+                    <th class="center-align">Total Price</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var product in CartProductsDetails)
+                {
+                    <tr>
+                        <td class="center-align">@product.Name</td>
+                        <td class="center-align">@product.ItemQuantity</td>
+                        <td class="center-align">@CalculateTotalPrice(product.Price, product.ItemQuantity).ToString("C")</td>
+                    </tr>
+                }
+                <tr>
+                    <td class="center-align"></td>
+                    <td class="center-align"></td>
+                    <td class="center-align"><b>@sum.ToString("C")</b></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div style="border: 1px solid black; padding: 10px;">
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th class="center-align">Name</th>
+                    <th class="center-align">@Customer.Name @Customer.LastName</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="center-align">Country</td>
+                    <td class="center-align">@Customer.Country @Customer.VoivodeshipName</td>
+                </tr>
+                <tr>
+                    <td class="center-align">Address</td>
+                    <td class="center-align">@Customer.ZipCode @Customer.Town @Customer.Street</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+<EditForm Model="@PurchaseDetails" OnValidSubmit="@HandleValidSubmit">
+    <div class="mt-4">
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="dataIsCorrectCheckbox" @bind="dataIsCorrect" />
+            <label class="form-check-label" for="dataIsCorrectCheckbox">
+                Data is correct
+            </label>
+        </div>
+
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="obligationToPayCheckbox" @bind="obligationToPay" />
+            <label class="form-check-label" for="obligationToPayCheckbox">
+                I order with the obligation to pay
+            </label>
+            <br/>
+            <label for="productTypeId">Recommender:</label>
+            <InputSelect id="productTypeId" class="form-control" @bind-Value="@PurchaseDetails.RecommenderId">
+                <option value="null"></option>
+                @foreach (var customer in Customers)
+                {
+                    <option value="@customer.Id">@customer.Name @customer.LastName</option>
+                }
+            </InputSelect>
+        </div>
+
+        <button class="btn btn-primary" disabled="@(!dataIsCorrect || !obligationToPay || !ableButton)">Order</button>
+    </div>
+</EditForm>
+@if (successMessage != null)
+{
+    <div class="alert alert-success">@successMessage</div>
+}
+
+@if (errorMessage != null)
+{
+    <div class="alert alert-danger">@errorMessage</div>
+}
+
+@code {
+    @code {
+        public List<CartItem> CartItems = new List<CartItem>();
+        public List<ProductResponse> Products = new List<ProductResponse>();
+        public List<CartProduct> CartProductsDetails = new List<CartProduct>();
+        public CustomerResponse Customer = new CustomerResponse();
+        public List<CustomerResponse> Customers = new List<CustomerResponse>();
+        public PurchaseWithDetailsRequest PurchaseDetails = new PurchaseWithDetailsRequest();
+        private string errorMessage;
+        private string successMessage;
+        public float sum { get; set; } = 0;
+        public bool ableButton = true;
+
+        private float CalculateTotalPrice(float price, float quantity)
+        {
+            return price * quantity;
+        }
+
+        private bool dataIsCorrect = false;
+        private bool obligationToPay = false;
+
+
+
+        private async void HandleValidSubmit()
+        {
+            PurchaseDetails.CustomerId = 8;
+            PurchaseDetails.PurchaseDate = DateTime.Now;
+            PurchaseDetails.Products = CartProductsDetails.Select(p => new PurchaseDetailRequest
+            {
+                ProductId = p.ItemId,
+                PriceForOnePiece = p.Price,
+                Quantity = p.ItemQuantity
+            }).ToList();
+            try
+            {
+                await PurchaseService.PostPurchaseDetailsAsync(PurchaseDetails);
+                successMessage = $"Successfully placed order.";
+                ableButton = false;
+                await CartService.EmptyCart("8");
+            }
+            catch (Exception ex)
+            {
+                errorMessage = "Can't place order.";
+            }
+            StateHasChanged();
+        }
+
+        protected override async Task OnInitializedAsync()
+        {
+            CartItems = await CartService.GetCart("8");
+            if (CartItems.Any())
+            {
+                List<int> itemsId = CartItems.Select(i => i.ItemId).ToList();
+                var idsList = new IdsListDTO { ids = itemsId };
+                Products = await ProductsService.GetProductsIdsAsync(idsList);
+                if (Products.Any())
+                {
+                    CartProductsDetails = CartService.JoinLists(CartItems, Products);
+                    sum = CartItems.Zip(Products, (a, b) => a.ItemQuantity * b.Price).Sum();
+                }
+                Customer = await CustomerService.GetCustomerAsync(8);
+                Customers = await CustomerService.GetCustomersAsync();
+            }
+        }
+    }
+}

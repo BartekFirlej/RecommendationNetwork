@@ -26,5 +26,17 @@ namespace BlazorServerFrontend.Services
                 return new List<CustomerResponse>();
             }
         }
+
+        public async Task<CustomerResponse> GetCustomerAsync(int id)
+        {
+            try
+            {
+                return await _httpClient.GetFromJsonAsync<CustomerResponse>(String.Format("http://localhost:8082/customers/{0}",id));
+            }
+            catch (HttpRequestException e) when (e.StatusCode == HttpStatusCode.NotFound)
+            {
+                return new CustomerResponse();
+            }
+        }
     }
 }

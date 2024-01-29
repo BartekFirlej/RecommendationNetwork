@@ -8,12 +8,18 @@
 
 @if (!CartItems.Any())
 {
-    <h2>Your cart is empty.</h2>
+    <h1>Your cart is empty.</h1>
 }
 
 
 @if (CartItems.Any())
 {
+    <h1>Your cart</h1>
+
+    <button class="btn btn-primary float-right">
+        <NavLink class="nav-link" href="purchase" style="color: white;">Place order</NavLink>
+    </button>
+
     <table class="table">
         <thead>
             <tr>
@@ -56,7 +62,7 @@
             </tr>
         </tbody>
     </table>
-
+    
 }
 
 @code {
