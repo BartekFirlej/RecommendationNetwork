@@ -8,6 +8,7 @@ namespace ProductStore.Services
     public interface IPurchaseProposalService
     {
         public Task<ICollection<PurchaseProposalResponse>> GetPurchaseProposals();
+        public Task<ICollection<PurchaseProposalResponse>> GetPurchaseProposals(int customerId);
         public Task<PurchaseProposal> GetPurchaseProposal(int id);
         public Task<PurchaseProposalResponse> GetPurchaseProposalResponse(int id);
         public Task<PurchaseProposalResponse> PostPurchaseProposal(PurchaseProposalRequest purchaseProposalToAdd);
@@ -65,6 +66,14 @@ namespace ProductStore.Services
             var purchaseProposalToDelete = await GetPurchaseProposal(id);
             var deletedProposal = await _purchaseProposalRepository.DeletePurchaseProposal(purchaseProposalToDelete);
             return _mapper.Map<PurchaseProposalResponse>(deletedProposal);
+        }
+
+        public async Task<ICollection<PurchaseProposalResponse>> GetPurchaseProposals(int customerId)
+        {
+            var purchaseProposals = await _purchaseProposalRepository.GetPurchaseProposals(customerId);
+            if (!purchaseProposals.Any())
+                throw new Exception("Not found any purachase proposals.");
+            return purchaseProposals;
         }
     }
 }

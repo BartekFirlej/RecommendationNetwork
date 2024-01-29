@@ -46,8 +46,33 @@
     </table>
 }
 
+@if (successMessage != null)
+{
+    <h3>Proposals history</h3>
+    <table class="table">
+        <thead>
+            <tr>
+                <th class="center-align">Date</th>
+                <th class="center-align">Product Type Name</th>
+                <th class="center-align">Product Name</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var proposal in purchaseProposalHistory.OrderByDescending(p => p.Date))
+            {
+                <tr>
+                    <td class="center-align">@proposal.Date.ToString("yyyy-MM-dd")</td>
+                    <td class="center-align">@proposal.ProductTypeName</td>
+                    <td class="center-align">@proposal.ProductName</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
 @code {
     private PurchaseProposalResponse purchaseProposal;
+    private List<PurchaseProposalResponse> purchaseProposalHistory;
     private PurchaseProposalRequest purchaseProposalRequest = new PurchaseProposalRequest();
     private string errorMessage;
     private string successMessage;
@@ -68,6 +93,7 @@
             try
             {
                 purchaseProposal = await PurchaseProposalsService.GetPurchaseProposalAsync(customerRequest);
+                purchaseProposalHistory = await PurchaseProposalsService.GetCustomerPurchaseProposalsAsync(customerRequest.CustomerId);
                 successMessage = $"Purchase proposal for customer ID {customerRequest.CustomerId} successfully retrieved.";
             }
             catch (Exception ex)

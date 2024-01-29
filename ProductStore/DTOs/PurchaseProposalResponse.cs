@@ -2,9 +2,11 @@
 {
     public class PurchaseProposalResponse
     {
-        public int Id { get; set; }
-        public DateTime Date { get; set; }
+        public DateTimeOffset Date { get; set; }
         public int CustomerId { get; set; }
         public int ProductId { get; set; }
+        public int ProductTypeId { get; set; }
+        public string ProductName { get; set; }
+        public string ProductTypeName { get; set; }
     }
 }

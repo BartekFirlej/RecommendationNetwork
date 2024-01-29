@@ -7,6 +7,7 @@ namespace ProductStore.Repositories
     public interface IPurchaseProposalRepository
     {
         public Task<ICollection<PurchaseProposalResponse>> GetPurchaseProposals();
+        public Task<ICollection<PurchaseProposalResponse>> GetPurchaseProposals(int customerId);
         public Task<PurchaseProposal> GetPurchaseProposal(int id);
         public Task<PurchaseProposalResponse> GetPurchaseProposalResponse(int id);
         public Task<PurchaseProposal> PostPurchaseProposal(PurchaseProposalRequest purchaseProposalToAdd);
@@ -24,12 +25,16 @@ namespace ProductStore.Repositories
         public async Task<ICollection<PurchaseProposalResponse>> GetPurchaseProposals()
         {
             return await _dbContext.PurchaseProposals
+                .Include(p => p.Product)
+                .Include(p => p.Product.ProductType)
                 .Select(p => new PurchaseProposalResponse
                 {
-                    Id = p.Id,
                     Date = p.Date,
                     CustomerId = p.CustomerId,
-                    ProductId = p.ProductId
+                    ProductId = p.ProductId,
+                    ProductName = p.Product.Name,
+                    ProductTypeId = p.Product.ProductTypeId,
+                    ProductTypeName = p.Product.ProductType.Name
                 }).ToListAsync();
         }
 
@@ -43,14 +48,18 @@ namespace ProductStore.Repositories
         public async Task<PurchaseProposalResponse> GetPurchaseProposalResponse(int id)
         {
             return await _dbContext.PurchaseProposals
+                .Include(p => p.Product)
+                .Include(p => p.Product.ProductType)
+                .Where(p => p.Id == id)
                 .Select(p => new PurchaseProposalResponse
                 {
-                    Id = p.Id,
                     Date = p.Date,
                     CustomerId = p.CustomerId,
-                    ProductId = p.ProductId
+                    ProductId = p.ProductId,
+                    ProductName = p.Product.Name,
+                    ProductTypeId = p.Product.ProductTypeId,
+                    ProductTypeName = p.Product.ProductType.Name
                 })
-                .Where(p => p.Id == id)
                 .FirstOrDefaultAsync();
         }
 
@@ -72,6 +81,24 @@ namespace ProductStore.Repositories
             _dbContext.Remove(purchaseProposalToDelete);
             await _dbContext.SaveChangesAsync();
             return purchaseProposalToDelete;
+        }
+
+        public async Task<ICollection<PurchaseProposalResponse>> GetPurchaseProposals(int customerId)
+        {
+            return await _dbContext.PurchaseProposals
+                .Include(p => p.Product)
+                .Include(p => p.Product.ProductType)
+                .Select(p => new PurchaseProposalResponse
+                {
+                    Date = p.Date,
+                    CustomerId = p.CustomerId,
+                    ProductId = p.ProductId,
+                    ProductName = p.Product.Name,
+                    ProductTypeId = p.Product.ProductTypeId,
+                    ProductTypeName = p.Product.ProductType.Name
+                })
+                .Where(p => p.CustomerId == customerId)
+                .ToListAsync();
         }
     }
 }

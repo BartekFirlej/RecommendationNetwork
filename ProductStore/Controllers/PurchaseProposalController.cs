@@ -43,6 +43,20 @@ namespace ProductStore.Controllers
             }
         }
 
+        [HttpGet("customers/{customerid}")]
+        public async Task<IActionResult> GetCustomersPurchaseProposasl(int customerid)
+        {
+            try
+            {
+                var purchaseProposal = await _purchaseProposalService.GetPurchaseProposals(customerid);
+                return Ok(purchaseProposal);
+            }
+            catch (Exception e)
+            {
+                return NotFound(e.Message);
+            }
+        }
+
         [HttpPost]
         public async Task<IActionResult> PostPurchaseProposal(PurchaseProposalRequest purchaseProposalToAdd)
         {
@@ -70,6 +84,5 @@ namespace ProductStore.Controllers
                 return NotFound(e.Message);
             }
         }
-
     }
 }

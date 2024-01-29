@@ -1,4 +1,5 @@
-﻿using System.Net.Http;
+﻿using System.Net;
+using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
 using BlazorServerFrontend.DTOs;
@@ -24,8 +25,19 @@ namespace BlazorServerFrontend.Services
             }
             else
             {
-                // Handle the error or throw an exception
                 throw new HttpRequestException($"Invalid response: {response.StatusCode}");
+            }
+        }
+
+        public async Task<List<PurchaseProposalResponse>> GetCustomerPurchaseProposalsAsync(int customerId)
+        {
+            try
+            {
+                return await _httpClient.GetFromJsonAsync<List<PurchaseProposalResponse>>(String.Format("http://localhost:8082/purchase-proposals/customers/{0}", customerId));
+            }
+            catch (HttpRequestException e) when (e.StatusCode == HttpStatusCode.NotFound)
+            {
+                return new List<PurchaseProposalResponse>();
             }
         }
     }
