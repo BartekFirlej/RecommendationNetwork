@@ -16,6 +16,9 @@ a, .btn-link {
     color: #fff;
     background-color: #1b6ec2;
     border-color: #1861ac;
+    margin-top: 10px;
+    margin-left: 10px;
+    margin-bottom: 10px;
 }
 
 .content {
@@ -71,8 +74,8 @@ a, .btn-link {
     background-color: transparent;
     border: 1px solid blue;
     color: blue;
-    padding: 3px 6px; /* Adjust padding as needed */
+    padding: 3px 6px; 
     cursor: pointer;
-    font-size: 12px; /* Adjust font size as needed */
-    margin-left: 5px; /* Add margin for spacing */
+    font-size: 12px; 
+    margin-left: 5px; 
 }

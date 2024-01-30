@@ -19,11 +19,9 @@ public class CartController : ControllerBase
     {
         List<CartItem> existingItems = new List<CartItem>();
 
-        // Check if the key exists
         var serializedValue = _redisDB.StringGet(key);
         if (!serializedValue.IsNullOrEmpty)
         {
-            // Deserialize the existing list
             existingItems = JsonSerializer.Deserialize<List<CartItem>>(serializedValue);
         }
 
@@ -32,17 +30,14 @@ public class CartController : ControllerBase
             var existingItem = existingItems.FirstOrDefault(i => i.ItemId == newItem.ItemId);
             if (existingItem != null)
             {
-                // Sum the quantities if item already exists
                 existingItem.ItemQuantity += newItem.ItemQuantity;
             }
             else
             {
-                // Add new item if it doesn't exist
                 existingItems.Add(newItem);
             }
         }
 
-        // Serialize and save the updated list
         serializedValue = JsonSerializer.Serialize(existingItems);
         _redisDB.StringSet(key, serializedValue);
 
