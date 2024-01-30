@@ -4,7 +4,7 @@ using ProductStore.Models;
 using AutoMapper;
 using System.Text;
 using System.Text.Json;
-
+using System.Security.Cryptography;
 
 namespace ProductStore.Services
 {
@@ -15,6 +15,8 @@ namespace ProductStore.Services
         public Task<Customer> GetCustomer(int id);
         public Task<CustomerResponse> PostCustomer(CustomerRequest customerToAdd);
         public Task<CustomerResponse> DeleteCustomer(int id);
+        public Task<CustomerAuthenticationResult> CustomerAuthentication(CustomerAuthentication customerCredentials);
+        public Task<CustomerAuthenticationResult> CustomerAuthenticationHash(CustomerAuthenticationHash customerCredentialsHash);
     }
     public class CustomerService : ICustomerService
     {
@@ -59,6 +61,7 @@ namespace ProductStore.Services
         {
             if (customerToAdd.RecommenderId != null)
                 await GetCustomer((int)customerToAdd.RecommenderId);
+            customerToAdd.PIN = ComputeSha256Hash(customerToAdd.PIN);
             var addedCustomer = await _customerRepository.PostCustomer(customerToAdd);
             var addedCustomerResponse =  _mapper.Map<CustomerResponse>(addedCustomer);
             _rabbitMqPublisher.PublishMessage(addedCustomerResponse, "customerQueue");
@@ -74,6 +77,38 @@ namespace ProductStore.Services
             await _customerRepository.DeleteCustomer(customerToDelete);
             await _httpClient.DeleteAsync(String.Format("http://host.docker.internal:8082/cart/{0}", customerToDelete.Id));
             return _mapper.Map<CustomerResponse>(customerToDelete);
+        }
+
+        public async Task<CustomerAuthenticationResult> CustomerAuthentication(CustomerAuthentication customerCredentials)
+        {
+            customerCredentials.PIN = ComputeSha256Hash(customerCredentials.PIN);
+            var customer = await _customerRepository.AuthenticateCustomer(customerCredentials);
+            if (customer == null)
+                return new CustomerAuthenticationResult { Authenticated = false, CustomerId = 0 };
+            return new CustomerAuthenticationResult { Authenticated = true, CustomerId = customer.Id };
+        }
+
+        public async Task<CustomerAuthenticationResult> CustomerAuthenticationHash(CustomerAuthenticationHash customerCredentialsHash)
+        {
+            var customer = await _customerRepository.AuthenticateCustomerHash(customerCredentialsHash);
+            if (customer == null)
+                return new CustomerAuthenticationResult { Authenticated = false, CustomerId = 0 };
+            return new CustomerAuthenticationResult { Authenticated = true, CustomerId = customer.Id };
+        }
+
+        public static string ComputeSha256Hash(string rawData)
+        {  
+            using (SHA256 sha256Hash = SHA256.Create())
+            { 
+                byte[] bytes = sha256Hash.ComputeHash(Encoding.UTF8.GetBytes(rawData));
+
+                StringBuilder builder = new StringBuilder();
+                for (int i = 0; i < bytes.Length; i++)
+                {
+                    builder.Append(bytes[i].ToString("x2"));
+                }
+                return builder.ToString();
+            }
         }
     }
 }

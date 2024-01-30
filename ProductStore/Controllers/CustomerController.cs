@@ -59,6 +59,36 @@ namespace ProductStore.Controllers
             return Ok(customer);
         }
 
+        [HttpPost("auth")]
+        public async Task<IActionResult> AuthenticateCustomer(CustomerAuthentication customerCredentials)
+        {
+            CustomerAuthenticationResult result;
+            try
+            {
+                result = await _customerService.CustomerAuthentication(customerCredentials);
+            }
+            catch (Exception ex)
+            {
+                return NotFound(ex.Message);
+            }
+            return Ok(result);
+        }
+
+        [HttpPost("auth/hash")]
+        public async Task<IActionResult> AuthenticateCustomerHash(CustomerAuthenticationHash customerCredentials)
+        {
+            CustomerAuthenticationResult result;
+            try
+            {
+                result = await _customerService.CustomerAuthenticationHash(customerCredentials);
+            }
+            catch (Exception ex)
+            {
+                return NotFound(ex.Message);
+            }
+            return Ok(result);
+        }
+
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCustomer(int id)
         {

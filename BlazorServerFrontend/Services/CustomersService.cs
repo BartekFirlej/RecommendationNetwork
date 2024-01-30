@@ -38,5 +38,19 @@ namespace BlazorServerFrontend.Services
                 return new CustomerResponse();
             }
         }
+
+        public async Task<CustomerResponse> PostCustomerAsync(CustomerRequest customerToAdd)
+        {
+            var response = await _httpClient.PostAsJsonAsync("http://localhost:8082/customers", customerToAdd);
+
+            if (response.IsSuccessStatusCode)
+            {
+                return await response.Content.ReadFromJsonAsync<CustomerResponse>();
+            }
+            else
+            {
+                throw new HttpRequestException($"Invalid response: {response.StatusCode}");
+            }
+        }
     }
 }

@@ -2,11 +2,130 @@
 
 @using BlazorServerFrontend.Services
 @using BlazorServerFrontend.DTOs
+@using System.ComponentModel.DataAnnotations;
 
-@inject ProductsService ProductsService
 
-<p> Strona do rejestracji</p>
+@inject AuthService AuthService
+@inject CustomersService CustomersService
+@inject VoivodeshipService VoivodeshipService
+@inject NavigationManager NavigationManager
+
+<h3>Register</h3>
+
+<EditForm Model="@customerRequest" OnValidSubmit="HandleRegister">
+    <DataAnnotationsValidator />
+
+    <div class="form-group">
+        <label for="name">Name:</label>
+        <InputText id="name" class="form-control" @bind-Value="customerRequest.Name" />
+    </div>
+
+    <div class="form-group">
+        <label for="lastName">Last Name:</label>
+        <InputText id="lastName" class="form-control" @bind-Value="customerRequest.LastName" />
+    </div>
+
+    <div class="form-group">
+        <label for="email">Email:</label>
+        <InputText id="email" class="form-control" @bind-Value="customerRequest.Email" />
+    </div>
+
+    <div class="form-group">
+        <label for="pin">PIN:</label>
+        <InputText type="password" id="pin" class="form-control" @bind-Value="customerRequest.PIN" />
+    </div>
+
+    <div class="form-group">
+        <label for="town">Town:</label>
+        <InputText id="town" class="form-control" @bind-Value="customerRequest.Town" />
+    </div>
+
+    <div class="form-group">
+        <label for="zipCode">Zip Code:</label>
+        <InputText id="zipCode" class="form-control" @bind-Value="customerRequest.ZipCode" />
+    </div>
+
+    <div class="form-group">
+        <label for="street">Street:</label>
+        <InputText id="street" class="form-control" @bind-Value="customerRequest.Street" />
+    </div>
+
+    <div class="form-group">
+        <label for="country">Country:</label>
+        <InputText id="country" class="form-control" @bind-Value="customerRequest.Country" />
+    </div>
+
+    <div class="form-group">
+        <label for="voivodeship">Voivodeship:</label>
+        <InputSelect id="voivodeship" class="form-control" @bind-Value="customerRequest.VoivodeshipId">
+            <option value="">Select Voivodeship</option>
+            @foreach (var voivodeship in voivodeships)
+            {
+                <option value="@voivodeship.Id">@voivodeship.Name</option>
+            }
+        </InputSelect>
+    </div>
+
+    <div class="form-group">
+        <label for="recommender">Recommender:</label>
+        <InputSelect id="recommender" class="form-control" @bind-Value="customerRequest.RecommenderId">
+            <option value="">(None)</option>
+            @foreach (var customer in customers)
+            {
+                <option value="@customer.Id.ToString()">@customer.Name @customer.LastName</option>
+            }
+        </InputSelect>
+    </div>
+
+    <button type="submit" class="btn btn-primary" disabled="@(!editContext.Validate())">Register</button>
+</EditForm>
+
+@if (successMessage != null)
+{
+    <div class="alert alert-success">@successMessage</div>
+}
+
+@if (errorMessage != null)
+{
+    <div class="alert alert-danger">@errorMessage</div>
+}
 
 @code {
+    private CustomerRequest customerRequest = new();
+    private EditContext editContext;
+    private List<VoivodeshipResponse> voivodeships = new();
+    private List<CustomerResponse> customers = new();
+    private string errorMessage;
+    private string successMessage;
 
+    protected override void OnInitialized()
+    {
+        editContext = new EditContext(customerRequest);
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            voivodeships = await VoivodeshipService.GetVoivodeshipsAsync();
+            customers = await CustomersService.GetCustomersAsync();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error fetching data: {ex.Message}";
+        }
+    }
+
+    private async Task HandleRegister()
+    {
+        try
+        {
+            await CustomersService.PostCustomerAsync(customerRequest);   
+            NavigationManager.NavigateTo("/products");
+        }
+        catch(Exception ex)
+        {
+            errorMessage = $"Error registering: {ex.Message}";
+        }
+    }
 }

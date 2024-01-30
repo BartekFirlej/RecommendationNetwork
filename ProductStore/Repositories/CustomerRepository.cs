@@ -11,6 +11,8 @@ namespace ProductStore.Repositories
         public Task<Customer> GetCustomer(int id);
         public Task<Customer> DeleteCustomer(Customer customerToDelete);
         public Task<Customer> PostCustomer(CustomerRequest customerToAdd);
+        public Task<Customer> AuthenticateCustomer(CustomerAuthentication customerCredentials);
+        public Task<Customer> AuthenticateCustomerHash(CustomerAuthenticationHash customerCredentials);
     }
     public class CustomerRepository : ICustomerRepository
     {
@@ -29,6 +31,7 @@ namespace ProductStore.Repositories
                     Id = c.Id,
                     Name = c.Name,
                     LastName = c.LastName,
+                    Email = c.Email,
                     Country = c.Country,
                     ZipCode = c.ZipCode,
                     Street = c.Street,
@@ -49,6 +52,7 @@ namespace ProductStore.Repositories
                     Id = c.Id,
                     Name = c.Name,
                     LastName = c.LastName,
+                    Email = c.Email,
                     Country = c.Country,
                     ZipCode = c.ZipCode,
                     Street = c.Street,
@@ -73,6 +77,8 @@ namespace ProductStore.Repositories
             {
                 Name = customerToAdd.Name,
                 LastName = customerToAdd.LastName,
+                Email = customerToAdd.Email,
+                PINHash = customerToAdd.PIN,
                 Country = customerToAdd.Country,
                 ZipCode = customerToAdd.ZipCode,
                 Street = customerToAdd.Street,
@@ -90,6 +96,20 @@ namespace ProductStore.Repositories
             _dbContext.Customers.Remove(customerToDelete);
             await _dbContext.SaveChangesAsync();
             return customerToDelete;
+        }
+
+        public async Task<Customer> AuthenticateCustomer(CustomerAuthentication customerCredentials)
+        {
+            return await _dbContext.Customers
+                .Where(c => c.Email == customerCredentials.Email && c.PINHash == customerCredentials.PIN)
+                .FirstOrDefaultAsync();
+        }
+
+        public async Task<Customer> AuthenticateCustomerHash(CustomerAuthenticationHash customerCredentials)
+        {
+            return await _dbContext.Customers
+                .Where(c => c.Email == customerCredentials.Email && c.PINHash == customerCredentials.PINHASH)
+                .FirstOrDefaultAsync();
         }
     }
 }

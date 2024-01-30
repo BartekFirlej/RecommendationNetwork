@@ -46,6 +46,14 @@ public partial class StoreDbContext : DbContext
             entity.Property(e => e.Name)
                 .HasMaxLength(20)
                 .IsUnicode(false);
+            entity.Property(e => e.Email)
+                .HasMaxLength(25)
+                .HasColumnName("Email")
+                .IsUnicode(false);
+            entity.Property(e => e.PINHash)
+                .HasColumnName("PINHash")
+                .HasMaxLength(64)
+                .IsUnicode(false);
             entity.Property(e => e.Street)
                 .HasMaxLength(30)
                 .IsUnicode(false);

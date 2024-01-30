@@ -1,6 +1,4 @@
 using BlazorServerFrontend.Services;
-using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,6 +13,8 @@ builder.Services.AddSingleton<RecommendationsService>();
 builder.Services.AddSingleton<PurchasesService>();
 builder.Services.AddSingleton<PurchaseProposalsService>();
 builder.Services.AddSingleton<CartService>();
+builder.Services.AddSingleton<VoivodeshipService>();
+builder.Services.AddSingleton<AuthService>();
 
 var app = builder.Build();
 
