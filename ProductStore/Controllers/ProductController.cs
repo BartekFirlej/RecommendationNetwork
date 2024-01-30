@@ -42,6 +42,20 @@ namespace ProductStore.Controllers
             }
         }
 
+        [HttpGet("{index}/{size}")]
+        public async Task<IActionResult> GetProductsPaged(int index, int size)
+        {
+            try
+            {
+                var products = await _productService.GetProductsPaged(index, size);
+                return Ok(products);
+            }
+            catch (Exception e)
+            {
+                return NotFound(e.Message);
+            }
+        }
+
         [HttpPost]
         public async Task<IActionResult> PostProduct(ProductRequest productToAdd)
         {

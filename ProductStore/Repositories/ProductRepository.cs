@@ -7,6 +7,7 @@ namespace ProductStore.Repositories
     public interface IProductRepository
     {
         public Task<ICollection<ProductResponse>> GetProducts();
+        public Task<PagedList<ProductResponse>> GetProductsPaged(int page, int size);
         public Task<ICollection<ProductResponse>> GetProductsByIds(IdsListDTO ids);
         public Task<ProductResponse> GetProductResponse(int id);
         public Task<Product> GetProduct(int id);
@@ -36,7 +37,23 @@ namespace ProductStore.Repositories
             return products;
         }
 
-
+        public async Task<PagedList<ProductResponse>> GetProductsPaged(int page, int size)
+        {
+            return await PagedList<ProductResponse>.Create(
+                    _dbContext.Products
+                   .Include(p => p.ProductType)
+                   .Select(p => new ProductResponse
+                   {
+                       Id = p.Id,
+                       Name = p.Name,
+                       Price = p.Price,
+                       ProductTypeId = p.ProductTypeId,
+                       ProductTypeName = p.ProductType.Name
+                   })
+                   .OrderBy(p => p.Id)
+                   ,page
+                   ,size);
+        }
         public async Task<ICollection<ProductResponse>> GetProductsByIds(IdsListDTO ids)
         {
             var products = await _dbContext.Products

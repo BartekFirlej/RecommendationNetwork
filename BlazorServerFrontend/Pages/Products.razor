@@ -8,7 +8,6 @@
 
 <h1>Available Products</h1>
 
-
 <button class="btn btn-primary float-right">
     <NavLink class="nav-link" href="addproduct" style="color: white;">Add product</NavLink>
 </button>
@@ -40,7 +39,7 @@
     <tbody>
         @if (products != null)
         {
-            @foreach (var product in products)
+            @foreach (var product in products.PagedItems)
             {
                 <tr>
                     <td class="center-align">@product.Id</td>
@@ -57,23 +56,54 @@
                 </tr>
             }
         }
-
     </tbody>
 </table>
 
+<div class="pagination">
+    <button class="btn btn-primary" @onclick="() => PreviousPage()" disabled="@IsPreviousButtonDisabled">Previous Page</button>
+    <button class="btn btn-primary" @onclick="() => NextPage()" disabled="@IsNextButtonDisabled">Next Page</button>
+
+</div>
+
 @code {
-    private List<ProductResponse> products;
     private Dictionary<int, int> productQuantities = new Dictionary<int, int>();
     private string errorMessage;
     private string successMessage;
+    private int itemsPerPage = 10;
+    private int currentPage = 1;
+    private PagedList<ProductResponse> products = new PagedList<ProductResponse>()
+        {
+            HasNextPage = true,
+            PagedItems = new List<ProductResponse>(),
+            PageIndex = 1,
+            PageSize = 10
+        };
+    private bool IsPreviousButtonDisabled => currentPage <= 1;
+    private bool IsNextButtonDisabled => !products.HasNextPage;
+
+    private async Task FetchProductsAsync()
+    {
+        try
+        {
+            products = await ProductsService.GetProductsPagedAsync(currentPage, itemsPerPage);
+            if (products != null)
+            {
+                foreach (var product in products.PagedItems)
+                {
+                    productQuantities[product.Id] = 1;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error loading products: {ex.Message}";
+        }
+    }
 
     protected override async Task OnInitializedAsync()
     {
-        products = await ProductsService.GetProductsAsync();
-        foreach (var product in products)
-        {
-            productQuantities[product.Id] = 1;
-        }
+        await FetchProductsAsync();
+        StateHasChanged();
     }
 
     private void AddToCart(ProductResponse product, int quantity)
@@ -99,5 +129,23 @@
         StateHasChanged();
     }
 
+    private async void PreviousPage()
+    {
+        if (currentPage > 1)
+        {
+            currentPage--;
+            await FetchProductsAsync();
+            StateHasChanged();
+        }
+    }
 
+    private async void NextPage()
+    {
+        if (products.HasNextPage)
+        {
+            currentPage++;
+            await FetchProductsAsync();
+            StateHasChanged();
+        }
+    }
 }

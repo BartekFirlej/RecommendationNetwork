@@ -10,6 +10,7 @@ namespace ProductStore.Services
     public interface IProductService
     {
         public Task<ICollection<ProductResponse>> GetProducts();
+        public Task<PagedList<ProductResponse>> GetProductsPaged(int page, int size);
         public Task<ICollection<ProductResponse>> GetProductsByIds(IdsListDTO ids);
         public Task<ProductResponse> GetProductResponse(int id);
         public Task<Product> GetProduct(int id);
@@ -36,6 +37,14 @@ namespace ProductStore.Services
         {
             var products = await _productRepository.GetProducts();
             if (!products.Any())
+                throw new Exception("Not found any products.");
+            return products;
+        }
+
+        public async Task<PagedList<ProductResponse>> GetProductsPaged(int page, int size)
+        {
+            var products = await _productRepository.GetProductsPaged(page, size);
+            if (!products.PagedItems.Any())
                 throw new Exception("Not found any products.");
             return products;
         }
