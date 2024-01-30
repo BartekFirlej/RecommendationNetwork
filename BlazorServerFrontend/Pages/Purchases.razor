@@ -31,7 +31,7 @@
                     <td class="center-align">
                         @(purchase.RecommenderName != null ? purchase.RecommenderName + " " + purchase.RecommenderLastName : "")
                     </td>
-                    <td class="center-align">@purchase.Amount</td>
+                    <td class="center-align">@purchase.Amount.ToString("C")</td>
                     <td class="center-align">
                         <button class="btn btn-primary" @onclick="() => AddToCart(purchase)">View details</button>
                     </td>
