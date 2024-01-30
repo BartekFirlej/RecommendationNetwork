@@ -6,8 +6,8 @@ namespace ProductStore.Repositories
 {
     public interface ICustomerRepository
     {
-        public Task<ICollection<CustomerResponse>> GetCustomers();
-        public Task<CustomerResponse> GetCustomerResponse(int id);
+        public Task<ICollection<CustomerWithVoivodeshipResponse>> GetCustomers();
+        public Task<CustomerWithVoivodeshipResponse> GetCustomerResponse(int id);
         public Task<Customer> GetCustomer(int id);
         public Task<Customer> DeleteCustomer(Customer customerToDelete);
         public Task<Customer> PostCustomer(CustomerRequest customerToAdd);
@@ -20,11 +20,11 @@ namespace ProductStore.Repositories
             _dbContext = dbContext;
         }
 
-        public async Task<ICollection<CustomerResponse>> GetCustomers()
+        public async Task<ICollection<CustomerWithVoivodeshipResponse>> GetCustomers()
         {
             return await _dbContext.Customers
                 .Include(c => c.Voivodeship)
-                .Select(c => new CustomerResponse
+                .Select(c => new CustomerWithVoivodeshipResponse
                 {
                     Id = c.Id,
                     Name = c.Name,
@@ -40,11 +40,11 @@ namespace ProductStore.Repositories
                 .ToListAsync();
         }
 
-        public async Task<CustomerResponse> GetCustomerResponse(int id)
+        public async Task<CustomerWithVoivodeshipResponse> GetCustomerResponse(int id)
         {
             return await _dbContext.Customers
                 .Include(c => c.Voivodeship)
-                .Select(c => new CustomerResponse
+                .Select(c => new CustomerWithVoivodeshipResponse
                 {
                     Id = c.Id,
                     Name = c.Name,

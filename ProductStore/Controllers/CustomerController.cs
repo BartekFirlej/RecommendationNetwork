@@ -17,7 +17,7 @@ namespace ProductStore.Controllers
         [HttpGet]
         public async Task<IActionResult> GetCustomers()
         {
-            ICollection<CustomerResponse> customers;
+            ICollection<CustomerWithVoivodeshipResponse> customers;
             try
             {
                 customers = await _customerService.GetCustomers();
@@ -32,7 +32,7 @@ namespace ProductStore.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetCustomer(int id)
         {
-            CustomerResponse customer;
+            CustomerWithVoivodeshipResponse customer;
             try
             {
                 customer = await _customerService.GetCustomerResponse(id);

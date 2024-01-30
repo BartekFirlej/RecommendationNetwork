@@ -10,8 +10,8 @@ namespace ProductStore.Services
 {
     public interface ICustomerService
     {
-        public Task<ICollection<CustomerResponse>> GetCustomers();
-        public Task<CustomerResponse> GetCustomerResponse(int id);
+        public Task<ICollection<CustomerWithVoivodeshipResponse>> GetCustomers();
+        public Task<CustomerWithVoivodeshipResponse> GetCustomerResponse(int id);
         public Task<Customer> GetCustomer(int id);
         public Task<CustomerResponse> PostCustomer(CustomerRequest customerToAdd);
         public Task<CustomerResponse> DeleteCustomer(int id);
@@ -31,7 +31,7 @@ namespace ProductStore.Services
             _httpClient = httpClient;
         }
 
-        public async Task<ICollection<CustomerResponse>> GetCustomers()
+        public async Task<ICollection<CustomerWithVoivodeshipResponse>> GetCustomers()
         {
             var customers = await _customerRepository.GetCustomers();
             if (customers.Count == 0)
@@ -47,7 +47,7 @@ namespace ProductStore.Services
             return customer;
         }
 
-        public async Task<CustomerResponse> GetCustomerResponse(int id)
+        public async Task<CustomerWithVoivodeshipResponse> GetCustomerResponse(int id)
         {
             var customer = await _customerRepository.GetCustomerResponse(id);
             if (customer == null)
