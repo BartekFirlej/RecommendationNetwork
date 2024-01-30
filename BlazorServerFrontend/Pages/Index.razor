@@ -1,9 +1,25 @@
 ﻿@page "/"
 
-<PageTitle>Index</PageTitle>
+<h3>Hello in my shop!</h3>
 
-<h1>Hello, world!</h1>
+<p>If you are here for the first time, please register:</p>
+<button class="btn btn-primary" @onclick="NavigateToRegister">Register</button>
 
-Welcome to your new app.
+<p>If you are our customer already, please login:</p>
+<button class="btn btn-secondary" @onclick="NavigateToLogin">Login</button>
 
-<SurveyPrompt Title="How is Blazor working for you?" />
+@code {
+    // Dependency injection for NavigationManager
+    [Inject]
+    public NavigationManager NavigationManager { get; set; }
+
+    private void NavigateToRegister()
+    {
+        NavigationManager.NavigateTo("/register");
+    }
+
+    private void NavigateToLogin()
+    {
+        NavigationManager.NavigateTo("/login");
+    }
+}

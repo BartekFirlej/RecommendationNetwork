@@ -1,12 +1,75 @@
-﻿@page "/in"
+﻿@page "/login"
 
 @using BlazorServerFrontend.Services
 @using BlazorServerFrontend.DTOs
 
 @inject ProductsService ProductsService
+@inject AuthService AuthService
+@inject NavigationManager NavigationManager
 
-<p> Strona do logowywania</p>
+<h3>Login</h3>
+
+<EditForm Model="@customerRequest" OnValidSubmit="HandleRegister">
+    <DataAnnotationsValidator />
+
+    <div class="form-group">
+        <label for="email">Email:</label>
+        <InputText id="email" class="form-control" @bind-Value="customerRequest.Email" />
+    </div>
+
+    <div class="form-group">
+        <label for="pin">PIN:</label>
+        <InputText type="password" id="pin" class="form-control" @bind-Value="customerRequest.PIN" />
+    </div>
+
+    <button type="submit" class="btn btn-primary" disabled="@(!editContext.Validate() || hasBeenClicked)">Login</button>
+</EditForm>
+
+@if (successMessage != null)
+{
+    <div class="alert alert-success">@successMessage</div>
+}
+
+@if (errorMessage != null)
+{
+    <div class="alert alert-danger">@errorMessage</div>
+}
 
 @code {
+    private CustomerAuthentication customerRequest = new();
+    private CustomerAuthenticationResult authenticationResult = new();
+    private EditContext editContext;
+    private string errorMessage;
+    private string successMessage;
+    private bool hasBeenClicked;
 
+    protected override void OnInitialized()
+    {
+        editContext = new EditContext(customerRequest);
+    }
+
+    private async Task HandleRegister()
+    {
+        try
+        {
+            errorMessage = null;
+            successMessage = null;
+            authenticationResult = await AuthService.AuthCustomer(customerRequest);
+            if (authenticationResult.Authenticated)
+            {
+                successMessage = "Login successful";
+                hasBeenClicked = true;
+            }
+            else
+            {
+                errorMessage = "Login not successful";
+            }
+
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "Login not successful";
+        }
+        StateHasChanged();
+    }
 }
