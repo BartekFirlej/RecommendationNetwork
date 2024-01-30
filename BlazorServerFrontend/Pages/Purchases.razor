@@ -8,6 +8,11 @@
 
 <h1>Purchase History</h1>
 
+@if (errorMessage != null)
+{
+    <div class="alert alert-danger">@errorMessage</div>
+}
+
 <table class="table">
     <thead>
         <tr>
@@ -22,7 +27,7 @@
     <tbody>
         @if (purchases != null)
         {
-            @foreach (var purchase in purchases)
+            @foreach (var purchase in purchases.PagedItems)
             {
                 <tr>
                     <td class="center-align">@purchase.Id</td>
@@ -41,17 +46,65 @@
     </tbody>
 </table>
 
+<div class="pagination">
+    <button class="btn btn-primary" @onclick="() => PreviousPage()" disabled="@IsPreviousButtonDisabled">Previous Page</button>
+    <button class="btn btn-primary" @onclick="() => NextPage()" disabled="@IsNextButtonDisabled">Next Page</button>
+</div>
 
 @code {
-    private List<PurchaseResponse> purchases;
+    private int itemsPerPage = 10;
+    private int currentPage = 1;
+    private PagedList<PurchaseResponse> purchases = new PagedList<PurchaseResponse>()
+        {
+            HasNextPage = true,
+            PagedItems = new List<PurchaseResponse>(),
+            PageIndex = 1,
+            PageSize = 10
+        };
+    private bool IsPreviousButtonDisabled => currentPage <= 1;
+    private bool IsNextButtonDisabled => !purchases.HasNextPage;
+    private string errorMessage;
+
+    private async Task FetchProductsAsync()
+    {
+        try
+        {
+            purchases = await PurchasesService.GetPurchasesPagedAsync(currentPage, itemsPerPage);
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error loading purchases: {ex.Message}";
+        }
+    }
 
     protected override async Task OnInitializedAsync()
     {
-        purchases = await PurchasesService.GetPurchasesAsync();
+        await FetchProductsAsync();
+        StateHasChanged();
     }
 
     private void AddToCart(PurchaseResponse purchase)
     {
         NavigationManager.NavigateTo($"/purchasedetails/{purchase.Id}");
+    }
+
+    private async void PreviousPage()
+    {
+        if (currentPage > 1)
+        {
+            currentPage--;
+            await FetchProductsAsync();
+            StateHasChanged();
+        }
+    }
+
+    private async void NextPage()
+    {
+        if (purchases.HasNextPage)
+        {
+            currentPage++;
+            await FetchProductsAsync();
+            StateHasChanged();
+        }
     }
 }

@@ -28,6 +28,42 @@ namespace BlazorServerFrontend.Services
             }
         }
 
+        public async Task<PagedList<PurchaseResponse>> GetPurchasesPagedAsync(int index, int size)
+        {
+            try
+            {
+                return await _httpClient.GetFromJsonAsync<PagedList<PurchaseResponse>>(String.Format("http://localhost:8082/purchases/paged/{0}/{1}",index, size));
+            }
+            catch (HttpRequestException e) when (e.StatusCode == HttpStatusCode.NotFound)
+            {
+                return new PagedList<PurchaseResponse>
+                {
+                    HasNextPage = false,
+                    PagedItems = new List<PurchaseResponse>(),
+                    PageIndex = index,
+                    PageSize = size
+                };
+            }
+        }
+
+        public async Task<PagedList<PurchaseResponse>> GetCustomersPurchasesPagedAsync(int customerId,int index, int size)
+        {
+            try
+            {
+                return await _httpClient.GetFromJsonAsync<PagedList<PurchaseResponse>>(String.Format("http://localhost:8082/purchases/customer/{0}/paged/{1}/{2}",customerId, index, size));
+            }
+            catch (HttpRequestException e) when (e.StatusCode == HttpStatusCode.NotFound)
+            {
+                return new PagedList<PurchaseResponse>
+                {
+                    HasNextPage = false,
+                    PagedItems = new List<PurchaseResponse>(),
+                    PageIndex = index,
+                    PageSize = size
+                };
+            }
+        }
+
         public async Task<PurchaseWithDetailsResponse> GetPurchaseDetailsAsync(int purchaseId)
         {
             try

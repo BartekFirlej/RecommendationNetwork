@@ -8,7 +8,9 @@ namespace ProductStore.Services
     public interface IPurchaseService
     {
         public Task<ICollection<PurchaseResponse>> GetPurchases();
+        public Task<PagedList<PurchaseResponse>> GetPurchasesPaged(int page, int size);
         public Task<ICollection<PurchaseResponse>> GetCustomersPurchases(int customerId);
+        public Task<PagedList<PurchaseResponse>> GetCustomersPurchasesPaged(int customerId, int page, int size);
         public Task<PurchaseResponse> GetPurchaseResponse(int id);
         public Task<Purchase> GetPurchase(int id);
         public Task<PurchaseWithDetailsResponse> GetPurchaseWithDetails(int id);
@@ -51,6 +53,21 @@ namespace ProductStore.Services
             return purchases;
         }
 
+        public async Task<PagedList<PurchaseResponse>> GetPurchasesPaged(int page, int size)
+        {
+            var purchases = await _purchaseRepository.GetPurchasesPaged(page, size);
+            if (!purchases.PagedItems.Any())
+                throw new Exception("Not found any purchase.");
+            return purchases;
+        }
+
+        public async Task<PagedList<PurchaseResponse>> GetCustomersPurchasesPaged(int customerId, int page, int size)
+        {
+            var purchases = await _purchaseRepository.GetCustomersPurchasesPaged(customerId, page, size);
+            if (!purchases.PagedItems.Any())
+                throw new Exception(String.Format("Not found any purchase for customer with id {0}.", customerId));
+            return purchases;
+        }
         public async Task<PurchaseResponse> GetPurchaseResponse(int id)
         {
             var purchase = await _purchaseRepository.GetPurchaseResponse(id);

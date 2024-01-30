@@ -28,6 +28,20 @@ namespace ProductStore.Controllers
             }
         }
 
+        [HttpGet("paged/{index}/{size}")]
+        public async Task<IActionResult> GetPurchasesPaged(int index, int size)
+        {
+            try
+            {
+                var purchases = await _purchaseService.GetPurchasesPaged(index, size);
+                return Ok(purchases);
+            }
+            catch (Exception e)
+            {
+                return NotFound(e.Message);
+            }
+        }
+
         [HttpGet("details")]
         public async Task<IActionResult> GetPurchasesWithDetails()
         {
@@ -62,6 +76,20 @@ namespace ProductStore.Controllers
             try
             {
                 var purchase = await _purchaseService.GetCustomersPurchases(id);
+                return Ok(purchase);
+            }
+            catch (Exception e)
+            {
+                return NotFound(e.Message);
+            }
+        }
+
+        [HttpGet("customer/{id}/paged/{index}/{size}")]
+        public async Task<IActionResult> GetCustomersPurchasesPaged(int id, int index, int size)
+        {
+            try
+            {
+                var purchase = await _purchaseService.GetCustomersPurchasesPaged(id, index, size);
                 return Ok(purchase);
             }
             catch (Exception e)

@@ -7,7 +7,9 @@ namespace ProductStore.Repositories
     public interface IPurchaseRepository
     {
         public Task<ICollection<PurchaseResponse>> GetPurchases();
+        public Task<PagedList<PurchaseResponse>> GetPurchasesPaged(int page, int size);
         public Task<ICollection<PurchaseResponse>> GetCustomersPurchases(int customerId);
+        public Task<PagedList<PurchaseResponse>> GetCustomersPurchasesPaged(int customerId, int page, int size);
         public Task<PurchaseResponse> GetPurchaseResponse(int id);
         public Task<Purchase> GetPurchase(int id);
         public Task<Purchase> DeletePurchase(Purchase purchaseToDelete);
@@ -64,6 +66,57 @@ namespace ProductStore.Repositories
                 })
                .Where(p => p.CustomerId == customerId)
                .ToListAsync();
+        }
+
+        public async Task<PagedList<PurchaseResponse>> GetPurchasesPaged(int page, int size)
+        {
+            return await PagedList<PurchaseResponse>.Create(
+                _dbContext.PurchaseDetails
+                .Include(p => p.Purchase)
+                .Include(c => c.Purchase.Customer)
+                .Include(c => c.Purchase.Recommender)
+                .GroupBy(p => p.Purchase.Id)
+                .Select(group => new PurchaseResponse
+                {
+                    Id = group.Key,
+                    PurchaseDate = group.First().Purchase.PurchaseDate,
+                    CustomerId = group.First().Purchase.CustomerId,
+                    CustomerName = group.First().Purchase.Customer.Name,
+                    CustomerLastName = group.First().Purchase.Customer.LastName,
+                    RecommenderId = group.First().Purchase.RecommenderId,
+                    RecommenderName = group.First().Purchase.Recommender.Name,
+                    RecommenderLastName = group.First().Purchase.Recommender.LastName,
+                    Amount = group.Sum(item => item.PriceForOnePiece * item.Quantity)
+                })
+                .OrderBy(p => p.Id),
+                page,
+                size);
+        }
+
+        public async Task<PagedList<PurchaseResponse>> GetCustomersPurchasesPaged(int customerId, int page, int size)
+        {
+            return await PagedList<PurchaseResponse>.Create(
+                _dbContext.PurchaseDetails
+                .Include(p => p.Purchase)
+                .Include(c => c.Purchase.Customer)
+                .Include(c => c.Purchase.Recommender)
+                .GroupBy(p => p.Purchase.Id)
+                .Select(group => new PurchaseResponse
+                {
+                    Id = group.Key,
+                    PurchaseDate = group.First().Purchase.PurchaseDate,
+                    CustomerId = group.First().Purchase.CustomerId,
+                    CustomerName = group.First().Purchase.Customer.Name,
+                    CustomerLastName = group.First().Purchase.Customer.LastName,
+                    RecommenderId = group.First().Purchase.RecommenderId,
+                    RecommenderName = group.First().Purchase.Recommender.Name,
+                    RecommenderLastName = group.First().Purchase.Recommender.LastName,
+                    Amount = group.Sum(item => item.PriceForOnePiece * item.Quantity)
+                })
+               .Where(p => p.CustomerId == customerId)
+               .OrderBy(p => p.Id),
+                page,
+                size);
         }
 
         public async Task<Purchase> GetPurchase(int id)
@@ -193,5 +246,6 @@ namespace ProductStore.Repositories
                     }).ToList()
                 }).ToListAsync();
         }
+
     }
 }
